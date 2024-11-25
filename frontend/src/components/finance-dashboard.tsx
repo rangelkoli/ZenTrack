@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Type definitions
+// Type definitions remain the same
 interface Transaction {
   id: number;
   description: string;
@@ -33,6 +33,7 @@ interface FinancialSummary {
 }
 
 const FinanceDashboard: React.FC = () => {
+  // State definitions remain the same
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [newTransaction, setNewTransaction] = useState<TransactionFormData>({
     description: "",
@@ -55,13 +56,14 @@ const FinanceDashboard: React.FC = () => {
     "shopping",
   ];
 
+  // Functions remain the same
   useEffect(() => {
     fetchTransactions();
   }, []);
 
   const fetchTransactions = async (): Promise<void> => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/transactions");
+      const response = await fetch("http://localhost:5000/api/transactions");
       const data: Transaction[] = await response.json();
       setTransactions(data);
       calculateSummary(data);
@@ -92,7 +94,7 @@ const FinanceDashboard: React.FC = () => {
   ): Promise<void> => {
     e.preventDefault();
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/transactions", {
+      const response = await fetch("http://localhost:5000/api/transactions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -116,7 +118,7 @@ const FinanceDashboard: React.FC = () => {
   const deleteTransaction = async (id: number): Promise<void> => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:5000/api/transactions/${id}`,
+        `http://localhost:5000/api/transactions/${id}`,
         {
           method: "DELETE",
         }
@@ -140,54 +142,54 @@ const FinanceDashboard: React.FC = () => {
   };
 
   return (
-    <div className='p-4 space-y-4'>
-      <div className='grid grid-cols-1 md:grid-cols-3 gap-4 justify-center'>
-        <Card>
+    <div className='p-4 space-y-4 bg-white dark:bg-gray-900'>
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+        <Card className='dark:bg-gray-800 dark:border-gray-700'>
           <CardHeader className='flex flex-row items-center justify-between pb-2'>
-            <CardTitle className='text-sm font-medium text-muted-foreground'>
+            <CardTitle className='text-sm font-medium text-gray-600 dark:text-gray-300'>
               Total Income
             </CardTitle>
             <ArrowUpCircle className='h-4 w-4 text-green-500' />
           </CardHeader>
           <CardContent>
-            <div className='text-2xl font-bold'>
+            <div className='text-2xl font-bold dark:text-white'>
               ${summary.totalIncome.toFixed(2)}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className='dark:bg-gray-800 dark:border-gray-700'>
           <CardHeader className='flex flex-row items-center justify-between pb-2'>
-            <CardTitle className='text-sm font-medium text-muted-foreground'>
+            <CardTitle className='text-sm font-medium text-gray-600 dark:text-gray-300'>
               Total Expenses
             </CardTitle>
             <ArrowDownCircle className='h-4 w-4 text-red-500' />
           </CardHeader>
           <CardContent>
-            <div className='text-2xl font-bold'>
+            <div className='text-2xl font-bold dark:text-white'>
               ${summary.totalExpenses.toFixed(2)}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className='dark:bg-gray-800 dark:border-gray-700'>
           <CardHeader className='flex flex-row items-center justify-between pb-2'>
-            <CardTitle className='text-sm font-medium text-muted-foreground'>
+            <CardTitle className='text-sm font-medium text-gray-600 dark:text-gray-300'>
               Balance
             </CardTitle>
             <DollarSign className='h-4 w-4 text-blue-500' />
           </CardHeader>
           <CardContent>
-            <div className='text-2xl font-bold'>
+            <div className='text-2xl font-bold dark:text-white'>
               ${summary.balance.toFixed(2)}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card className='max-w-lg justify-self-center'>
+      <Card className='dark:bg-gray-800 dark:border-gray-700'>
         <CardHeader>
-          <CardTitle>Add Transaction</CardTitle>
+          <CardTitle className='dark:text-white'>Add Transaction</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className='space-y-4'>
@@ -195,7 +197,7 @@ const FinanceDashboard: React.FC = () => {
               <input
                 type='text'
                 placeholder='Description'
-                className='p-2 border rounded'
+                className='p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400'
                 value={newTransaction.description}
                 onChange={(e) => handleInputChange(e, "description")}
                 required
@@ -203,13 +205,13 @@ const FinanceDashboard: React.FC = () => {
               <input
                 type='number'
                 placeholder='Amount'
-                className='p-2 border rounded'
+                className='p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400'
                 value={newTransaction.amount}
                 onChange={(e) => handleInputChange(e, "amount")}
                 required
               />
               <select
-                className='p-2 border rounded'
+                className='p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white'
                 value={newTransaction.type}
                 onChange={(e) => handleInputChange(e, "type")}
               >
@@ -217,7 +219,7 @@ const FinanceDashboard: React.FC = () => {
                 <option value='income'>Income</option>
               </select>
               <select
-                className='p-2 border rounded'
+                className='p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white'
                 value={newTransaction.category}
                 onChange={(e) => handleInputChange(e, "category")}
               >
@@ -230,7 +232,7 @@ const FinanceDashboard: React.FC = () => {
             </div>
             <button
               type='submit'
-              className='w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex items-center justify-center gap-2'
+              className='w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 flex items-center justify-center gap-2'
             >
               <Plus className='h-4 w-4' />
               Add Transaction
@@ -239,20 +241,22 @@ const FinanceDashboard: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className='dark:bg-gray-800 dark:border-gray-700'>
         <CardHeader>
-          <CardTitle>Recent Transactions</CardTitle>
+          <CardTitle className='dark:text-white'>Recent Transactions</CardTitle>
         </CardHeader>
         <CardContent>
           <div className='space-y-4'>
             {transactions.map((transaction) => (
               <div
                 key={transaction.id}
-                className='flex items-center justify-between p-4 border rounded hover:bg-gray-50'
+                className='flex items-center justify-between p-4 border rounded hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700'
               >
                 <div>
-                  <div className='font-medium'>{transaction.description}</div>
-                  <div className='text-sm text-gray-500'>
+                  <div className='font-medium dark:text-white'>
+                    {transaction.description}
+                  </div>
+                  <div className='text-sm text-gray-500 dark:text-gray-400'>
                     {transaction.category} •{" "}
                     {new Date(transaction.date).toLocaleDateString()}
                   </div>
@@ -261,8 +265,8 @@ const FinanceDashboard: React.FC = () => {
                   <span
                     className={`font-medium ${
                       transaction.type === "income"
-                        ? "text-green-500"
-                        : "text-red-500"
+                        ? "text-green-500 dark:text-green-400"
+                        : "text-red-500 dark:text-red-400"
                     }`}
                   >
                     {transaction.type === "income" ? "+" : "-"}$
@@ -270,7 +274,7 @@ const FinanceDashboard: React.FC = () => {
                   </span>
                   <button
                     onClick={() => deleteTransaction(transaction.id)}
-                    className='text-red-500 hover:text-red-700'
+                    className='text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300'
                     type='button'
                   >
                     <Trash2 className='h-4 w-4' />

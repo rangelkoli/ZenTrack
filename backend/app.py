@@ -38,7 +38,6 @@ def get_transactions():
 @app.route('/api/transactions', methods=['POST'])
 def add_transaction():
     data = request.json
-    
     new_transaction = Transaction(
         description=data['description'],
         amount=float(data['amount']),
