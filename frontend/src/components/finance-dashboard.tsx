@@ -8,7 +8,17 @@ import {
   ArrowDownCircle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
 
+import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 // Type definitions remain the same
 interface Transaction {
   id: number;
@@ -24,6 +34,7 @@ interface TransactionFormData {
   amount: string;
   type: "income" | "expense";
   category: string;
+  date: string;
 }
 
 interface FinancialSummary {
@@ -40,7 +51,9 @@ const FinanceDashboard: React.FC = () => {
     amount: "",
     type: "expense",
     category: "general",
+    date: "",
   });
+  const [date, setDate] = React.useState<Date>();
   const [summary, setSummary] = useState<FinancialSummary>({
     totalIncome: 0,
     totalExpenses: 0,
@@ -63,7 +76,7 @@ const FinanceDashboard: React.FC = () => {
 
   const fetchTransactions = async (): Promise<void> => {
     try {
-      const response = await fetch("http://localhost:5000/api/transactions");
+      const response = await fetch("http://127.0.0.1:5000/api/transactions");
       const data: Transaction[] = await response.json();
       setTransactions(data);
       calculateSummary(data);
@@ -94,7 +107,7 @@ const FinanceDashboard: React.FC = () => {
   ): Promise<void> => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/api/transactions", {
+      const response = await fetch("http://127.0.0.1:5000/api/transactions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -108,6 +121,7 @@ const FinanceDashboard: React.FC = () => {
           amount: "",
           type: "expense",
           category: "general",
+          date: date ? date.toISOString() : "",
         });
       }
     } catch (error) {
@@ -118,7 +132,7 @@ const FinanceDashboard: React.FC = () => {
   const deleteTransaction = async (id: number): Promise<void> => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/transactions/${id}`,
+        `http://127.0.0.1:5000/api/transactions/${id}`,
         {
           method: "DELETE",
         }
@@ -142,8 +156,8 @@ const FinanceDashboard: React.FC = () => {
   };
 
   return (
-    <div className='p-4 space-y-4 bg-white dark:bg-gray-900'>
-      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+    <div className='p-4 space-y-4 bg-white dark:bg-gray-900 justify-center'>
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-4 justify-center'>
         <Card className='dark:bg-gray-800 dark:border-gray-700'>
           <CardHeader className='flex flex-row items-center justify-between pb-2'>
             <CardTitle className='text-sm font-medium text-gray-600 dark:text-gray-300'>
@@ -187,7 +201,7 @@ const FinanceDashboard: React.FC = () => {
         </Card>
       </div>
 
-      <Card className='dark:bg-gray-800 dark:border-gray-700'>
+      <Card className='dark:bg-gray-800 dark:border-gray-700 max-w-2xl'>
         <CardHeader>
           <CardTitle className='dark:text-white'>Add Transaction</CardTitle>
         </CardHeader>
@@ -230,6 +244,30 @@ const FinanceDashboard: React.FC = () => {
                 ))}
               </select>
             </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !date && "text-muted-foreground",
+                    "text-black dark:text-white rounded"
+                  )}
+                >
+                  <CalendarIcon className='mr-2 h-4 w-4' />
+                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className='w-auto p-0'>
+                <Calendar
+                  mode='single'
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                  className='bg-white dark:bg-gray-800 text-black dark:text-white'
+                />
+              </PopoverContent>
+            </Popover>
             <button
               type='submit'
               className='w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 flex items-center justify-center gap-2'

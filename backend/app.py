@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from blueprints.notes.notes import notes_blueprint
+from models import Transaction
+from extensions import db
 
 app = Flask(__name__)
 CORS(app)
@@ -9,25 +11,14 @@ CORS(app)
 # Configure SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finances.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
 
-class Transaction(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(200), nullable=False)
-    amount = db.Column(db.Float, nullable=False)
-    type = db.Column(db.String(50), nullable=False)  # 'income' or 'expense'
-    category = db.Column(db.String(50), nullable=False)
-    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'description': self.description,
-            'amount': self.amount,
-            'type': self.type,
-            'category': self.category,
-            'date': self.date.isoformat()
-        }
+def create_app(app):
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finances.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.register_blueprint(notes_blueprint)
+
+    return app
 
 
 @app.route('/api/transactions', methods=['GET'])
@@ -71,4 +62,9 @@ def get_summary():
     })
 
 if __name__ == '__main__':
+    # with app.app_context():
+    #     db.create_all()
+    app = create_app(app)
+    db.init_app(app)
+
     app.run(debug=True)
