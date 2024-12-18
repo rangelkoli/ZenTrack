@@ -94,12 +94,8 @@ export default function NotesEditor() {
     axios.get(`http://127.0.0.1:5000/notes/get_note/${id}`).then((res) => {
       console.log(res);
       setTitle(res.data.title);
+      setInitialContent(JSON.parse(res.data.content));
     });
-
-    // const content = localStorage.getItem("editorContent");
-    // if (content) {
-    //   return JSON.parse(content) as PartialBlock[];
-    // }
     return undefined;
   }
   useEffect(() => {
@@ -115,6 +111,11 @@ export default function NotesEditor() {
     return BlockNoteEditor.create({
       initialContent,
       schema: withMultiColumn(BlockNoteSchema.create()),
+      dropCursor: multiColumnDropCursor,
+      dictionary: {
+        ...locales.en,
+        multi_column: multiColumnLocales.en,
+      },
     });
   }, [initialContent]);
 

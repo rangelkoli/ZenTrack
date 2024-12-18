@@ -19,7 +19,6 @@ def add_note():
     new_note = Note(
         title=data['title'],
         content=data['content'],
-        
         last_updated=datetime.datetime.now()
     )
     db.session.add(new_note)
@@ -45,6 +44,7 @@ def update_note(id):
     note.title = data['title']
     note.content = data['content']
     note.last_updated = datetime.datetime.now()
+    print(note.to_dict())
     db.session.commit()
     return jsonify(note.to_dict())
 

@@ -28,7 +28,7 @@ class Note(db.Model):
     content = db.Column(db.Text, nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     last_updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-
+    cover_image = db.Column(db.String(200), nullable=True)
 
     def to_dict(self):
         return {
