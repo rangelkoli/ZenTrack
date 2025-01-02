@@ -27,8 +27,8 @@ import { useParams } from "react-router";
 import useNotesContent from "@/stores/notesContent";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { set } from "date-fns";
-
+import { TableOfContents } from "./table-of-contents";
+import BASE_URL from "@/constants/baseurl";
 export default function NotesEditor() {
   const [initialContent, setInitialContent] = useState<
     PartialBlock[] | undefined | "loading"
@@ -44,32 +44,6 @@ export default function NotesEditor() {
   // Gets the current theme from the theme provider.
   const { theme } = useTheme();
 
-  // Creates a new editor instance.
-  //   const editor = useCreateBlockNote({
-  //     // Adds column and column list blocks to the schema.
-  //     schema: withMultiColumn(BlockNoteSchema.create()),
-  //     // The default drop cursor only shows up above and below blocks - we replace
-  //     // it with the multi-column one that also shows up on the sides of blocks.
-  //     dropCursor: multiColumnDropCursor,
-  //     // Merges the default dictionary with the multi-column dictionary.
-  //     dictionary: {
-  //       ...locales.en,
-  //       multi_column: multiColumnLocales.en,
-  //     },
-  //     initialContent: notes,
-  //   });
-
-  // Gets the default slash menu items merged with the multi-column ones.
-  //   const getSlashMenuItems = useMemo(() => {
-  //     return async (query: string) =>
-  //       filterSuggestionItems(
-  //         combineByGroup(
-  //           getDefaultReactSlashMenuItems(editor),
-  //           getMultiColumnSlashMenuItems(editor)
-  //         ),
-  //         query
-  //       );
-  //   }, [editor]);
   const [title, setTitle] = useState("");
 
   // Renders the editor instance using a React component.
@@ -79,7 +53,7 @@ export default function NotesEditor() {
     localStorage.setItem("editorContent", JSON.stringify(jsonBlocks));
 
     axios
-      .put(`http://127.0.0.1:5000/notes/update_note/${id}`, {
+      .put(`${BASE_URL}/notes/update_note/${id}`, {
         title: title,
         content: JSON.stringify(jsonBlocks),
       })
@@ -92,9 +66,9 @@ export default function NotesEditor() {
     // Gets the previously stored editor contents.
 
     axios.get(`http://127.0.0.1:5000/notes/get_note/${id}`).then((res) => {
-      console.log(res);
-      setTitle(res.data.title);
-      setInitialContent(JSON.parse(res.data.content));
+      console.log("res", res.data[0].note);
+      setTitle(res.data[0].title);
+      setInitialContent(JSON.parse(res.data[0].note));
     });
     return undefined;
   }
@@ -118,7 +92,20 @@ export default function NotesEditor() {
       },
     });
   }, [initialContent]);
-
+  // Gets the default slash menu items merged with the multi-column ones.
+  const getSlashMenuItems = useMemo(() => {
+    if (editor === undefined) {
+      return async () => [];
+    }
+    return async (query: string) =>
+      filterSuggestionItems(
+        combineByGroup(
+          getDefaultReactSlashMenuItems(editor),
+          getMultiColumnSlashMenuItems(editor)
+        ),
+        query
+      );
+  }, [editor]);
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.ctrlKey && event.key === "s") {
@@ -146,27 +133,34 @@ export default function NotesEditor() {
         <img
           src='https://placehold.co/600x400'
           alt='Deploy'
-          className='w-full h-32'
+          className='w-full h-80'
         />
         <h1 className='text-2xl font-bold'>{title}</h1>
-        <p className='text-lg font-normal'>Description</p>
       </div>
-      <div className=''>
+      <div className='max-w-6xl mx-auto'>
         <BlockNoteView
           editor={editor}
           theme={theme}
           className='min-h-screen'
           //   onChange={() => {
-          //     saveToStorage(editor.document);
+          //     savefdfToStorage(editor.document);
           //   }}
+          slashMenu={false}
         >
           {/* Replaces the default slash menu with one that has both the default
         items and the multi-column ones. */}
-          {/* <SuggestionMenuController
-          triggerCharacter={"/"}
-          getItems={getSlashMenuItems}
-        /> */}
+
+          <SuggestionMenuController
+            triggerCharacter={"/"}
+            getItems={getSlashMenuItems}
+          />
         </BlockNoteView>
+        {/* {initialContent !== "loading" && (
+          <TableOfContents blocks={initialContent} />
+        )} */}
+        {Array.isArray(initialContent) && (
+          <TableOfContents content={initialContent} />
+        )}
       </div>
     </>
   );

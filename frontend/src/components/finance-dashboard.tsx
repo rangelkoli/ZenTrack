@@ -59,6 +59,7 @@ const FinanceDashboard: React.FC = () => {
     totalExpenses: 0,
     balance: 0,
   });
+  const [customCategory, setCustomCategory] = useState<string>("");
 
   const categories: string[] = [
     "general",
@@ -234,16 +235,29 @@ const FinanceDashboard: React.FC = () => {
               </select>
               <select
                 className='p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white'
-                value={newTransaction.category}
-                onChange={(e) => handleInputChange(e, "category")}
+                value={customCategory}
+                onChange={(e) => {
+                  setCustomCategory(e.target.value);
+                }}
               >
                 {categories.map((category) => (
                   <option key={category} value={category}>
                     {category.charAt(0).toUpperCase() + category.slice(1)}
                   </option>
                 ))}
+                <option value='custom'>Custom</option>
               </select>
             </div>
+            {newTransaction.category === "custom" && (
+              <input
+                type='text'
+                placeholder='Custom Category'
+                className='p-2 border w-full rounded bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400'
+                value={newTransaction.category}
+                onChange={(e) => handleInputChange(e, "category")}
+                required
+              />
+            )}
             <Popover>
               <PopoverTrigger asChild>
                 <Button

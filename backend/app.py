@@ -2,29 +2,31 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
 from blueprints.notes.notes import notes_blueprint
+from blueprints.users.users import auth_blueprint
 from models import Transaction
 from extensions import db
+from flask_supabase import Supabase
+from mainapp import app
+from flask_jwt_extended import JWTManager
 
-app = Flask(__name__)
-CORS(app)
+
+supabase_extension = Supabase(app)
+app.register_blueprint(notes_blueprint, url_prefix='/notes')
+app.register_blueprint(auth_blueprint, url_prefix='/auth')
+app.config["JWT_SECRET_KEY"] = 'asdasddasdasd'
+app.config['JWT_TOKEN_LOCATION'] = ['headers']
+jwt = JWTManager(app)
 
 # Configure SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finances.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
-def create_app(app):
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finances.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.register_blueprint(notes_blueprint)
-
-    return app
-
-
 @app.route('/api/transactions', methods=['GET'])
 def get_transactions():
-    transactions = Transaction.query.order_by(Transaction.date.desc()).all()
-    return jsonify([transaction.to_dict() for transaction in transactions])
+    transactions = supabase_extension.client.from_('finances').select('*').execute()
+    print(transactions)
+    return transactions.data
 
 @app.route('/api/transactions', methods=['POST'])
 def add_transaction():
@@ -62,8 +64,6 @@ def get_summary():
     })
 
 if __name__ == '__main__':
-
-    app = create_app(app)
     db.init_app(app)
     with app.app_context():
         db.create_all()

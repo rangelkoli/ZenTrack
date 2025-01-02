@@ -9,6 +9,5 @@ finance_blueprint = Blueprint('finance_blueprint', __name__, url_prefix='/financ
 @finance_blueprint.route('/main', methods=['GET'])
 def finance():
     response = jsonify({"message": "Finance Blueprint"})
-
     return response
 
