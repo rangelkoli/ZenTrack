@@ -29,6 +29,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { TableOfContents } from "./table-of-contents";
 import BASE_URL from "@/constants/baseurl";
+import AttachmentsEditor from "./attachments-editor";
 export default function NotesEditor() {
   const [initialContent, setInitialContent] = useState<
     PartialBlock[] | undefined | "loading"
@@ -36,10 +37,10 @@ export default function NotesEditor() {
 
   // Gets the note ID from the URL.
   const { id } = useParams<{ id: string }>();
+  const [coverUrl, setCoverUrl] = useState("");
 
   const notes = useNotesContent((state: any) => state.notes);
-  console.log(notes);
-  console.log(id);
+  const setNewTitle = useNotesContent((state: any) => state.setTitle);
 
   // Gets the current theme from the theme provider.
   const { theme } = useTheme();
@@ -51,7 +52,7 @@ export default function NotesEditor() {
     // Save contents to local storage. You might want to debounce this or replace
     // with a call to your API / database.
     localStorage.setItem("editorContent", JSON.stringify(jsonBlocks));
-
+    console.log(title);
     axios
       .put(`${BASE_URL}/notes/update_note/${id}`, {
         title: title,
@@ -69,9 +70,13 @@ export default function NotesEditor() {
       console.log("res", res.data[0].note);
       setTitle(res.data[0].title);
       setInitialContent(JSON.parse(res.data[0].note));
+      setCoverUrl(res.data[0].cover_image);
+      console.log("coverUrl", res.data[0].cover_image);
+      setNewTitle(res.data[0].title);
     });
     return undefined;
   }
+
   useEffect(() => {
     loadFromStorage().then((content) => {
       setInitialContent(content);
@@ -106,10 +111,11 @@ export default function NotesEditor() {
         query
       );
   }, [editor]);
+
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.ctrlKey && event.key === "s") {
-        event.preventDefault(); // Prevent the default browser save action
+        event.preventDefault();
         if (editor) {
           saveToStorage(editor.document);
         }
@@ -130,34 +136,40 @@ export default function NotesEditor() {
   return (
     <>
       <div className='m-10 gap-4 flex flex-col'>
-        <img
-          src='https://placehold.co/600x400'
-          alt='Deploy'
-          className='w-full h-80'
-        />
-        <h1 className='text-2xl font-bold'>{title}</h1>
+        {coverUrl ? (
+          <img
+            src={coverUrl}
+            alt='Deploy'
+            className='w-full h-80 max-w-4xl mx-auto object-cover rounded-lg'
+          />
+        ) : (
+          <AttachmentsEditor />
+        )}
+        {/* <div className='w-full mx-autosm: px-2 lg:px-20'>
+          <input
+            type='text'
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder='Title'
+            contentEditable={true}
+            className='text-2xl font-bold outline-none w-full'
+          />
+        </div> */}
       </div>
-      <div className='max-w-6xl mx-auto'>
+      <div className='w-full mx-auto px-2 lg:px-20'>
         <BlockNoteView
           editor={editor}
           theme={theme}
           className='min-h-screen'
-          //   onChange={() => {
-          //     savefdfToStorage(editor.document);
-          //   }}
           slashMenu={false}
+          data-theming-css-variables-editor
         >
-          {/* Replaces the default slash menu with one that has both the default
-        items and the multi-column ones. */}
-
           <SuggestionMenuController
             triggerCharacter={"/"}
             getItems={getSlashMenuItems}
           />
         </BlockNoteView>
-        {/* {initialContent !== "loading" && (
-          <TableOfContents blocks={initialContent} />
-        )} */}
+
         {Array.isArray(initialContent) && (
           <TableOfContents content={initialContent} />
         )}

@@ -2,14 +2,13 @@ import { Card, CardContent } from "@/components/ui/card";
 
 interface BookCardProps {
   title: string;
-  author: string;
-  coverUrl: string;
+  cover_image: string;
   duration?: string;
   progress?: number;
   id: string;
 }
 
-export function BookCard({ title, coverUrl, id }: BookCardProps) {
+export function BookCard({ title, cover_image, id }: BookCardProps) {
   return (
     <Card
       className='group relative overflow-hidden border-0 bg-transparent shrink-0'
@@ -17,9 +16,9 @@ export function BookCard({ title, coverUrl, id }: BookCardProps) {
     >
       <CardContent className='p-0'>
         <div className='relative h-64 w-80'>
-          {coverUrl ? (
+          {cover_image ? (
             <img
-              src={coverUrl}
+              src={cover_image}
               alt={title}
               className='rounded-lg object-fill'
               sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'

@@ -86,3 +86,9 @@
     display: none;
   }
 }
+
+.bn-container[data-theming-css-variables-editor][data-color-scheme="dark"] {
+  --bn-colors-editor-text: #fff;
+  --bn-colors-editor-background: 222.2 84% 4.9%;
+  --bn-colors-side-menu: var(--foreground);
+}

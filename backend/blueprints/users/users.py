@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from supabase import create_client
 from db import db
 import flask_bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
+from flask_jwt_extended import JWTManager, create_access_token
 
 # Create a blueprint for authentication
 auth_blueprint = Blueprint('auth', __name__)
@@ -52,6 +52,7 @@ def login():
     # Get the user's email and password from the request
     email = request.json.get('email')
     password = request.json.get('password')
+    print(email, password)
     
     # Check if the user exists
     user = db.table('users').select().eq('email', email).execute()
@@ -98,21 +99,14 @@ def logout():
 
 
 @auth_blueprint.route('/get_user', methods=['GET'])
-@jwt_required()
+
 def get_user():
+    # Get the user's access token from the request
+    access_token = request.headers.get('Authorization')
+    access_token = access_token.split(' ')[1]
+    access_token = access_token.split('"')[1]
+    access_token = access_token.split('"')[0]
+    print(access_token)
     # Get the user's email from the access token
-    email = get_jwt_identity()
-    print(email)
-    
-    # Get the user's information from the database
-    user = db.table('users').select().eq('email', email).execute()
-    
-    # Create a response
-    response = {
-        'email': email,
-        'name': user.data[0]['username']
-    }
-    
-    # Return the response as JSON
-    return jsonify(response)
+
 

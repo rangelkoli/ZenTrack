@@ -43,6 +43,8 @@ import { Search } from "lucide-react";
 import SignUpPage from "./pages/Signup";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import useNotesContent from "./stores/notesContent";
+import Home from "./pages/Home";
 
 function App() {
   const [open, setOpen] = React.useState(false);
@@ -73,6 +75,9 @@ function App() {
         .get("http://127.0.0.1:5000/auth/get_user", {
           headers: {
             Authorization: `Bearer ${accessToken}`,
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+            "Access-Control-Allow-Headers": "Authorization",
           },
         })
         .then((res) => {
@@ -84,6 +89,7 @@ function App() {
     }
   }, []);
 
+  const title = useNotesContent((state) => state.title);
   return (
     <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
       {isLoggedIn ? (
@@ -101,19 +107,26 @@ function App() {
                     </BreadcrumbItem>
                   </BreadcrumbList>
                 </Breadcrumb> */}
-                <div className='relative w-full'>
-                  <Search className='absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
-                  <Input
-                    placeholder='Search books here'
-                    className='w-full pl-8'
-                  />
-                </div>
+                {title ? (
+                  <div>
+                    <h1 className='text-lg font-semibold'>{title}</h1>
+                  </div>
+                ) : (
+                  <div className='relative w-full'>
+                    <Search className='absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
+                    <Input
+                      placeholder='Search books here'
+                      className='w-full pl-8'
+                    />
+                  </div>
+                )}
               </header>
               <BrowserRouter>
                 <Routes>
                   <Route path='/notes' element={<NotesDashboard />} />
                   <Route path='/finance' element={<FinanceDashboard />} />
                   <Route path='/notes/:id' element={<NotesEditor />} />
+                  <Route path='/' element={<Home />} />
                 </Routes>
               </BrowserRouter>
               <div className=' '>

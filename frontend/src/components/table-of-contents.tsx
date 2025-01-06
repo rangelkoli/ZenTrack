@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { PartialBlock } from "@blocknote/core";
 import extractTableOfContents from "../lib/toc";
@@ -18,7 +17,7 @@ export function TableOfContents({ content }: { content: PartialBlock[] }) {
   const toc = extractTableOfContents(content);
   console.log("Toc", toc);
   return (
-    <Card className='fixed right-4 top-20 w-64 overflow-auto max-h-[calc(100vh-6rem)] z-50 bg-background/60 backdrop-blur-sm border border-border/50'>
+    <Card className='fixed right-4 top-20 w-64 overflow-y-auto max-h-[calc(100vh-10rem)] z-50 bg-background/60 backdrop-blur-sm border border-border/50'>
       <div className='p-4'>
         <h3 className='font-medium text-sm text-muted-foreground mb-4'>
           Table of Contents

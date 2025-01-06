@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { AudioPlayer } from "@/components/audio-player";
 import { BookCard } from "@/components/book-card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Bell, Search } from "lucide-react";
 
 type Note = {
   title: string;
@@ -64,72 +62,6 @@ type Note = {
 
 // export default NotesDashboard;
 
-const recentlyPlayed = [
-  {
-    title: "The Wicked Deep",
-    author: "Shea Ernshaw",
-    coverUrl: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    title: "Tess of The Road",
-    author: "Rachel Hartman",
-    coverUrl: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    title: "Quintessence",
-    author: "Jess Redman",
-    coverUrl: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    title: "Sherlock Holmes",
-    author: "Arthur Conan",
-    coverUrl: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    title: "The Great Gatsby",
-    author: "F. Scott Fitzgerald",
-    coverUrl: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    title: "Pride and Prejudice",
-    author: "Jane Austen",
-    coverUrl: "/placeholder.svg?height=400&width=300",
-  },
-];
-
-const popularBooks = [
-  {
-    title: "The Hobbit",
-    author: "J.R.R Tolkien",
-    duration: "2h 52min",
-    coverUrl: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    title: "Life of Pi",
-    author: "Yann Martel",
-    duration: "2h 25min",
-    coverUrl: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    title: "The Wicked Deep",
-    author: "Shea Ernshaw",
-    duration: "2h 15min",
-    coverUrl: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    title: "1984",
-    author: "George Orwell",
-    duration: "2h 30min",
-    coverUrl: "/placeholder.svg?height=400&width=300",
-  },
-  {
-    title: "Dune",
-    author: "Frank Herbert",
-    duration: "3h 15min",
-    coverUrl: "/placeholder.svg?height=400&width=300",
-  },
-];
-
 export default function NotesDashboard() {
   useEffect(() => {
     fetch("http://127.0.0.1:5000/notes/get_notes/", {
@@ -174,7 +106,7 @@ export default function NotesDashboard() {
 
         <div className='mt-4 flex gap-4 overflow-x-auto px-6 pb-4 scrollbar-hide'>
           {notes.map((book) => (
-            <BookCard key={book.title} {...book} />
+            <BookCard key={book.id} {...book} />
           ))}
         </div>
         <Button
@@ -186,11 +118,18 @@ export default function NotesDashboard() {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                title: "New note",
+                title: "New note 1",
                 content: JSON.stringify([
                   {
+                    id: "64fd0b46-aa42-40f6-afd3-32b7d5b1b420",
                     type: "paragraph",
-                    children: [{ text: "" }],
+                    props: {
+                      textColor: "default",
+                      backgroundColor: "default",
+                      textAlignment: "left",
+                    },
+                    content: [],
+                    children: [],
                   },
                 ]),
               }),

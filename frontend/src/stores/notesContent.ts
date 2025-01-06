@@ -2,7 +2,9 @@ import { create } from 'zustand'
 
 type NotesContent = {
     notes: any[],
-    setNotes: (notes: any) => void
+    setNotes: (notes: any) => void,
+    title: string,
+    setTitle: (title: string) => void
 }
 
 const useNotesContent = create<NotesContent>((set) => ({
@@ -57,7 +59,9 @@ const useNotesContent = create<NotesContent>((set) => ({
             type: "paragraph",
           },
     ],
-    setNotes: (notes: any) => set({ notes })
+    setNotes: (notes: any) => set({ notes }),
+    title: '',
+    setTitle: (title: string) => set({ title })
 }))
 
 

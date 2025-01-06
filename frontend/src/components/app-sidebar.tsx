@@ -1,9 +1,9 @@
 import * as React from "react";
 import { Plus } from "lucide-react";
-
 import { Calendars } from "@/components/calendars";
 import { DatePicker } from "@/components/date-picker";
 import { NavUser } from "@/components/nav-user";
+import useUserStore from "@/stores/user";
 import {
   Sidebar,
   SidebarContent,
@@ -41,10 +41,11 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const user = useUserStore((state) => state.user);
   return (
     <Sidebar {...props}>
       <SidebarHeader className='h-16 border-b border-sidebar-border dark:border-slate-800 dark:bg-slate-900'>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarHeader>
       <SidebarContent>
         <DatePicker />
