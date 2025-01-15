@@ -48,20 +48,59 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser user={user} />
       </SidebarHeader>
       <SidebarContent>
-        <DatePicker />
         <SidebarSeparator className='mx-0' />
         {/* <Calendars calendars={data.calendars} /> */}
-        <ModeToggle />
-      </SidebarContent>
-      <SidebarFooter>
-        {/* <SidebarMenu>
+        <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton>
               <Plus />
               <span>New Calendar</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
-        </SidebarMenu> */}
+          <SidebarSeparator className='mx-0' />
+
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={() => {
+                /* handle Finance button click */
+              }}
+            >
+              Finance
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={() => {
+                /* handle Notes button click */
+                window.location.href = "/notes";
+              }}
+            >
+              Notes
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={() => {
+                /* handle Habits button click */
+              }}
+            >
+              Habits
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={() => {
+                /* handle Journal button click */
+              }}
+            >
+              Journal
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+        <SidebarSeparator className='mx-0' />
+      </SidebarContent>
+      <SidebarFooter>
+        <ModeToggle />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

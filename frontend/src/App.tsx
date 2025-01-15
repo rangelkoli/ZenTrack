@@ -42,9 +42,11 @@ import { Input } from "./components/ui/input";
 import { Search } from "lucide-react";
 import SignUpPage from "./pages/Signup";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import useNotesContent from "./stores/notesContent";
 import Home from "./pages/Home";
+import LandingPage from "./pages/LandingPage";
+import TodoList from "./pages/TodoList";
+import { Toaster } from "@/components/ui/toaster";
 
 function App() {
   const [open, setOpen] = React.useState(false);
@@ -63,42 +65,45 @@ function App() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  useEffect(() => {
-    const accessToken = localStorage.getItem("access_token");
-    console.log(accessToken);
+  // useEffect(() => {
+  //   const accessToken = localStorage.getItem("access_token");
 
-    if (accessToken) {
-      const decodedToken = jwtDecode(accessToken);
-      console.log(decodedToken);
+  //   if (accessToken) {
+  //     const response = axios
+  //       .post(
+  //         "http://127.0.0.1:5000/auth/get_user",
+  //         {
+  //           access_token: accessToken,
+  //         },
 
-      axios
-        .get("http://127.0.0.1:5000/auth/get_user", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
-            "Access-Control-Allow-Headers": "Authorization",
-          },
-        })
-        .then((res) => {
-          console.log(res);
-          useUserStore.setState({
-            user: { isLoggedIn: true, details: res.data },
-          });
-        });
-    }
-  }, []);
+  //         {
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //             Authorization: `Bearer ${accessToken}`, // Include JWT in the header
+  //           },
+  //         }
+  //       )
+  //       .then((res) => {
+  //         console.log(res);
+  //         useUserStore.setState({
+  //           user: { isLoggedIn: true, details: res.data },
+  //         });
+  //       });
+  //   }
+  // }, []);
 
   const title = useNotesContent((state) => state.title);
   return (
     <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
+      <Toaster />
+
       {isLoggedIn ? (
         <div className=''>
           <SidebarProvider>
             <AppSidebar />
             <SidebarInset className='w-screen overflow-hidden'>
               <header className='sticky top-0 flex h-16 shrink-0 items-center gap-2 border-b bg-white dark:bg-slate-900 px-4 z-50'>
-                <SidebarTrigger className='-ml-1' />
+                <SidebarTrigger className-='-ml-1' />
                 <Separator orientation='vertical' className='mr-2 h-4' />
                 {/* <Breadcrumb>
                   <BreadcrumbList>
@@ -127,6 +132,7 @@ function App() {
                   <Route path='/finance' element={<FinanceDashboard />} />
                   <Route path='/notes/:id' element={<NotesEditor />} />
                   <Route path='/' element={<Home />} />
+                  <Route path='/tasks' element={<TodoList />} />
                 </Routes>
               </BrowserRouter>
               <div className=' '>
@@ -181,6 +187,7 @@ function App() {
             <Routes>
               <Route path='/login' element={<LoginPage />} />
               <Route path='/signup' element={<SignUpPage />} />
+              <Route path='/' element={<LandingPage />} />
             </Routes>
           </BrowserRouter>
         </div>

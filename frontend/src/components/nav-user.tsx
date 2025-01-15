@@ -28,12 +28,14 @@ export function NavUser({
   user,
 }: {
   user: {
-    name: string;
-    email: string;
+    details: {
+      name: string;
+      email: string;
+    };
   };
 }) {
   const { isMobile } = useSidebar();
-
+  console.log("user:", user);
   return (
     <SidebarMenu className='dark:bg-slate-900 dark:text-white'>
       <SidebarMenuItem>
@@ -47,8 +49,10 @@ export function NavUser({
                 <AvatarFallback className='rounded-lg'>CN</AvatarFallback>
               </Avatar>
               <div className='grid flex-1 text-left text-sm leading-tight'>
-                <span className='truncate font-semibold'>{user.name}</span>
-                <span className='truncate text-xs'>{user.email}</span>
+                <span className='truncate font-semibold'>
+                  {user.details.name}
+                </span>
+                <span className='truncate text-xs'>{user.details.email}</span>
               </div>
               <ChevronsUpDown className='ml-auto size-4' />
             </SidebarMenuButton>

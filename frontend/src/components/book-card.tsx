@@ -20,8 +20,8 @@ export function BookCard({ title, cover_image, id }: BookCardProps) {
             <img
               src={cover_image}
               alt={title}
-              className='rounded-lg object-fill'
-              sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+              className='rounded-lg object-cover h-full w-full'
+              sizes=''
             />
           ) : (
             <img
@@ -33,7 +33,7 @@ export function BookCard({ title, cover_image, id }: BookCardProps) {
           )}
           <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg' />
           <div className='absolute bottom-0 left-0 right-0 p-4 text-white'>
-            <h3 className='text-sm font-semibold line-clamp-2'>{title}</h3>
+            <h3 className='text-md font-semibold line-clamp-2'>{title}</h3>
           </div>
         </div>
       </CardContent>

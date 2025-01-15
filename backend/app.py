@@ -3,6 +3,7 @@ from flask_cors import CORS
 from datetime import datetime
 from blueprints.notes.notes import notes_blueprint
 from blueprints.users.users import auth_blueprint
+from blueprints.tasks.tasks import tasks_blueprint
 from models import Transaction
 from extensions import db
 from flask_supabase import Supabase
@@ -13,8 +14,10 @@ from flask_jwt_extended import JWTManager
 supabase_extension = Supabase(app)
 app.register_blueprint(notes_blueprint, url_prefix='/notes')
 app.register_blueprint(auth_blueprint, url_prefix='/auth')
+app.register_blueprint(tasks_blueprint, url_prefix='/tasks')
 app.config["JWT_SECRET_KEY"] = 'asdasddasdasd'
 app.config['JWT_TOKEN_LOCATION'] = ['headers']
+CORS(app)
 jwt = JWTManager(app)
 
 # Configure SQLite database
@@ -62,6 +65,9 @@ def get_summary():
         'total_expenses': total_expenses,
         'balance': total_income - total_expenses
     })
+
+
+
 
 if __name__ == '__main__':
     db.init_app(app)

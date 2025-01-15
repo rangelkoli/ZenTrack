@@ -6,9 +6,8 @@ from ai import genAIModel
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
-import tempfile
 from io import BytesIO
-
+import PIL.Image
 
 notes_blueprint = Blueprint('notes_blueprint', __name__, url_prefix='/notes')
 
@@ -105,4 +104,51 @@ def get_image(filename):
     return response.text, 200, {'Content-Type': response.headers['content-type']}
 
 
+@notes_blueprint.route('/upload_file/', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
 
+    file = request.files['file']
+    print(file)
+    # Open the image file
+    image_contents = file.read()
+
+    # Open the image
+    image = PIL.Image.open(BytesIO(image_contents))
+
+    # Display the image in a new window
+    image.show()
+
+    file_blob = BytesIO(file.read())
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    if file and allowed_file(file.filename):
+        # Save the file in the same folder
+        file.save(secure_filename(file.filename))
+
+
+
+
+        try:
+            # Upload the file to the storage bucket
+            response = db.storage.from_("attachments").upload(
+                file=secure_filename(file.filename),
+                path=secure_filename(file.filename),
+                file_options={"cache-control": "3600", 
+                              "upsert": "true", 
+                              "content-type": file.content_type
+                              }
+            )
+
+            # Remove the temporary file
+            os.remove(secure_filename(file.filename))
+
+            print(response)
+
+            return jsonify(response.text), 200
+        except db.storage.utils.StorageException as e:
+            return jsonify({"error": "Error"}), 400
+    else:
+        return jsonify({"error": "Unsupported file type"}), 400

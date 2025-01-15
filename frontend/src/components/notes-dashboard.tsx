@@ -9,58 +9,8 @@ type Note = {
   title: string;
   content: string;
   id: string;
-  coverUrl: string;
+  cover_image: string;
 };
-// const NotesDashboard = () => {
-//
-//   return (
-//     <div>
-//       {notes.map((note) => {
-//         return (
-//           <NotesCard
-//             title={note.title}
-//             description={note.content}
-//             imageLink='https://placehold.co/600x400'
-//             id={note.id}
-//             key={note.id}
-//           />
-//         );
-//       })}
-//       <NotesCard
-//         title='Notes'
-//         description='Take notes here'
-//         imageLink='https://placehold.co/600x400'
-//         id='123'
-//       />
-//       <Button
-//         onClick={() => {
-//           console.log("Button clicked");
-//           fetch("http://127.0.0.1:5000/notes/add_note/", {
-//             method: "POST",
-//             headers: {
-//               "Content-Type": "application/json",
-//             },
-//             body: JSON.stringify({
-//               title: "New note",
-//               content: JSON.stringify([
-//                 {
-//                   type: "paragraph",
-//                   children: [{ text: "" }],
-//                 },
-//               ]),
-//             }),
-//           }).then((response) => {
-//             console.log(response);
-//           });
-//         }}
-//       >
-//         Click me
-//       </Button>
-//     </div>
-//   );
-// };
-
-// export default NotesDashboard;
 
 export default function NotesDashboard() {
   useEffect(() => {

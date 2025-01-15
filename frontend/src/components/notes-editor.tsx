@@ -8,7 +8,7 @@ import {
   Block,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import { BlockNoteView } from "@blocknote/mantine";
+import { BlockNoteView, Theme } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
   SuggestionMenuController,
@@ -30,10 +30,13 @@ import axios from "axios";
 import { TableOfContents } from "./table-of-contents";
 import BASE_URL from "@/constants/baseurl";
 import AttachmentsEditor from "./attachments-editor";
+import { useToast } from "@/hooks/use-toast";
+
 export default function NotesEditor() {
   const [initialContent, setInitialContent] = useState<
     PartialBlock[] | undefined | "loading"
   >("loading");
+  const { toast } = useToast();
 
   // Gets the note ID from the URL.
   const { id } = useParams<{ id: string }>();
@@ -46,21 +49,48 @@ export default function NotesEditor() {
   const { theme } = useTheme();
 
   const [title, setTitle] = useState("");
+  async function uploadFile(file: File) {
+    const body = new FormData();
+    body.append("file", file);
 
+    const ret = await fetch("http://127.0.0.1:5000/notes/upload_file/", {
+      method: "POST",
+      body: body,
+    });
+    console.log(ret);
+    const data = await ret.json();
+    return data.url;
+  }
   // Renders the editor instance using a React component.
   async function saveToStorage(jsonBlocks: Block[]) {
     // Save contents to local storage. You might want to debounce this or replace
     // with a call to your API / database.
+
+    setIsSaving(true);
     localStorage.setItem("editorContent", JSON.stringify(jsonBlocks));
     console.log(title);
-    axios
-      .put(`${BASE_URL}/notes/update_note/${id}`, {
-        title: title,
-        content: JSON.stringify(jsonBlocks),
-      })
-      .then((res) => {
-        console.log(res);
-      });
+    try {
+      axios
+        .put(`${BASE_URL}/notes/update_note/${id}`, {
+          title: title,
+          content: JSON.stringify(jsonBlocks),
+        })
+        .then((res) => {
+          console.log(res);
+          toast({
+            title: "Note saved",
+            description: "Your note has been saved successfully",
+            style: {
+              backgroundColor: "#4BB543",
+              color: "#F3F4F6",
+            },
+          });
+        });
+
+      setIsSaving(false);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   async function loadFromStorage() {
@@ -95,6 +125,8 @@ export default function NotesEditor() {
         ...locales.en,
         multi_column: multiColumnLocales.en,
       },
+      animations: true,
+      uploadFile,
     });
   }, [initialContent]);
   // Gets the default slash menu items merged with the multi-column ones.
@@ -128,6 +160,22 @@ export default function NotesEditor() {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [editor]);
+
+  const [isSaving, setIsSaving] = useState(false);
+
+  // useEffect(() => {
+  //   const autosaveInterval = setInterval(() => {
+  //     if (editor && !isSaving) {
+  //       saveToStorage(editor.document);
+  //     }
+  //   }, 5000);
+
+  //   return () => {
+  //     clearInterval(autosaveInterval);
+  //   };
+  // }, [editor, isSaving]);
+
+  // Uploads a file to tmpfiles.org and returns the URL to the uploaded file.
 
   if (editor === undefined) {
     return "Loading content...";
