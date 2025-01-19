@@ -4,17 +4,23 @@ interface AudioPlayerProps {
   title: string;
   author: string;
   coverUrl: string;
+  id: string;
 }
 
-export function AudioPlayer({ title, author, coverUrl }: AudioPlayerProps) {
+export function AudioPlayer({ title, author, coverUrl, id }: AudioPlayerProps) {
   return (
-    <Card className='overflow-hidden'>
+    <Card
+      className='overflow-hidden'
+      onClick={() => {
+        window.location.href = `/notes/${id}`;
+      }}
+    >
       <CardContent className='relative p-0'>
         <div className='relative h-[300px] w-full'>
           <img
             src={coverUrl}
             alt={title}
-            className='object-cover'
+            className='object-fill'
             sizes='100%'
           />
         </div>

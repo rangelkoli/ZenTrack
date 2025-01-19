@@ -10,6 +10,7 @@ type Note = {
   content: string;
   id: string;
   cover_image: string;
+  updated_at: Date;
 };
 
 export default function NotesDashboard() {
@@ -24,11 +25,19 @@ export default function NotesDashboard() {
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
-        setNotes(data);
+        data = data.sort((a: Note, b: Note) => {
+          const dateA = new Date(a.updated_at);
+          const dateB = new Date(b.updated_at);
+          return dateB.getTime() - dateA.getTime();
+        });
+        setNotes(data.slice(1));
+        setRecentNote(data.slice(0, 1));
       });
   }, []);
 
   const [notes, setNotes] = useState<Note[]>([]);
+
+  const [recentNote, setRecentNote] = useState<Note[]>([]);
 
   return (
     <div className='flex flex-col h-screen bg-muted '>
@@ -38,13 +47,47 @@ export default function NotesDashboard() {
           <Input placeholder='Search books here' className='w-full pl-8' />
         </div>
       </header> */}
+      <Button
+        onClick={() => {
+          console.log("Button clicked");
+          fetch("http://127.0.0.1:5000/notes/add_note/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              title: "New note 1",
+              content: JSON.stringify([
+                {
+                  id: "64fd0b46-aa42-40f6-afd3-32b7d5b1b420",
+                  type: "paragraph",
+                  props: {
+                    textColor: "default",
+                    backgroundColor: "default",
+                    textAlignment: "left",
+                  },
+                  content: [],
+                  children: [],
+                },
+              ]),
+            }),
+          }).then((response) => {
+            console.log(response);
+          });
+        }}
+      >
+        New Notebook
+      </Button>
       <main className='flex-1 overflow-auto'>
         <div className='p-6'>
-          <AudioPlayer
-            title='The Witches of Willow Cove'
-            author='Josh Roberts'
-            coverUrl='/placeholder.svg?height=400&width=300'
-          />
+          {recentNote[0] && (
+            <AudioPlayer
+              title={recentNote[0].title}
+              author='Author'
+              coverUrl={recentNote[0].cover_image}
+              id={recentNote[0].id}
+            />
+          )}
         </div>
 
         <div className='px-6'>
@@ -59,37 +102,6 @@ export default function NotesDashboard() {
             <BookCard key={book.id} {...book} />
           ))}
         </div>
-        <Button
-          onClick={() => {
-            console.log("Button clicked");
-            fetch("http://127.0.0.1:5000/notes/add_note/", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                title: "New note 1",
-                content: JSON.stringify([
-                  {
-                    id: "64fd0b46-aa42-40f6-afd3-32b7d5b1b420",
-                    type: "paragraph",
-                    props: {
-                      textColor: "default",
-                      backgroundColor: "default",
-                      textAlignment: "left",
-                    },
-                    content: [],
-                    children: [],
-                  },
-                ]),
-              }),
-            }).then((response) => {
-              console.log(response);
-            });
-          }}
-        >
-          Click me
-        </Button>
 
         {/* <div className='px-6 pt-8'>
           <div className='flex items-center justify-between'>

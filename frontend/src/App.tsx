@@ -47,6 +47,7 @@ import Home from "./pages/Home";
 import LandingPage from "./pages/LandingPage";
 import TodoList from "./pages/TodoList";
 import { Toaster } from "@/components/ui/toaster";
+import HabitTracker from "./pages/HabitTracker";
 
 function App() {
   const [open, setOpen] = React.useState(false);
@@ -133,6 +134,7 @@ function App() {
                   <Route path='/notes/:id' element={<NotesEditor />} />
                   <Route path='/' element={<Home />} />
                   <Route path='/tasks' element={<TodoList />} />
+                  <Route path='/habit-tracker' element={<HabitTracker />} />
                 </Routes>
               </BrowserRouter>
               <div className=' '>

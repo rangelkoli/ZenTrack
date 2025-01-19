@@ -84,6 +84,7 @@ export default function NotesEditor() {
               backgroundColor: "#4BB543",
               color: "#F3F4F6",
             },
+            duration: 3000,
           });
         });
 

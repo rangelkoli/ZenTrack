@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Plus } from "lucide-react";
+import { Home, Plus } from "lucide-react";
 import { Calendars } from "@/components/calendars";
 import { DatePicker } from "@/components/date-picker";
 import { NavUser } from "@/components/nav-user";
@@ -52,9 +52,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* <Calendars calendars={data.calendars} /> */}
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton>
-              <Plus />
-              <span>New Calendar</span>
+            <SidebarMenuButton
+              onClick={() => {
+                window.location.href = "/";
+              }}
+            >
+              <Home size={20} />
+              <span>Home</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarSeparator className='mx-0' />
