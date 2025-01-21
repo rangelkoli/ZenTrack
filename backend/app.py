@@ -4,6 +4,7 @@ from datetime import datetime
 from blueprints.notes.notes import notes_blueprint
 from blueprints.users.users import auth_blueprint
 from blueprints.tasks.tasks import tasks_blueprint
+from blueprints.habits.habits import habits_blueprint
 from models import Transaction
 from extensions import db
 from flask_supabase import Supabase
@@ -15,6 +16,7 @@ supabase_extension = Supabase(app)
 app.register_blueprint(notes_blueprint, url_prefix='/notes')
 app.register_blueprint(auth_blueprint, url_prefix='/auth')
 app.register_blueprint(tasks_blueprint, url_prefix='/tasks')
+app.register_blueprint(habits_blueprint, url_prefix='/habits')
 app.config["JWT_SECRET_KEY"] = 'asdasddasdasd'
 app.config['JWT_TOKEN_LOCATION'] = ['headers']
 CORS(app)
