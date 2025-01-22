@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "./ui/button";
-import { Card, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface HabitProps {
   created_at: string;
@@ -31,6 +31,9 @@ const HabitTrackerComponent = ({
       h.id === habit.id ? { ...h, days: habit.days } : h
     );
     setHabits(newHabits);
+    setFilteredHabits(
+      newHabits.filter((habit) => habit.month === currentMonth.getMonth())
+    );
   };
   const [currentMonth, setcurrentMonth] = useState(new Date());
 
@@ -75,32 +78,33 @@ const HabitTrackerComponent = ({
           </Button>
         </CardTitle>
       </CardHeader>
-
-      {filteredHabits.map((habit) => (
-        <div key={habit.id} className='mb-4'>
-          <Habit
-            key={habit.id}
-            days={habit.days}
-            setHabits={setHabits}
-            name={habit.name}
-            id={habit.id}
-            handleHabitChanged={handleHabitChanged}
-          />
-        </div>
-      ))}
+      <CardContent>
+        {filteredHabits.map((habit) => (
+          <div key={habit.id} className='mb-4'>
+            <Habit
+              key={habit.id}
+              days={habit.days}
+              setFilteredHabits={setFilteredHabits}
+              name={habit.name}
+              id={habit.id}
+              handleHabitChanged={handleHabitChanged}
+            />
+          </div>
+        ))}
+      </CardContent>
     </Card>
   );
 };
 
 const Habit = ({
   days,
-  setHabits,
+  setFilteredHabits,
   name,
   id,
   handleHabitChanged,
 }: {
   days: number[];
-  setHabits: (habits: HabitProps[]) => void;
+  setFilteredHabits: (habits: HabitProps[]) => void;
   name: string;
   id: number;
   handleHabitChanged: (habit: {
