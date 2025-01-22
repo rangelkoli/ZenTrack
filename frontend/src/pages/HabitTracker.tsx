@@ -1,6 +1,6 @@
 import HabitTrackerComponent from "@/components/habit-tracker";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface HabitProps {
   created_at: string;
@@ -9,6 +9,8 @@ interface HabitProps {
   name: string;
   updated_at: string;
   user_id: number;
+  month: number;
+  year: number;
 }
 
 const HabitTracker = () => {

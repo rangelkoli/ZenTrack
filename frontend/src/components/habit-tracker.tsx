@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "./ui/button";
+import { Card, CardHeader, CardTitle } from "./ui/card";
 
 interface HabitProps {
   created_at: string;
@@ -7,12 +10,8 @@ interface HabitProps {
   name: string;
   updated_at: string;
   user_id: number;
-}
-interface HabitChanged {
-  id: number;
-  name: string;
-  days: number[];
-  user_id: number;
+  month: number;
+  year: number;
 }
 
 const HabitTrackerComponent = ({
@@ -33,10 +32,51 @@ const HabitTrackerComponent = ({
     );
     setHabits(newHabits);
   };
+  const [currentMonth, setcurrentMonth] = useState(new Date());
+
+  const prevMonth = () => {
+    setcurrentMonth(
+      new Date(currentMonth.setMonth(currentMonth.getMonth() - 1))
+    );
+    setFilteredHabits(
+      habits.filter((habit) => habit.month === currentMonth.getMonth())
+    );
+    console.log(
+      habits.filter((habit) => habit.month === currentMonth.getMonth())
+    );
+  };
+
+  const nextMonth = () => {
+    setcurrentMonth(
+      new Date(currentMonth.setMonth(currentMonth.getMonth() + 1))
+    );
+    setFilteredHabits(
+      habits.filter((habit) => habit.month === currentMonth.getMonth())
+    );
+  };
+
+  const [filteredHabits, setFilteredHabits] = useState<HabitProps[]>([]);
 
   return (
-    <div className='md:p-4 gap-2'>
-      {habits.map((habit) => (
+    <Card className='md:p-4 gap-2'>
+      <CardHeader>
+        <CardTitle className='flex justify-between items-center'>
+          <Button variant='outline' size='icon' onClick={prevMonth}>
+            <ChevronLeft className='h-4 w-4' />
+          </Button>
+          <span className=' font-bold text-3xl'>
+            {currentMonth.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+            })}
+          </span>
+          <Button variant='outline' size='icon' onClick={nextMonth}>
+            <ChevronRight className='h-4 w-4' />
+          </Button>
+        </CardTitle>
+      </CardHeader>
+
+      {filteredHabits.map((habit) => (
         <div key={habit.id} className='mb-4'>
           <Habit
             key={habit.id}
@@ -48,7 +88,7 @@ const HabitTrackerComponent = ({
           />
         </div>
       ))}
-    </div>
+    </Card>
   );
 };
 
