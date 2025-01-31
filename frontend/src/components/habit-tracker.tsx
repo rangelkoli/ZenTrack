@@ -2,6 +2,20 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import axios from "axios";
 
 interface HabitProps {
   created_at: string;
@@ -59,10 +73,94 @@ const HabitTrackerComponent = ({
   };
 
   const [filteredHabits, setFilteredHabits] = useState<HabitProps[]>([]);
+  const [habitName, setHabitName] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
+
+  const handleNewHabitMonthChange = (date: Date | null) => {
+    if (date) {
+      setSelectedMonth(date);
+    }
+  };
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  async function addNewHabit() {
+    const res = await axios.post("http://127.0.0.1:5000/habits/add_habit/", {
+      user_id: 1,
+      name: habitName,
+      days: Array(31).fill(0),
+      month: selectedMonth.getMonth(),
+      year: selectedMonth.getFullYear(),
+    });
+    setHabits([
+      ...habits,
+      {
+        id: habits.length + 1,
+        name: habitName,
+        days: Array(31).fill(0),
+        user_id: 1,
+        month: selectedMonth.getMonth(),
+        year: selectedMonth.getFullYear(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    ]);
+
+    setHabitName("");
+    if (res.status === 201) {
+      setDialogOpen(false);
+    }
+  }
 
   return (
-    <Card className='md:p-4 gap-2'>
+    <Card className='md:p-4 gap-2 '>
       <CardHeader>
+        <Dialog open={dialogOpen}>
+          <DialogTrigger asChild className='w-64 '>
+            <Button variant='outline' onClick={() => setDialogOpen(true)}>
+              Add New Habit
+            </Button>
+          </DialogTrigger>
+          <DialogContent className='sm:max-w-[425px]'>
+            <DialogHeader>
+              <DialogTitle>New Habit</DialogTitle>
+              <DialogDescription>
+                Add a new habit to track for the month
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className='grid gap-4 py-4'>
+              <div className='grid grid-cols-4 items-center gap-4'>
+                <Label htmlFor='name' className='text-right'>
+                  Name
+                </Label>
+                <Input
+                  id='name'
+                  value={habitName}
+                  onChange={(e) => setHabitName(e.target.value)}
+                  className='col-span-3'
+                />
+              </div>
+              <div className='grid grid-cols-4 items-center gap-4 w-full'>
+                <Label htmlFor='month' className='text-right'>
+                  Month
+                </Label>
+                <DatePicker
+                  id='month'
+                  selected={selectedMonth}
+                  onChange={(date: Date) => handleNewHabitMonthChange(date)}
+                  className='col-span-3 bg-gray-900 p-2 rounded-md '
+                  showMonthYearPicker
+                  dateFormat='MM/yyyy'
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type='submit' onClick={addNewHabit}>
+                Add Habit
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <CardTitle className='flex justify-between items-center'>
           <Button variant='outline' size='icon' onClick={prevMonth}>
             <ChevronLeft className='h-4 w-4' />

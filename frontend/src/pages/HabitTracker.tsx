@@ -39,7 +39,9 @@ const HabitTracker = () => {
   return (
     <div className='p-4 text-center'>
       <h1 className='text-2xl md:text-3xl font-bold mb-6'>Habit Tracker</h1>
-      <HabitTrackerComponent habits={habits} setHabits={setHabits} />
+      {habits && (
+        <HabitTrackerComponent habits={habits} setHabits={setHabits} />
+      )}
     </div>
   );
 };

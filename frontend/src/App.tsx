@@ -1,10 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
+
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
@@ -17,7 +12,6 @@ import NotesDashboard from "./components/notes-dashboard";
 import { BrowserRouter, Routes, Route } from "react-router";
 import NotesEditor from "./components/notes-editor";
 import {
-  Command,
   CommandDialog,
   CommandEmpty,
   CommandGroup,
@@ -27,7 +21,7 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "@/components/ui/command";
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Calculator,
   Calendar,
@@ -41,7 +35,6 @@ import useUserStore from "./stores/user";
 import { Input } from "./components/ui/input";
 import { Search } from "lucide-react";
 import SignUpPage from "./pages/Signup";
-import axios from "axios";
 import useNotesContent from "./stores/notesContent";
 import Home from "./pages/Home";
 import LandingPage from "./pages/LandingPage";
@@ -52,7 +45,6 @@ import HabitTracker from "./pages/HabitTracker";
 function App() {
   const [open, setOpen] = React.useState(false);
 
-  const userDetails = useUserStore((state) => state.user.details);
   const isLoggedIn = useUserStore((state) => state.user.isLoggedIn);
 
   React.useEffect(() => {

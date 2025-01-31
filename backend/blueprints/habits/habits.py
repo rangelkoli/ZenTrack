@@ -30,3 +30,19 @@ def update_habit():
     return jsonify(updated_habit), 200
 
 
+@habits_blueprint.route('/add_habit/', methods=['POST'])
+def add_habit():
+    data = request.json
+    print(data)
+    new_habit = {
+        'name': data['name'],
+        'days': data['days'],
+        'user_id': data['user_id'],
+        'month': data['month'],
+        'year': data['year'],
+        'created_at': datetime.datetime.now().isoformat(),
+        'updated_at': datetime.datetime.now().isoformat()
+
+    }
+    db.from_('habits').insert([new_habit]).execute()
+    return jsonify(new_habit), 201
