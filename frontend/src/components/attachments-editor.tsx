@@ -3,7 +3,7 @@ import axios from "axios";
 
 const AttachmentsEditor = () => {
   const [imageUploaded, setImageUploaded] = React.useState(false);
-  const [file, setFile] = React.useState<File | null>(null);
+  const [file, setFile] = React.useState<File>();
 
   const uploadFile = async (file: File) => {
     const res = await axios.post(
@@ -34,12 +34,11 @@ const AttachmentsEditor = () => {
 
   const handleUploadButtonClick = () => {
     if (file) {
-      uploadFile(file);
+      uploadFile(file as File);
     }
   };
 
   const handleCancelClick = () => {
-    setFile(null);
     setImageUploaded(false);
   };
 
@@ -55,7 +54,7 @@ const AttachmentsEditor = () => {
                     <img
                       alt='Uploaded File'
                       className='h-full w-full object-cover'
-                      src={URL.createObjectURL(file)}
+                      src={URL.createObjectURL(file as Blob)}
                     />
                     <button
                       className='absolute top-2 right-2 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded'

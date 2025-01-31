@@ -1,7 +1,6 @@
 import * as React from "react";
-import { Home, Plus } from "lucide-react";
-import { Calendars } from "@/components/calendars";
-import { DatePicker } from "@/components/date-picker";
+import { Home } from "lucide-react";
+
 import { NavUser } from "@/components/nav-user";
 import useUserStore from "@/stores/user";
 import {
@@ -16,29 +15,6 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "./mode-toggle";
-
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  calendars: [
-    {
-      name: "My Calendars",
-      items: ["Personal", "Work", "Family"],
-    },
-    {
-      name: "Favorites",
-      items: ["Holidays", "Birthdays"],
-    },
-    {
-      name: "Other",
-      items: ["Travel", "Reminders", "Deadlines"],
-    },
-  ],
-};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useUserStore((state) => state.user);

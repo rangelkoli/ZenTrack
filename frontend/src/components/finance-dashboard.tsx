@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Plus,
   Trash2,
-  PieChart,
   DollarSign,
   ArrowUpCircle,
   ArrowDownCircle,
@@ -99,7 +98,7 @@ const FinanceDashboard: React.FC = () => {
       { totalIncome: 0, totalExpenses: 0 }
     );
 
-    summary.balance = summary.totalIncome - summary.totalExpenses;
+    // summary.balance = summary.totalIncome - summary.totalExpenses;
     setSummary(summary as FinancialSummary);
   };
 

@@ -8,12 +8,11 @@ import {
   Block,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import { BlockNoteView, Theme } from "@blocknote/mantine";
+import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
-  useCreateBlockNote,
 } from "@blocknote/react";
 import {
   getMultiColumnSlashMenuItems,
@@ -42,7 +41,7 @@ export default function NotesEditor() {
   const { id } = useParams<{ id: string }>();
   const [coverUrl, setCoverUrl] = useState("");
 
-  const notes = useNotesContent((state: any) => state.notes);
+  // const notes = useNotesContent((state: any) => state.notes);
   const setNewTitle = useNotesContent((state: any) => state.setTitle);
 
   // Gets the current theme from the theme provider.

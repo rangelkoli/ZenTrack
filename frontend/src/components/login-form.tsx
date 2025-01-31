@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
-import React, { useEffect } from "react";
+import React from "react";
 import useUserStore from "@/stores/user";
 export function LoginForm({
   className,
