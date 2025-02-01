@@ -10,7 +10,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import FinanceDashboard from "./components/finance-dashboard";
 import NotesDashboard from "./components/notes-dashboard";
 import { BrowserRouter, Routes, Route } from "react-router";
-// import NotesEditor from "./components/notes-editor";
+import NotesEditor from "./components/notes-editor";
 import {
   CommandDialog,
   CommandEmpty,
@@ -123,7 +123,7 @@ function App() {
                 <Routes>
                   <Route path='/notes' element={<NotesDashboard />} />
                   <Route path='/finance' element={<FinanceDashboard />} />
-                  {/* <Route path='/notes/:id' element={<NotesEditor />} /> */}
+                  <Route path='/notes/:id' element={<NotesEditor />} />
                   <Route path='/' element={<Home />} />
                   <Route path='/tasks' element={<TodoList />} />
                   <Route path='/habit-tracker' element={<HabitTracker />} />
