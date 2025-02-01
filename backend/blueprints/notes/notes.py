@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-import re
+
 import datetime
 from db import db
 from ai import genAIModel
