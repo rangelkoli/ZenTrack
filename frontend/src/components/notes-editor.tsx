@@ -5,7 +5,6 @@ import {
   locales,
   PartialBlock,
   BlockNoteEditor,
-  Block,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -19,7 +18,6 @@ import {
   multiColumnDropCursor,
   locales as multiColumnLocales,
   withMultiColumn,
-  multiColumnSchema,
 } from "@blocknote/xl-multi-column";
 import { useMemo } from "react";
 // import { useTheme } from "@/components/theme-provider";
