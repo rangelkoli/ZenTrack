@@ -19,6 +19,7 @@ import {
   multiColumnDropCursor,
   locales as multiColumnLocales,
   withMultiColumn,
+  multiColumnSchema,
 } from "@blocknote/xl-multi-column";
 import { useMemo } from "react";
 // import { useTheme } from "@/components/theme-provider";
@@ -61,18 +62,18 @@ export default function NotesEditor() {
     return data.url;
   }
   // Renders the editor instance using a React component.
-  async function saveToStorage(jsonBlocks: Block[]) {
+  async function saveToStorage() {
     // Save contents to local storage. You might want to debounce this or replace
     // with a call to your API / database.
 
     // setIsSaving(true);
-    localStorage.setItem("editorContent", JSON.stringify(jsonBlocks));
+    localStorage.setItem("editorContent", JSON.stringify(editor?.document));
     console.log(title);
     try {
       axios
         .put(`${BASE_URL}/notes/update_note/${id}`, {
           title: title,
-          content: JSON.stringify(jsonBlocks),
+          content: JSON.stringify(editor?.document),
         })
         .then((res) => {
           console.log(res);
@@ -149,7 +150,7 @@ export default function NotesEditor() {
       if (event.ctrlKey && event.key === "s") {
         event.preventDefault();
         if (editor) {
-          saveToStorage(editor.document);
+          saveToStorage();
         }
       }
     }
