@@ -10,7 +10,11 @@ from extensions import db
 from flask_supabase import Supabase
 from mainapp import app
 from flask_jwt_extended import JWTManager
+from google import genai
+from google.genai import types
+import os
 
+client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
 
 supabase_extension = Supabase(app)
 app.register_blueprint(notes_blueprint, url_prefix='/notes')
@@ -69,7 +73,26 @@ def get_summary():
     })
 
 
+@app.route('/generateImage/', methods=['POST'])
+def generate_image():
+    data = request.json
+    print(data)
+    print(client.models.list)
+    image = client.models.generate_images(
+      model='imagen-3.0-generate-002',
+    prompt='Fuzzy bunnies in my kitchen',
+    config=types.GenerateImagesConfig(
+        negative_prompt= 'people',
+        number_of_images= 4,
+        include_rai_reason= True,
+        output_mime_type= 'image/jpeg'
+    )
 
+    )
+    image.generated_images[0].image.show()
+
+
+    return jsonify({"message": "Image Generated"})
 
 if __name__ == '__main__':
     db.init_app(app)

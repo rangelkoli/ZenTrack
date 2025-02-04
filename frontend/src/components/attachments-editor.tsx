@@ -4,14 +4,18 @@ import axios from "axios";
 const AttachmentsEditor = () => {
   const [imageUploaded, setImageUploaded] = React.useState(false);
   const [file, setFile] = React.useState<File>();
+  const [showDialog, setShowDialog] = React.useState(false);
+  const [textInput, setTextInput] = React.useState("");
 
   const uploadFile = async (file: File) => {
     const res = await axios.post(
-      `http://127.0.0.1:5000/notes/upload_image/`,
-      { file },
+      `http://127.0.0.1:5000/notes/generate_cover_image/`,
+      {
+        text: "Hello, World!",
+      },
       {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
       }
@@ -41,6 +45,35 @@ const AttachmentsEditor = () => {
   const handleCancelClick = () => {
     setImageUploaded(false);
   };
+
+  const handleGenerateImageClick = () => {
+    setShowDialog(true);
+  };
+
+  const handleDialogSubmit = () => {
+    // Call your function here with the text input value
+    console.log(textInput);
+    setShowDialog(false);
+    fetch("http://127.0.0.1:5000/generateImage/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ text: "Hello, World!" }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+      });
+  };
+
+  const handleDialogCancel = () => {
+    setShowDialog(false);
+  };
+
+  const genImage = () => {};
 
   return (
     <div>
@@ -87,17 +120,51 @@ const AttachmentsEditor = () => {
                 />
               </div>
               {imageUploaded && (
-                <button
-                  className='mt-3 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-                  onClick={handleUploadButtonClick}
-                >
-                  Upload
-                </button>
+                <>
+                  <button
+                    className='mt-3 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+                    onClick={handleGenerateImageClick}
+                  >
+                    Generate Image from AI
+                  </button>
+                  <button
+                    className='mt-3 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+                    onClick={genImage}
+                  >
+                    Upload
+                  </button>
+                </>
               )}
             </div>
           </div>
         </div>
       </div>
+      {showDialog && (
+        <div className='fixed inset-0 flex items-center justify-center z-50'>
+          <div className='bg-white rounded-lg p-6'>
+            <h2 className='text-lg font-semibold mb-4'>Enter Text</h2>
+            <textarea
+              className='w-full h-32 border border-gray-300 rounded-lg p-2 mb-4'
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
+            ></textarea>
+            <div className='flex justify-end'>
+              <button
+                className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2'
+                onClick={handleDialogSubmit}
+              >
+                Submit
+              </button>
+              <button
+                className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'
+                onClick={handleDialogCancel}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

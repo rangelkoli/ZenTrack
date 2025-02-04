@@ -7,7 +7,7 @@ import {
   BlockNoteEditor,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import { BlockNoteView } from "@blocknote/mantine";
+import { BlockNoteView, Theme } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
   SuggestionMenuController,
@@ -20,7 +20,7 @@ import {
   withMultiColumn,
 } from "@blocknote/xl-multi-column";
 import { useMemo } from "react";
-// import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "@/components/theme-provider";
 import { useParams } from "react-router";
 import useNotesContent from "@/stores/notesContent";
 import { useEffect, useState } from "react";
@@ -29,7 +29,7 @@ import { TableOfContents } from "./table-of-contents";
 import BASE_URL from "@/constants/baseurl";
 import AttachmentsEditor from "./attachments-editor";
 import { useToast } from "@/hooks/use-toast";
-
+import "./editorstyles.css";
 export default function NotesEditor() {
   const [initialContent, setInitialContent] = useState<
     PartialBlock[] | undefined | "loading"
@@ -44,8 +44,75 @@ export default function NotesEditor() {
   const setNewTitle = useNotesContent((state: any) => state.setTitle);
 
   // Gets the current theme from the theme provider.
-  // const { theme } = useTheme();
+  const { theme } = useTheme();
 
+  const lightRedTheme = {
+    colors: {
+      editor: {
+        text: "#222222",
+        background: "#ffffff",
+      },
+      menu: {
+        text: "#ffffff",
+        background: "#9b0000",
+      },
+      tooltip: {
+        text: "#ffffff",
+        background: "#b00000",
+      },
+      hovered: {
+        text: "#ffffff",
+        background: "#b00000",
+      },
+      selected: {
+        text: "#ffffff",
+        background: "#c50000",
+      },
+      disabled: {
+        text: "#9b0000",
+        background: "#7d0000",
+      },
+      shadow: "#640000",
+      border: "#870000",
+      sideMenu: "#bababa",
+    },
+    borderRadius: 4,
+    fontFamily: "Helvetica Neue, sans-serif",
+  } satisfies Theme;
+
+  const darkRedTheme = {
+    colors: {
+      editor: {
+        text: "#ffffff",
+        background: "var(--color-slate-900)",
+      },
+      menu: {
+        text: "#ffffff",
+        background: "#9b0000",
+      },
+      tooltip: {
+        text: "#ffffff",
+        background: "#b00000",
+      },
+      hovered: {
+        text: "#ffffff",
+        background: "#b00000",
+      },
+      selected: {
+        text: "#ffffff",
+        background: "#c50000",
+      },
+      disabled: {
+        text: "#9b0000",
+        background: "#7d0000",
+      },
+      shadow: "#640000",
+      border: "#870000",
+      sideMenu: "#bababa",
+    },
+    borderRadius: 4,
+    fontFamily: "Helvetica Neue, sans-serif",
+  } satisfies Theme;
   const [title, setTitle] = useState("");
   async function uploadFile(file: File) {
     const body = new FormData();
@@ -210,6 +277,8 @@ export default function NotesEditor() {
           className='min-h-screen'
           slashMenu={false}
           data-theming-css-variables-editor
+          theme={theme === "light" ? lightRedTheme : darkRedTheme}
+          data-changing-font
         >
           <SuggestionMenuController
             triggerCharacter={"/"}

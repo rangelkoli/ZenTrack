@@ -89,9 +89,8 @@ function App() {
   return (
     <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
       <Toaster />
-
       {isLoggedIn ? (
-        <div className=''>
+        <div className='bg-white dark:bg-slate-900 '>
           <SidebarProvider>
             <AppSidebar />
             <SidebarInset className='w-screen overflow-hidden'>

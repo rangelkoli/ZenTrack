@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { PartialBlock } from "@blocknote/core";
 import extractTableOfContents from "../lib/toc";
+import { useTheme } from "./theme-provider";
+import { motion } from "framer-motion";
 
 interface Toc {
   title: titleProps[];
@@ -15,20 +16,31 @@ interface titleProps {
 }
 
 export function TableOfContents({ content }: { content: PartialBlock[] }) {
-  const [showToc, setShowToc] = useState(true); // State to control visibility of table of contents
+  const [showToc, setShowToc] = useState(false); // State to control visibility of table of contents
   const toc = extractTableOfContents(content);
   console.log("Toc", toc);
 
   const toggleToc = () => {
     setShowToc(!showToc);
   };
-
+  const { theme } = useTheme();
   return (
-    <div>
-      <Card
+    <div onMouseLeave={() => setShowToc(false)}>
+      <button
+        className='fixed right-0 top-20 p-2 bg-gray-200 rounded-full hover:bg-gray-300'
+        onMouseEnter={() => setShowToc(true)}
+      >
+        Hover Me
+      </button>
+      <motion.div
+        initial={{ opacity: 0, x: 100 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, type: "tween", ease: "easeOut" }}
         className={`fixed right-4 top-20 w-64 overflow-y-auto max-h-[calc(100vh-10rem)] z-50 bg-background/60 backdrop-blur-sm border border-border/50 ${
           showToc ? "" : "hidden"
-        }`}
+        }
+        ${theme === "dark" ? "text-white" : "text-black"}
+        `}
       >
         <button
           onClick={toggleToc}
@@ -63,7 +75,7 @@ export function TableOfContents({ content }: { content: PartialBlock[] }) {
               ))}
           </nav>
         </div>
-      </Card>
+      </motion.div>
     </div>
   );
 }

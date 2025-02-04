@@ -9,6 +9,8 @@ from werkzeug.utils import secure_filename
 from io import BytesIO
 import PIL.Image
 
+
+
 notes_blueprint = Blueprint('notes_blueprint', __name__, url_prefix='/notes')
 
 @notes_blueprint.route('/main/', methods=['POST', 'GET'])
@@ -54,6 +56,7 @@ def update_note(id):
     db.from_('notes').update(updated_note).eq('id', id).execute()
 
     return jsonify(updated_note)
+
 
 @notes_blueprint.route('/upload_image/', methods=['POST'])
 def upload_image():
