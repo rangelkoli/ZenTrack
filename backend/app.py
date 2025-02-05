@@ -94,6 +94,11 @@ def generate_image():
 
     return jsonify({"message": "Image Generated"})
 
+
+@app.route('/extension/content/', methods=['POST'])
+def extensionTest():
+
+    return jsonify({"message": "Text Generated"})
 if __name__ == '__main__':
     db.init_app(app)
     with app.app_context():

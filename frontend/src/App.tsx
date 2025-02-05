@@ -41,7 +41,7 @@ import LandingPage from "./pages/LandingPage";
 import TodoList from "./pages/TodoList";
 import { Toaster } from "@/components/ui/toaster";
 import HabitTracker from "./pages/HabitTracker";
-
+import "./App.css";
 function App() {
   const [open, setOpen] = React.useState(false);
 

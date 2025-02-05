@@ -1,5 +1,5 @@
 import React from "react";
-import axios from "axios";
+// import axios from "axios";
 
 const AttachmentsEditor = () => {
   const [imageUploaded, setImageUploaded] = React.useState(false);
@@ -7,25 +7,25 @@ const AttachmentsEditor = () => {
   const [showDialog, setShowDialog] = React.useState(false);
   const [textInput, setTextInput] = React.useState("");
 
-  const uploadFile = async (file: File) => {
-    const res = await axios.post(
-      `http://127.0.0.1:5000/notes/generate_cover_image/`,
-      {
-        text: "Hello, World!",
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      }
-    );
-    console.log(res);
+  // const uploadFile = async (file: File) => {
+  //   const res = await axios.post(
+  //     `http://127.0.0.1:5000/notes/generate_cover_image/`,
+  //     {
+  //       text: "Hello, World!",
+  //     },
+  //     {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+  //       },
+  //     }
+  //   );
+  //   console.log(res);
 
-    const resData = JSON.parse(res.data);
-    console.log(resData);
-    // Do something with the uploaded image URL
-  };
+  //   const resData = JSON.parse(res.data);
+  //   console.log(resData);
+  //   // Do something with the uploaded image URL
+  // };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -36,11 +36,11 @@ const AttachmentsEditor = () => {
     }
   };
 
-  const handleUploadButtonClick = () => {
-    if (file) {
-      uploadFile(file as File);
-    }
-  };
+  // const handleUploadButtonClick = () => {
+  //   if (file) {
+  //     uploadFile(file as File);
+  //   }
+  // };
 
   const handleCancelClick = () => {
     setImageUploaded(false);
