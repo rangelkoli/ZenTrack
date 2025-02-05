@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Home } from "lucide-react";
-
+import { Home, SquareTerminal, Map, Frame, PieChart } from "lucide-react";
+import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import useUserStore from "@/stores/user";
 import {
@@ -15,18 +15,87 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "./mode-toggle";
-
+import { NavProjects } from "./nav-projects";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useUserStore((state) => state.user);
+
+  const data = {
+    navMain: [
+      {
+        title: "Recent Notes",
+        url: "#",
+        icon: SquareTerminal,
+        isActive: true,
+        items: [
+          {
+            title: "History",
+            url: "#",
+          },
+          {
+            title: "Starred",
+            url: "#",
+          },
+          {
+            title: "Settings",
+            url: "#",
+          },
+        ],
+      },
+      {
+        title: "Folders",
+        url: "#",
+        icon: SquareTerminal,
+        isActive: true,
+        items: [
+          {
+            title: "History",
+            url: "#",
+          },
+          {
+            title: "Starred",
+            url: "#",
+          },
+          {
+            title: "Settings",
+            url: "#",
+          },
+        ],
+      },
+    ],
+    projects: [
+      {
+        name: "Habits",
+        url: "/habits",
+        icon: Frame,
+      },
+      {
+        name: "Finances",
+        url: "#",
+        icon: PieChart,
+      },
+      {
+        name: "Journal",
+        url: "#",
+        icon: Map,
+      },
+    ],
+  };
   return (
-    <Sidebar {...props}>
-      <SidebarHeader className='h-16 border-b border-sidebar-border dark:border-slate-800 dark:bg-slate-900'>
+    <Sidebar
+      {...props}
+      collapsible='icon'
+      variant='inset'
+      className='bg-white dark:bg-slate-900'
+    >
+      <SidebarHeader className='h-16 '>
         <NavUser user={user} />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarSeparator className='mx-0' />
-        {/* <Calendars calendars={data.calendars} /> */}
-        <SidebarMenu>
+        <NavMain items={data.navMain} />
+        <NavProjects projects={data.projects} />
+
+        {/* <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => {
@@ -40,18 +109,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarSeparator className='mx-0' />
 
           <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={() => {
-                /* handle Finance button click */
-              }}
-            >
-              Finance
-            </SidebarMenuButton>
+            <SidebarMenuButton onClick={() => {}}>Finance</SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => {
-                /* handle Notes button click */
                 window.location.href = "/notes";
               }}
             >
@@ -59,27 +121,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={() => {
-                /* handle Habits button click */
-              }}
-            >
-              Habits
-            </SidebarMenuButton>
+            <SidebarMenuButton onClick={() => {}}>Habits</SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => {
-                /* handle Journal button click */
               }}
             >
               Journal
             </SidebarMenuButton>
           </SidebarMenuItem>
-        </SidebarMenu>
+        </SidebarMenu> */}
         <SidebarSeparator className='mx-0' />
       </SidebarContent>
       <SidebarFooter>
+        <div className='flex justify-center'>
+          <SidebarTrigger className-='-ml-1' />
+        </div>
+
         <ModeToggle />
       </SidebarFooter>
       <SidebarRail />

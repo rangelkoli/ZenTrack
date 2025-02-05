@@ -248,8 +248,8 @@ export default function NotesEditor() {
   }
 
   return (
-    <>
-      <div className='m-10 gap-4 flex flex-col'>
+    <div className=''>
+      <div className='m-10 gap-4 flex flex-col '>
         {coverUrl ? (
           <img
             src={coverUrl}
@@ -290,6 +290,6 @@ export default function NotesEditor() {
           <TableOfContents content={initialContent} />
         )}
       </div>
-    </>
+    </div>
   );
 }
