@@ -30,11 +30,10 @@ import {
   locales as multiColumnLocales,
   withMultiColumn,
 } from "@blocknote/xl-multi-column";
-import { useMemo } from "react";
+import { useMemo, useCallback, useState, useEffect } from "react";
 import { useTheme } from "@/components/theme-provider";
 import { useParams } from "react-router";
 import useNotesContent from "@/stores/notesContent";
-import { useEffect, useState } from "react";
 import axios from "axios";
 import { TableOfContents } from "./table-of-contents";
 import BASE_URL from "@/constants/baseurl";
@@ -45,6 +44,7 @@ import { FormatWithAIButton } from "./FormatButton";
 import { AttachmentsList } from "./AttachmentsList";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Paperclip } from "lucide-react";
+import { useAutosave } from "@/hooks/use-autosave";
 
 export default function NotesEditor() {
   const [initialContent, setInitialContent] = useState<
@@ -133,6 +133,9 @@ export default function NotesEditor() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [showAttachmentInput, setShowAttachmentInput] = useState(false);
 
+  // Add state for tracking editor content
+  const [editorContent, setEditorContent] = useState<any>(null);
+
   async function uploadFile(file: File) {
     const body = new FormData();
     body.append("file", file);
@@ -146,36 +149,76 @@ export default function NotesEditor() {
     return data.url;
   }
   // Renders the editor instance using a React component.
-  async function saveToStorage() {
-    // Save contents to local storage. You might want to debounce this or replace
-    // with a call to your API / database.
+  const handleAutosave = useCallback(async () => {
+    if (!editor || !id) return;
 
-    // setIsSaving(true);
-    console.log(title);
     try {
-      axios
-        .put(`${BASE_URL}/notes/update_note/${id}`, {
-          title: title,
-          content: JSON.stringify(editor?.document),
-        })
-        .then((res) => {
-          console.log(res);
-          toast({
-            title: "Note saved",
-            description: "Your note has been saved successfully",
-            style: {
-              backgroundColor: "#4BB543",
-              color: "#F3F4F6",
-            },
-            duration: 3000,
-          });
-        });
+      await axios.put(`${BASE_URL}/notes/update_note/${id}`, {
+        title,
+        content: JSON.stringify(editor.document),
+      });
 
-      // setIsSaving(false);
-    } catch (err) {
-      console.log(err);
+      // Show a subtle toast for autosave
+      toast({
+        title: "Changes saved",
+        description: "Document autosaved",
+        style: { backgroundColor: "#4BB543", color: "#F3F4F6" },
+        duration: 1500,
+      });
+    } catch (error) {
+      console.error("Autosave failed:", error);
+      toast({
+        title: "Autosave failed",
+        description: "Changes couldn't be saved automatically",
+        style: { backgroundColor: "#ff4444", color: "#F3F4F6" },
+      });
     }
-  }
+  }, [id, title]);
+
+  // Initialize autosave
+  const { save } = useAutosave({
+    onSave: handleAutosave,
+    interval: 30000, // 30 seconds
+  });
+
+  // Modify editor creation to include content tracking
+  const editor = useMemo(() => {
+    if (initialContent === "loading") return undefined;
+
+    const editorInstance = BlockNoteEditor.create({
+      initialContent,
+      schema: withMultiColumn(BlockNoteSchema.create()),
+      dropCursor: multiColumnDropCursor,
+      dictionary: {
+        ...locales.en,
+        multi_column: multiColumnLocales.en,
+      },
+      animations: true,
+      uploadFile,
+    });
+
+    return editorInstance;
+  }, [initialContent, save]);
+
+  // Update saveToStorage to use autosave
+  const saveToStorage = async () => {
+    try {
+      await save();
+      toast({
+        title: "Saved",
+        description: "All changes have been saved",
+        style: { backgroundColor: "#4BB543", color: "#F3F4F6" },
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error("Manual save failed:", error);
+      toast({
+        title: "Save failed",
+        description: "Changes couldn't be saved",
+        style: { backgroundColor: "#ff4444", color: "#F3F4F6" },
+      });
+    }
+  };
 
   async function loadFromStorage() {
     // Gets the previously stored editor contents.
@@ -197,22 +240,6 @@ export default function NotesEditor() {
     });
   }, []);
 
-  const editor = useMemo(() => {
-    if (initialContent === "loading") {
-      return undefined;
-    }
-    return BlockNoteEditor.create({
-      initialContent,
-      schema: withMultiColumn(BlockNoteSchema.create()),
-      dropCursor: multiColumnDropCursor,
-      dictionary: {
-        ...locales.en,
-        multi_column: multiColumnLocales.en,
-      },
-      animations: true,
-      uploadFile,
-    });
-  }, [initialContent]);
   // Gets the default slash menu items merged with the multi-column ones.
   const getSlashMenuItems = useMemo(() => {
     if (editor === undefined) {
@@ -247,6 +274,7 @@ export default function NotesEditor() {
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
+    save(); // Trigger autosave on title change
   };
 
   const handleTitleBlur = async () => {
@@ -340,31 +368,34 @@ export default function NotesEditor() {
 
   return (
     <div className='relative'>
+      {/* Title section - Make it sticky */}
+      <div className='sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b'>
+        <div className='max-w-4xl mx-auto px-4 py-4'>
+          {isEditingTitle ? (
+            <input
+              type='text'
+              value={title}
+              onChange={handleTitleChange}
+              onBlur={handleTitleBlur}
+              autoFocus
+              className='text-3xl font-bold outline-none w-full bg-transparent border-b-2 border-gray-300 focus:border-blue-500'
+              placeholder='Untitled'
+            />
+          ) : (
+            <h1
+              onClick={() => setIsEditingTitle(true)}
+              className='text-3xl font-bold cursor-pointer hover:opacity-80'
+            >
+              {title || "Untitled"}
+            </h1>
+          )}
+        </div>
+      </div>
+
+      {/* Main content */}
       <div className=''>
         <div className='m-10 gap-4 flex flex-col'>
-          {/* Add title section before cover image */}
-          <div className='w-full mx-auto px-2 lg:px-20'>
-            {isEditingTitle ? (
-              <input
-                type='text'
-                value={title}
-                onChange={handleTitleChange}
-                onBlur={handleTitleBlur}
-                autoFocus
-                className='text-3xl font-bold outline-none w-full bg-transparent border-b-2 border-gray-300 focus:border-blue-500'
-                placeholder='Untitled'
-              />
-            ) : (
-              <h1
-                onClick={() => setIsEditingTitle(true)}
-                className='text-3xl font-bold cursor-pointer hover:opacity-80'
-              >
-                {title || "Untitled"}
-              </h1>
-            )}
-          </div>
-
-          {/* Existing cover image code */}
+          {/* Cover image and attachments */}
           {coverUrl ? (
             <img
               src={coverUrl}
@@ -375,12 +406,12 @@ export default function NotesEditor() {
             <AttachmentsEditor />
           )}
 
-          {/* Add AttachmentsList below cover image */}
           <div className='max-w-4xl mx-auto w-full'>
             <AttachmentsList />
           </div>
         </div>
 
+        {/* Rest of the editor */}
         <div className='w-full mx-auto px-2 lg:px-20'>
           <BlockNoteView
             editor={editor}
@@ -391,6 +422,9 @@ export default function NotesEditor() {
             theme={theme === "light" ? lightRedTheme : darkRedTheme}
             data-changing-font
             formattingToolbar={false}
+            onChange={() => {
+              save();
+            }}
           >
             <FormattingToolbarController
               formattingToolbar={() => (

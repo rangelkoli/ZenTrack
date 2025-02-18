@@ -131,3 +131,17 @@
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
+
+/* Add smooth transition for sticky header */
+.sticky {
+  transition: backdrop-filter 0.3s ease;
+}
+
+.sticky:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
