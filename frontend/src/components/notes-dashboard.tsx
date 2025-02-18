@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { AudioPlayer } from "@/components/audio-player";
 import { BookCard } from "@/components/book-card";
 import { Button } from "@/components/ui/button";
-
+import { motion } from "framer-motion";
 type Note = {
   title: string;
   content: string;
@@ -40,7 +40,12 @@ export default function NotesDashboard() {
   const [recentNote, setRecentNote] = useState<Note[]>([]);
 
   return (
-    <div className='flex flex-col h-screen bg-muted '>
+    <motion.div
+      className='flex flex-col h-screen bg-muted w-screen'
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
       {/* <header className='border-b px-6 py-4'>
         <div className='relative'>
           <Search className='absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
@@ -116,6 +121,6 @@ export default function NotesDashboard() {
           ))}
         </div> */}
       </main>
-    </div>
+    </motion.div>
   );
 }

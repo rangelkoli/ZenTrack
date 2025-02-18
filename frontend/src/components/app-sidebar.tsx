@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Home, SquareTerminal, Map, Frame, PieChart } from "lucide-react";
+import { SquareTerminal, Map, Frame, PieChart } from "lucide-react";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import useUserStore from "@/stores/user";
@@ -8,9 +8,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";

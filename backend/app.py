@@ -23,7 +23,13 @@ app.register_blueprint(tasks_blueprint, url_prefix='/tasks')
 app.register_blueprint(habits_blueprint, url_prefix='/habits')
 app.config["JWT_SECRET_KEY"] = 'asdasddasdasd'
 app.config['JWT_TOKEN_LOCATION'] = ['headers']
-CORS(app)
+CORS(app, resources={
+    r"/*": {
+        "origins": ["http://localhost:5173"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 jwt = JWTManager(app)
 
 # Configure SQLite database

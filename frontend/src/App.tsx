@@ -1,6 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar";
 
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import FinanceDashboard from "./components/finance-dashboard";
 import NotesDashboard from "./components/notes-dashboard";
@@ -36,6 +36,8 @@ import TodoList from "./pages/TodoList";
 import { Toaster } from "@/components/ui/toaster";
 import HabitTracker from "./pages/HabitTracker";
 import "./App.css";
+import { AnimatePresence } from "framer-motion";
+
 function App() {
   const isLoggedIn = useUserStore((state) => state.user.isLoggedIn);
 
@@ -80,94 +82,56 @@ function App() {
   return (
     <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
       <Toaster />
-      {isLoggedIn ? (
-        <div className='bg-white dark:bg-slate-900 text-black dark:text-white '>
-          <SidebarProvider>
-            <AppSidebar />
-
-            {/* <header className='relative top-0 flex h-16 shrink-0 items-center gap-2 border-b bg-white dark:bg-slate-900 px-4 z-50'>
+      <AnimatePresence>
+        {isLoggedIn ? (
+          <div className='bg-white dark:bg-slate-900 text-black dark:text-white '>
+            <SidebarProvider>
+              <AppSidebar />
+              <SidebarInset>
+                <main className=''>
+                  {/* <header className='relative top-0 flex h-16 shrink-0 items-center gap-2 border-b bg-white dark:bg-slate-900 px-4 z-50'>
               <SidebarTrigger className-='-ml-1' />
               <Separator orientation='vertical' className='mr-2 h-4' />
               {title ? (
                 <div>
-                  <h1 className='text-lg font-semibold'>{title}</h1>
+                <h1 className='text-lg font-semibold'>{title}</h1>
                 </div>
-              ) : (
-                <div className='relative w-full'>
+                ) : (
+                  <div className='relative w-full'>
                   <Search className='absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
                   <Input
-                    placeholder='Search books here'
-                    className='w-full pl-8'
+                  placeholder='Search books here'
+                  className='w-full pl-8'
                   />
-                </div>
-              )}
-            </header> */}
+                  </div>
+                  )}
+                </header> */}
+                  <BrowserRouter>
+                    <Routes>
+                      <Route path='/notes' element={<NotesDashboard />} />
+                      <Route path='/finance' element={<FinanceDashboard />} />
+                      <Route path='/notes/:id' element={<NotesEditor />} />
+                      <Route path='/' element={<Home />} />
+                      <Route path='/tasks' element={<TodoList />} />
+                      <Route path='/habit-tracker' element={<HabitTracker />} />
+                    </Routes>
+                  </BrowserRouter>
+                </main>
+              </SidebarInset>
+            </SidebarProvider>
+          </div>
+        ) : (
+          <div className='bg-background h-screen flex items-center justify-center w-screen'>
             <BrowserRouter>
               <Routes>
-                <Route path='/notes' element={<NotesDashboard />} />
-                <Route path='/finance' element={<FinanceDashboard />} />
-                <Route path='/notes/:id' element={<NotesEditor />} />
-                <Route path='/' element={<Home />} />
-                <Route path='/tasks' element={<TodoList />} />
-                <Route path='/habit-tracker' element={<HabitTracker />} />
+                <Route path='/login' element={<LoginPage />} />
+                <Route path='/signup' element={<SignUpPage />} />
+                <Route path='/' element={<LandingPage />} />
               </Routes>
             </BrowserRouter>
-            {/* <div className=' '>
-                <CommandDialog open={open} onOpenChange={setOpen}>
-                  <CommandInput
-                    placeholder='Type a command or search...'
-                    className=''
-                  />
-                  <CommandList>
-                    <CommandEmpty>No results found.</CommandEmpty>
-                    <CommandGroup heading='Suggestions'>
-                      <CommandItem>
-                        <Calendar />
-                        <span>Calendar</span>
-                      </CommandItem>
-                      <CommandItem>
-                        <Smile />
-                        <span>Search Emoji</span>
-                      </CommandItem>
-                      <CommandItem>
-                        <Calculator />
-                        <span>Calculator</span>
-                      </CommandItem>
-                    </CommandGroup>
-                    <CommandSeparator />
-                    <CommandGroup heading='Settings'>
-                      <CommandItem>
-                        <User />
-                        <span>Profile</span>
-                        <CommandShortcut>⌘P</CommandShortcut>
-                      </CommandItem>
-                      <CommandItem>
-                        <CreditCard />
-                        <span>Billing</span>
-                        <CommandShortcut>⌘B</CommandShortcut>
-                      </CommandItem>
-                      <CommandItem>
-                        <Settings />
-                      </CommandItem>
-                      <span>Settings</span>
-                      <CommandShortcut>⌘S</CommandShortcut>
-                    </CommandGroup>
-                  </CommandList>
-                </CommandDialog>
-              </div> */}
-          </SidebarProvider>
-        </div>
-      ) : (
-        <div className='bg-background h-screen flex items-center justify-center w-screen'>
-          <BrowserRouter>
-            <Routes>
-              <Route path='/login' element={<LoginPage />} />
-              <Route path='/signup' element={<SignUpPage />} />
-              <Route path='/' element={<LandingPage />} />
-            </Routes>
-          </BrowserRouter>
-        </div>
-      )}
+          </div>
+        )}
+      </AnimatePresence>
     </ThemeProvider>
   );
 }

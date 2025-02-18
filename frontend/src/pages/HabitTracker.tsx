@@ -1,7 +1,7 @@
 // import HabitTrackerComponent from "@/components/habit-tracker";
 import axios from "axios";
 import { useEffect, useState } from "react";
-
+import { motion } from "framer-motion";
 interface HabitProps {
   created_at: string;
   days: number[];
@@ -37,12 +37,17 @@ const HabitTracker = () => {
   }, [habits]);
 
   return (
-    <div className='p-4 text-center'>
+    <motion.div
+      className='p-4 text-center'
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
       <h1 className='text-2xl md:text-3xl font-bold mb-6'>Habit Tracker</h1>
       {/* {habits && (
         <HabitTrackerComponent habits={habits} setHabits={setHabits} />
       )} */}
-    </div>
+    </motion.div>
   );
 };
 
