@@ -5,7 +5,6 @@ import {
   locales,
   PartialBlock,
   BlockNoteEditor,
-  Block,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView, Theme } from "@blocknote/mantine";
@@ -43,10 +42,6 @@ import AttachmentsEditor from "./attachments-editor";
 import { useToast } from "@/hooks/use-toast";
 import "./editorstyles.css";
 import { FormatWithAIButton } from "./FormatButton";
-
-type Selection = {
-  blocks: Block[];
-};
 
 export default function NotesEditor() {
   const [initialContent, setInitialContent] = useState<
@@ -132,6 +127,8 @@ export default function NotesEditor() {
     fontFamily: "Helvetica Neue, sans-serif",
   } satisfies Theme;
   const [title, setTitle] = useState("");
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+
   async function uploadFile(file: File) {
     const body = new FormData();
     body.append("file", file);
@@ -244,21 +241,27 @@ export default function NotesEditor() {
     };
   }, [editor]);
 
-  // const [isSaving, setIsSaving] = useState(false);
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+  };
 
-  // useEffect(() => {
-  //   const autosaveInterval = setInterval(() => {
-  //     if (editor && !isSaving) {
-  //       saveToStorage(editor.document);
-  //     }
-  //   }, 5000);
-
-  //   return () => {
-  //     clearInterval(autosaveInterval);
-  //   };
-  // }, [editor, isSaving]);
-
-  // Uploads a file to tmpfiles.org and returns the URL to the uploaded file.
+  const handleTitleBlur = async () => {
+    setIsEditingTitle(false);
+    try {
+      await axios.put(`${BASE_URL}/notes/update_title/${id}`, {
+        title: title,
+      });
+      setNewTitle(title); // Update the global state
+    } catch (err) {
+      console.error("Failed to update title:", err);
+      toast({
+        title: "Error",
+        description: "Failed to update title",
+        style: { backgroundColor: "#ff4444", color: "#F3F4F6" },
+        duration: 3000,
+      });
+    }
+  };
 
   if (editor === undefined) {
     return "Loading content...";
@@ -266,7 +269,30 @@ export default function NotesEditor() {
 
   return (
     <div className=''>
-      <div className='m-10 gap-4 flex flex-col '>
+      <div className='m-10 gap-4 flex flex-col'>
+        {/* Add title section before cover image */}
+        <div className='w-full mx-auto px-2 lg:px-20'>
+          {isEditingTitle ? (
+            <input
+              type='text'
+              value={title}
+              onChange={handleTitleChange}
+              onBlur={handleTitleBlur}
+              autoFocus
+              className='text-3xl font-bold outline-none w-full bg-transparent border-b-2 border-gray-300 focus:border-blue-500'
+              placeholder='Untitled'
+            />
+          ) : (
+            <h1
+              onClick={() => setIsEditingTitle(true)}
+              className='text-3xl font-bold cursor-pointer hover:opacity-80'
+            >
+              {title || "Untitled"}
+            </h1>
+          )}
+        </div>
+
+        {/* Existing cover image code */}
         {coverUrl ? (
           <img
             src={coverUrl}
@@ -276,17 +302,8 @@ export default function NotesEditor() {
         ) : (
           <AttachmentsEditor />
         )}
-        {/* <div className='w-full mx-autosm: px-2 lg:px-20'>
-          <input
-            type='text'
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder='Title'
-            contentEditable={true}
-            className='text-2xl font-bold outline-none w-full'
-          />
-        </div> */}
       </div>
+
       <div className='w-full mx-auto px-2 lg:px-20'>
         <BlockNoteView
           editor={editor}

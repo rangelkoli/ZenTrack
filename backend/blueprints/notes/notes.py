@@ -56,6 +56,21 @@ def update_note(id):
 
     return jsonify(updated_note)
 
+@notes_blueprint.route('/update_title/<int:id>', methods=['PUT'])
+def update_title(id):
+    data = request.json
+    title = data.get('title', '')
+    
+    try:
+        updated_note = {
+            'title': title,
+            'updated_at': datetime.now().isoformat()
+        }
+        db.from_('notes').update(updated_note).eq('id', id).execute()
+        return jsonify({'message': 'Title updated successfully', 'title': title})
+    except Exception as e:
+        print(f"Error updating title: {str(e)}")
+        return jsonify({'error': 'Failed to update title'}), 500
 
 @notes_blueprint.route('/upload_image/', methods=['POST'])
 def upload_image():

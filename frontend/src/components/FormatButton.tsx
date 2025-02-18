@@ -1,12 +1,6 @@
-import {
-  useBlockNoteEditor,
-  useComponentsContext,
-  useEditorContentOrSelectionChange,
-} from "@blocknote/react";
-import { Block } from "@blocknote/core";
+import { useBlockNoteEditor, useComponentsContext } from "@blocknote/react";
 import "@blocknote/mantine/style.css";
 import { useState } from "react";
-import axios from "axios";
 import BASE_URL from "@/constants/baseurl";
 
 export function FormatWithAIButton() {
