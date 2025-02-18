@@ -18,12 +18,10 @@ export function useAutosave({ interval = 30000, onSave }: AutosaveOptions) {
       try {
         await onSave();
         lastSaveRef.current = new Date();
-      } catch (error) {
-        console.error('Autosave failed:', error);
       } finally {
         pendingSaveRef.current = false;
       }
-    }, 1000),
+    }, 1000, { maxWait: 5000 }), // Add maxWait to ensure saves happen
     [onSave]
   );
 

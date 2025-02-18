@@ -30,7 +30,7 @@ import {
   locales as multiColumnLocales,
   withMultiColumn,
 } from "@blocknote/xl-multi-column";
-import { useMemo, useCallback, useState, useEffect } from "react";
+import { useMemo, useCallback, useState, useEffect, useRef } from "react";
 import { useTheme } from "@/components/theme-provider";
 import { useParams } from "react-router";
 import useNotesContent from "@/stores/notesContent";
@@ -136,6 +136,9 @@ export default function NotesEditor() {
   // Add state for tracking editor content
   const [editorContent, setEditorContent] = useState<any>(null);
 
+  // Add ref to track if content has changed
+  const hasChanges = useRef(false);
+
   async function uploadFile(file: File) {
     const body = new FormData();
     body.append("file", file);
@@ -148,38 +151,6 @@ export default function NotesEditor() {
     const data = await ret.json();
     return data.url;
   }
-  // Renders the editor instance using a React component.
-  const handleAutosave = useCallback(async () => {
-    if (!editor || !id) return;
-
-    try {
-      await axios.put(`${BASE_URL}/notes/update_note/${id}`, {
-        title,
-        content: JSON.stringify(editor.document),
-      });
-
-      // Show a subtle toast for autosave
-      toast({
-        title: "Changes saved",
-        description: "Document autosaved",
-        style: { backgroundColor: "#4BB543", color: "#F3F4F6" },
-        duration: 1500,
-      });
-    } catch (error) {
-      console.error("Autosave failed:", error);
-      toast({
-        title: "Autosave failed",
-        description: "Changes couldn't be saved automatically",
-        style: { backgroundColor: "#ff4444", color: "#F3F4F6" },
-      });
-    }
-  }, [id, title]);
-
-  // Initialize autosave
-  const { save } = useAutosave({
-    onSave: handleAutosave,
-    interval: 30000, // 30 seconds
-  });
 
   // Modify editor creation to include content tracking
   const editor = useMemo(() => {
@@ -198,7 +169,44 @@ export default function NotesEditor() {
     });
 
     return editorInstance;
-  }, [initialContent, save]);
+  }, [initialContent]);
+  // Renders the editor instance using a React component.
+  const handleAutosave = useCallback(async () => {
+    if (!editor || !id || !hasChanges.current) return;
+
+    try {
+      await axios.put(`${BASE_URL}/notes/update_note/${id}`, {
+        title,
+        content: JSON.stringify(editor.document),
+      });
+
+      hasChanges.current = false; // Reset changes flag after successful save
+
+      toast({
+        title: "Changes saved",
+        description: "Document autosaved",
+        style: { backgroundColor: "#4BB543", color: "#F3F4F6" },
+        duration: 1500,
+      });
+    } catch (error) {
+      console.error("Autosave failed:", error);
+      toast({
+        title: "Autosave failed",
+        description: "Changes couldn't be saved automatically",
+        style: { backgroundColor: "#ff4444", color: "#F3F4F6" },
+      });
+    }
+  }, [editor, id, title]);
+  // Initialize autosave with the changes check
+  const { save } = useAutosave({
+    onSave: handleAutosave,
+    interval: 30000, // 30 seconds
+  });
+  // Create a handler for content changes
+  const handleEditorChange = useCallback(() => {
+    hasChanges.current = true;
+    save();
+  }, [save]);
 
   // Update saveToStorage to use autosave
   const saveToStorage = async () => {
@@ -422,9 +430,7 @@ export default function NotesEditor() {
             theme={theme === "light" ? lightRedTheme : darkRedTheme}
             data-changing-font
             formattingToolbar={false}
-            onChange={() => {
-              save();
-            }}
+            onChange={handleEditorChange}
           >
             <FormattingToolbarController
               formattingToolbar={() => (
