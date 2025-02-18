@@ -42,6 +42,9 @@ import AttachmentsEditor from "./attachments-editor";
 import { useToast } from "@/hooks/use-toast";
 import "./editorstyles.css";
 import { FormatWithAIButton } from "./FormatButton";
+import { AttachmentsList } from "./AttachmentsList";
+import { Button } from "@/components/ui/button";
+import { PlusCircle, Paperclip } from "lucide-react";
 
 export default function NotesEditor() {
   const [initialContent, setInitialContent] = useState<
@@ -128,6 +131,7 @@ export default function NotesEditor() {
   } satisfies Theme;
   const [title, setTitle] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [showAttachmentInput, setShowAttachmentInput] = useState(false);
 
   async function uploadFile(file: File) {
     const body = new FormData();
@@ -263,123 +267,198 @@ export default function NotesEditor() {
     }
   };
 
+  const renderAttachmentInput = () => (
+    <div className='fixed bottom-4 right-4 flex flex-col gap-2'>
+      {showAttachmentInput && (
+        <div className='bg-background p-4 rounded-lg shadow-lg border mb-2 animate-in slide-in-from-bottom'>
+          <input
+            type='file'
+            multiple
+            className='hidden'
+            id='file-upload'
+            onChange={(e) => e.target.files && handleFiles(e.target.files)}
+          />
+          <label
+            htmlFor='file-upload'
+            className='cursor-pointer flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground'
+          >
+            <PlusCircle size={16} />
+            Choose files to upload
+          </label>
+        </div>
+      )}
+      <Button
+        variant='outline'
+        size='icon'
+        className='rounded-full h-12 w-12 shadow-lg'
+        onClick={() => setShowAttachmentInput(!showAttachmentInput)}
+      >
+        <Paperclip size={20} />
+      </Button>
+    </div>
+  );
+
+  const handleFiles = async (files: FileList) => {
+    const formData = new FormData();
+    for (const file of Array.from(files)) {
+      formData.append("files[]", file);
+    }
+
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/notes/${id}/attachments`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      toast({
+        title: "Success",
+        description: "Files uploaded successfully",
+        style: { backgroundColor: "#4BB543", color: "#F3F4F6" },
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Error uploading files:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload files",
+        style: { backgroundColor: "#ff4444", color: "#F3F4F6" },
+        duration: 3000,
+      });
+    } finally {
+      setShowAttachmentInput(false);
+    }
+  };
+
   if (editor === undefined) {
     return "Loading content...";
   }
 
   return (
-    <div className=''>
-      <div className='m-10 gap-4 flex flex-col'>
-        {/* Add title section before cover image */}
-        <div className='w-full mx-auto px-2 lg:px-20'>
-          {isEditingTitle ? (
-            <input
-              type='text'
-              value={title}
-              onChange={handleTitleChange}
-              onBlur={handleTitleBlur}
-              autoFocus
-              className='text-3xl font-bold outline-none w-full bg-transparent border-b-2 border-gray-300 focus:border-blue-500'
-              placeholder='Untitled'
+    <div className='relative'>
+      <div className=''>
+        <div className='m-10 gap-4 flex flex-col'>
+          {/* Add title section before cover image */}
+          <div className='w-full mx-auto px-2 lg:px-20'>
+            {isEditingTitle ? (
+              <input
+                type='text'
+                value={title}
+                onChange={handleTitleChange}
+                onBlur={handleTitleBlur}
+                autoFocus
+                className='text-3xl font-bold outline-none w-full bg-transparent border-b-2 border-gray-300 focus:border-blue-500'
+                placeholder='Untitled'
+              />
+            ) : (
+              <h1
+                onClick={() => setIsEditingTitle(true)}
+                className='text-3xl font-bold cursor-pointer hover:opacity-80'
+              >
+                {title || "Untitled"}
+              </h1>
+            )}
+          </div>
+
+          {/* Existing cover image code */}
+          {coverUrl ? (
+            <img
+              src={coverUrl}
+              alt='Deploy'
+              className='w-full h-80 max-w-4xl mx-auto object-cover rounded-lg'
             />
           ) : (
-            <h1
-              onClick={() => setIsEditingTitle(true)}
-              className='text-3xl font-bold cursor-pointer hover:opacity-80'
-            >
-              {title || "Untitled"}
-            </h1>
+            <AttachmentsEditor />
           )}
+
+          {/* Add AttachmentsList below cover image */}
+          <div className='max-w-4xl mx-auto w-full'>
+            <AttachmentsList />
+          </div>
         </div>
 
-        {/* Existing cover image code */}
-        {coverUrl ? (
-          <img
-            src={coverUrl}
-            alt='Deploy'
-            className='w-full h-80 max-w-4xl mx-auto object-cover rounded-lg'
-          />
-        ) : (
-          <AttachmentsEditor />
-        )}
+        <div className='w-full mx-auto px-2 lg:px-20'>
+          <BlockNoteView
+            editor={editor}
+            // theme={theme}
+            className='min-h-screen'
+            slashMenu={false}
+            data-theming-css-variables-editor
+            theme={theme === "light" ? lightRedTheme : darkRedTheme}
+            data-changing-font
+            formattingToolbar={false}
+          >
+            <FormattingToolbarController
+              formattingToolbar={() => (
+                <FormattingToolbar>
+                  <BlockTypeSelect key={"blockTypeSelect"} />
+
+                  {/* Replace BlueButton with FormatWithAIButton */}
+                  <FormatWithAIButton key={"aiFormatButton"} />
+
+                  <FileCaptionButton key={"fileCaptionButton"} />
+                  <FileReplaceButton key={"replaceFileButton"} />
+
+                  <BasicTextStyleButton
+                    basicTextStyle={"bold"}
+                    key={"boldStyleButton"}
+                  />
+                  <BasicTextStyleButton
+                    basicTextStyle={"italic"}
+                    key={"italicStyleButton"}
+                  />
+                  <BasicTextStyleButton
+                    basicTextStyle={"underline"}
+                    key={"underlineStyleButton"}
+                  />
+                  <BasicTextStyleButton
+                    basicTextStyle={"strike"}
+                    key={"strikeStyleButton"}
+                  />
+                  {/* Extra button to toggle code styles */}
+                  <BasicTextStyleButton
+                    key={"codeStyleButton"}
+                    basicTextStyle={"code"}
+                  />
+
+                  <TextAlignButton
+                    textAlignment={"left"}
+                    key={"textAlignLeftButton"}
+                  />
+                  <TextAlignButton
+                    textAlignment={"center"}
+                    key={"textAlignCenterButton"}
+                  />
+                  <TextAlignButton
+                    textAlignment={"right"}
+                    key={"textAlignRightButton"}
+                  />
+
+                  <ColorStyleButton key={"colorStyleButton"} />
+
+                  <NestBlockButton key={"nestBlockButton"} />
+                  <UnnestBlockButton key={"unnestBlockButton"} />
+
+                  <CreateLinkButton key={"createLinkButton"} />
+                </FormattingToolbar>
+              )}
+            />
+            <SuggestionMenuController
+              triggerCharacter={"/"}
+              getItems={getSlashMenuItems}
+            />
+          </BlockNoteView>
+
+          {Array.isArray(initialContent) && (
+            <TableOfContents content={initialContent} />
+          )}
+        </div>
       </div>
-
-      <div className='w-full mx-auto px-2 lg:px-20'>
-        <BlockNoteView
-          editor={editor}
-          // theme={theme}
-          className='min-h-screen'
-          slashMenu={false}
-          data-theming-css-variables-editor
-          theme={theme === "light" ? lightRedTheme : darkRedTheme}
-          data-changing-font
-          formattingToolbar={false}
-        >
-          <FormattingToolbarController
-            formattingToolbar={() => (
-              <FormattingToolbar>
-                <BlockTypeSelect key={"blockTypeSelect"} />
-
-                {/* Replace BlueButton with FormatWithAIButton */}
-                <FormatWithAIButton key={"aiFormatButton"} />
-
-                <FileCaptionButton key={"fileCaptionButton"} />
-                <FileReplaceButton key={"replaceFileButton"} />
-
-                <BasicTextStyleButton
-                  basicTextStyle={"bold"}
-                  key={"boldStyleButton"}
-                />
-                <BasicTextStyleButton
-                  basicTextStyle={"italic"}
-                  key={"italicStyleButton"}
-                />
-                <BasicTextStyleButton
-                  basicTextStyle={"underline"}
-                  key={"underlineStyleButton"}
-                />
-                <BasicTextStyleButton
-                  basicTextStyle={"strike"}
-                  key={"strikeStyleButton"}
-                />
-                {/* Extra button to toggle code styles */}
-                <BasicTextStyleButton
-                  key={"codeStyleButton"}
-                  basicTextStyle={"code"}
-                />
-
-                <TextAlignButton
-                  textAlignment={"left"}
-                  key={"textAlignLeftButton"}
-                />
-                <TextAlignButton
-                  textAlignment={"center"}
-                  key={"textAlignCenterButton"}
-                />
-                <TextAlignButton
-                  textAlignment={"right"}
-                  key={"textAlignRightButton"}
-                />
-
-                <ColorStyleButton key={"colorStyleButton"} />
-
-                <NestBlockButton key={"nestBlockButton"} />
-                <UnnestBlockButton key={"unnestBlockButton"} />
-
-                <CreateLinkButton key={"createLinkButton"} />
-              </FormattingToolbar>
-            )}
-          />
-          <SuggestionMenuController
-            triggerCharacter={"/"}
-            getItems={getSlashMenuItems}
-          />
-        </BlockNoteView>
-
-        {Array.isArray(initialContent) && (
-          <TableOfContents content={initialContent} />
-        )}
-      </div>
+      {renderAttachmentInput()}
     </div>
   );
 }

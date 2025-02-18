@@ -170,6 +170,92 @@ def upload_file():
     else:
         return jsonify({"error": "Unsupported file type"}), 400
 
+@notes_blueprint.route('/<int:note_id>/attachments', methods=['GET'])
+def get_attachments(note_id):
+    try:
+        attachments = db.from_('note_attachments').select('*').eq('note_id', note_id).execute()
+        return jsonify(attachments.data)
+    except Exception as e:
+        print(f"Error getting attachments: {str(e)}")
+        return jsonify({'error': 'Failed to get attachments'}), 500
+
+@notes_blueprint.route('/<int:note_id>/attachments', methods=['POST'])
+async def add_attachment(note_id):
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    try:
+        # Read file content and get size
+        file_content = file.read()
+        file_size = len(file_content)
+        # Generate path
+        filename = secure_filename(file.filename)
+        unique_filename = f"{uuid.uuid4()}-{filename}"
+        file_path = f"{note_id}/{unique_filename}"
+
+        # Upload directly to Supabase using bytes
+        storage_response =  db.storage.from_("attachments").upload(
+            file=file_content,
+            path=file_path,
+            file_options={
+                "cache-control": "3600",
+                "upsert": "false",
+                "content-type": file.content_type
+            }
+        )
+
+        # Get public URL
+        file_url = db.storage.from_('attachments').get_public_url(file_path)
+        print(file_url)
+        # Create attachment record
+        attachment = {
+            'note_id': note_id,
+            'filename': filename,
+            'file_path': file_path,
+            'url': file_url,
+            'size': file_size,
+            'content_type': file.content_type,
+            'created_at': datetime.now().isoformat()
+        }
+        print(attachment)
+        
+        # Insert into database
+        result = db.from_('notes_attachments').insert(attachment).execute()  
+        print(result)
+        return jsonify({
+            'message': 'File uploaded successfully',
+            'attachment': attachment
+        })
+
+    except Exception as e:
+        print(f"Error uploading attachment: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@notes_blueprint.route('/<int:note_id>/attachments/<uuid:attachment_id>', methods=['DELETE'])
+def delete_attachment(note_id, attachment_id):
+    try:
+        # Get attachment info
+        attachment = db.from_('note_attachments').select('*').eq('id', str(attachment_id)).single().execute()
+        
+        if not attachment.data:
+            return jsonify({'error': 'Attachment not found'}), 404
+
+        # Delete from storage
+        db.storage.from_("attachments").remove(attachment.data['file_path'])
+        
+        # Delete from database
+        db.from_('note_attachments').delete().eq('id', str(attachment_id)).execute()
+        
+        return jsonify({'message': 'Attachment deleted successfully'})
+
+    except Exception as e:
+        print(f"Error deleting attachment: {str(e)}")
+        return jsonify({'error': 'Failed to delete attachment'}), 500
+
 @notes_blueprint.route('/format_with_ai/', methods=['POST'])
 def format_with_ai():
     data = request.json
