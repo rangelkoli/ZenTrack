@@ -262,8 +262,22 @@ def format_with_ai():
         3. Do not include any explanation text or markdown formatting
         4. Ensure the response starts with '[' and ends with ']'
         5. Keep the same block types but enhance their styling
+        6. Ensure to use only the available block types and inline content types
+        7. Ensure to use only the available props and styles
+        8. Ensure to use only the available colors
+        9. Ensure to use only the available text alignments
+        10. Ensure to use only the available heading levels
+        11. Ensure to use only the available list item types
+        12. Ensure to use only the available code block languages
+        13. Can partially format the text content of each block like bold, italic, underline, strikethrough, textColor, backgroundColor
+        Example of partially formatting the text content of each block:
+        Input:
+        {"id":"3d6e6637-cb29-4a18-af81-4b93b6aa2366","type":"heading","props":{"textColor":"default","backgroundColor":"default","textAlignment":"left","level":2},"content":[{"type":"text","text":"Don't get lost in the Tasks and Duties","styles":{}}],"children":[]},{"id":"936d64c8-d5b6-407e-bccd-0fcfb5ff77bd","type":"bulletListItem","props":{"textColor":"default","backgroundColor":"default","textAlignment":"left"},"content":[{"type":"text","text":"Whatever the specifics of a man's purpose, he must always refresh the transcendental element of his life through regular meditation and retreat","styles":{}}],"children":[]},{"id":"e4979aec-6597-4222-80ce-9e9180dd7aae","type":"bulletListItem","props":{"textColor":"default","backgroundColor":"default","textAlignment":"left"},"content":[{"type":"text","text":"Tasks are important, but no amount of duties adds up to love, freedom, or full consciousness. You cannot do enough, nor can you do the right things, so that you will finally feel complete","styles":{}}],"children":[]}
+        Can be formatted to:
+        {"id":"3d6e6637-cb29-4a18-af81-4b93b6aa2366","type":"heading","props":{"textColor":"default","backgroundColor":"default","textAlignment":"left","level":2},"content":[{"type":"text","text":"Don't get lost in the Tasks and Duties","styles":{}}],"children":[]},{"id":"936d64c8-d5b6-407e-bccd-0fcfb5ff77bd","type":"bulletListItem","props":{"textColor":"default","backgroundColor":"default","textAlignment":"left"},"content":[{"type":"text","text":"Whatever the specifics of a man's purpose, he must always ","styles":{}},{"type":"text","text":"refresh the transcendental element","styles":{"textColor":"orange"}},{"type":"text","text":" of his life through regular meditation and retreat","styles":{}}],"children":[]},{"id":"e4979aec-6597-4222-80ce-9e9180dd7aae","type":"bulletListItem","props":{"textColor":"default","backgroundColor":"default","textAlignment":"left"},"content":[{"type":"text","text":"Tasks are important, but no amount of duties adds up to ","styles":{}},{"type":"text","text":"love, freedom, or full consciousness","styles":{"textColor":"orange"}},{"type":"text","text":". ","styles":{}},{"type":"text","text":"You cannot do enough, nor can you do the right things","styles":{"textColor":"blue"}},{"type":"text","text":", so that you will finally feel complete","styles":{}}],"children":[]},{"id":"b5de8706-307c-4313-afcb-40351ff22de5","type":"paragraph","props":{"textColor":"default","backgroundColor":"default","textAlignment":"left"},"content":[],"children":[]}
 
-        Input blocks to format:
+        Blocks to format and enhance:
+        
         """ + str(blocks)
         
         response = genAIModel.generate_content(prompt, stream=True)
@@ -271,7 +285,7 @@ def format_with_ai():
         
         for chunk in response:
             accumulated_text += chunk.text
-            
+            print(accumulated_text)
             try:
                 # Clean up the response text - remove markdown formatting
                 cleaned_text = (accumulated_text
