@@ -43,7 +43,7 @@ import "./editorstyles.css";
 import { FormatWithAIButton } from "./FormatButton";
 import { AttachmentsList } from "./AttachmentsList";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Paperclip } from "lucide-react";
+import { PlusCircle, Paperclip, Clock } from "lucide-react";
 import { useAutosave } from "@/hooks/use-autosave";
 
 export default function NotesEditor() {
@@ -133,11 +133,10 @@ export default function NotesEditor() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [showAttachmentInput, setShowAttachmentInput] = useState(false);
 
-  // Add state for tracking editor content
-  const [editorContent, setEditorContent] = useState<any>(null);
-
   // Add ref to track if content has changed
   const hasChanges = useRef(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   async function uploadFile(file: File) {
     const body = new FormData();
@@ -175,12 +174,14 @@ export default function NotesEditor() {
     if (!editor || !id || !hasChanges.current) return;
 
     try {
+      setIsSaving(true);
       await axios.put(`${BASE_URL}/notes/update_note/${id}`, {
         title,
         content: JSON.stringify(editor.document),
       });
 
-      hasChanges.current = false; // Reset changes flag after successful save
+      hasChanges.current = false;
+      setLastSaved(new Date());
 
       toast({
         title: "Changes saved",
@@ -195,6 +196,8 @@ export default function NotesEditor() {
         description: "Changes couldn't be saved automatically",
         style: { backgroundColor: "#ff4444", color: "#F3F4F6" },
       });
+    } finally {
+      setIsSaving(false);
     }
   }, [editor, id, title]);
   // Initialize autosave with the changes check
@@ -238,6 +241,7 @@ export default function NotesEditor() {
       setCoverUrl(res.data[0].cover_image);
       console.log("coverUrl", res.data[0].cover_image);
       setNewTitle(res.data[0].title);
+      setLastSaved(new Date(res.data[0].updated_at));
     });
     return undefined;
   }
@@ -350,6 +354,7 @@ export default function NotesEditor() {
           },
         }
       );
+      console.log("Files uploaded successfully:", response.data);
 
       toast({
         title: "Success",
@@ -370,6 +375,21 @@ export default function NotesEditor() {
     }
   };
 
+  const formatLastSaved = (date: Date | null) => {
+    if (!date) return "Never saved";
+
+    const now = new Date();
+    console.log("now", now);
+    console.log("date", date);
+    const diff = Math.floor((now.getTime() - date.getTime()) / 1000); // difference in seconds
+    console.log("diff", diff);
+    if (diff < 5) return "Just now";
+    if (diff < 60) return `${diff} seconds ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+    return date.toLocaleDateString();
+  };
+
   if (editor === undefined) {
     return "Loading content...";
   }
@@ -379,24 +399,37 @@ export default function NotesEditor() {
       {/* Title section - Make it sticky */}
       <div className='sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b'>
         <div className='max-w-4xl mx-auto px-4 py-4'>
-          {isEditingTitle ? (
-            <input
-              type='text'
-              value={title}
-              onChange={handleTitleChange}
-              onBlur={handleTitleBlur}
-              autoFocus
-              className='text-3xl font-bold outline-none w-full bg-transparent border-b-2 border-gray-300 focus:border-blue-500'
-              placeholder='Untitled'
-            />
-          ) : (
-            <h1
-              onClick={() => setIsEditingTitle(true)}
-              className='text-3xl font-bold cursor-pointer hover:opacity-80'
-            >
-              {title || "Untitled"}
-            </h1>
-          )}
+          <div className='flex justify-between items-center'>
+            <div className='flex-1'>
+              {isEditingTitle ? (
+                <input
+                  type='text'
+                  value={title}
+                  onChange={handleTitleChange}
+                  onBlur={handleTitleBlur}
+                  autoFocus
+                  className='text-3xl font-bold outline-none w-full bg-transparent border-b-2 border-gray-300 focus:border-blue-500'
+                  placeholder='Untitled'
+                />
+              ) : (
+                <h1
+                  onClick={() => setIsEditingTitle(true)}
+                  className='text-3xl font-bold cursor-pointer hover:opacity-80'
+                >
+                  {title || "Untitled"}
+                </h1>
+              )}
+            </div>
+
+            <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+              <Clock size={14} />
+              {isSaving ? (
+                <span className='text-primary animate-pulse'>Saving...</span>
+              ) : (
+                <span>Last saved: {formatLastSaved(lastSaved)}</span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
