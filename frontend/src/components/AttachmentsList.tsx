@@ -150,47 +150,59 @@ export function AttachmentsList() {
         </label>
       </div>
 
-      <div className='space-y-2'>
-        {isLoading ? (
-          <div className='text-center py-8 text-muted-foreground'>
-            Loading attachments...
-          </div>
-        ) : attachments.length > 0 ? (
-          attachments.map((attachment) => (
-            <div
-              key={attachment.id}
-              className='flex items-center justify-between p-3 hover:bg-muted rounded-md group'
-            >
-              <div className='flex items-center gap-3'>
-                <FileText size={20} className='text-muted-foreground' />
-                <div>
-                  <a
-                    href={attachment.url}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-blue-500 hover:underline font-medium'
-                  >
-                    {attachment.filename}
-                  </a>
-                  <p className='text-sm text-muted-foreground'>
-                    {formatFileSize(attachment.size)} •{" "}
-                    {new Date(attachment.created_at).toLocaleDateString()}
-                  </p>
+      <div className='relative'>
+        <div className='overflow-x-auto flex space-x-4 pb-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent'>
+          {isLoading ? (
+            <div className='flex items-center justify-center min-w-[200px] h-32 bg-muted rounded-lg'>
+              <p className='text-muted-foreground'>Loading attachments...</p>
+            </div>
+          ) : attachments.length > 0 ? (
+            attachments.map((attachment) => (
+              <div
+                key={attachment.id}
+                className='flex-shrink-0 w-64 p-4 border rounded-lg hover:bg-muted transition-colors group'
+              >
+                <div className='flex flex-col gap-2'>
+                  <div className='flex items-start justify-between'>
+                    <FileText
+                      size={24}
+                      className='text-muted-foreground flex-shrink-0'
+                    />
+                    <button
+                      onClick={() => handleDelete(attachment.id)}
+                      className='text-destructive opacity-0 group-hover:opacity-100 transition-opacity'
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                  <div className='space-y-1'>
+                    <a
+                      href={attachment.url}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='text-blue-500 hover:underline font-medium line-clamp-1'
+                      title={attachment.filename}
+                    >
+                      {attachment.filename}
+                    </a>
+                    <p className='text-sm text-muted-foreground'>
+                      {formatFileSize(attachment.size)}
+                    </p>
+                    <p className='text-xs text-muted-foreground'>
+                      {new Date(attachment.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <button
-                onClick={() => handleDelete(attachment.id)}
-                className='text-destructive opacity-0 group-hover:opacity-100 transition-opacity'
-              >
-                <Trash2 size={16} />
-              </button>
+            ))
+          ) : (
+            <div className='flex items-center justify-center w-full h-32 bg-muted rounded-lg'>
+              <p className='text-muted-foreground'>
+                Drop files here or click upload to add attachments
+              </p>
             </div>
-          ))
-        ) : (
-          <div className='text-center py-8 text-muted-foreground'>
-            <p>Drop files here or click upload to add attachments</p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

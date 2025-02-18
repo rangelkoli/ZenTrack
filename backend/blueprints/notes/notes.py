@@ -173,7 +173,7 @@ def upload_file():
 @notes_blueprint.route('/<int:note_id>/attachments', methods=['GET'])
 def get_attachments(note_id):
     try:
-        attachments = db.from_('note_attachments').select('*').eq('note_id', note_id).execute()
+        attachments = db.from_('notes_attachments').select('*').eq('note_id', note_id).execute()
         return jsonify(attachments.data)
     except Exception as e:
         print(f"Error getting attachments: {str(e)}")
