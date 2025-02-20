@@ -253,6 +253,8 @@ export default function NotesEditor() {
         type: "latex",
       });
     },
+    icon: <span>LaTeX</span>,
+    group: "Math",
   });
 
   // Update saveToStorage to use autosave

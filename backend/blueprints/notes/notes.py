@@ -439,3 +439,259 @@ def format_with_ai():
     response.headers.add('Content-Type', 'text/event-stream')
     
     return response
+
+@notes_blueprint.route('/format_latex/', methods=['POST'])
+def format_latex():
+    data = request.json
+    latex_content = data.get('equation', '')
+    
+    if not latex_content:
+        return jsonify({'error': 'No LaTeX content provided'}), 400
+        
+    try:
+        # Format the LaTeX content
+        formatted_latex = format_latex_content(latex_content)
+        
+        return jsonify({
+            'formatted': formatted_latex,
+            'message': 'LaTeX formatted successfully'
+        })
+        
+    except Exception as e:
+        print(f"Error formatting LaTeX: {str(e)}")
+        return jsonify({
+            'error': 'Failed to format LaTeX',
+            'details': str(e)
+        }), 500
+
+@notes_blueprint.route('/format_latex_with_ai/', methods=['POST'])
+def format_latex_with_ai():
+    data = request.json
+    latex_content = data.get('equation', '')
+    
+    if not latex_content:
+        return jsonify({'error': 'No LaTeX content provided'}), 400
+        
+    try:
+        prompt = f"""
+        You are LaTeX formatting expert. Format and improve this LaTeX equation:
+        {latex_content}
+
+        Requirements:
+        1. Output ONLY the formatted LaTeX code without explanations
+        2. Ensure proper equation environments ($$ or \\begin{{equation}}, etc.)
+        3. Add proper spacing around operators and relations
+        4. Format fractions correctly with \\frac
+        5. Format summations and integrals with proper limits
+        6. Use proper mathematical notation and symbols
+        7. Fix common LaTeX syntax mistakes
+        8. Handle multi-line equations appropriately
+        9. Format matrices and arrays properly
+        10. Use proper subscripts and superscripts
+        11. Replace text-based symbols with LaTeX commands
+        12. Add proper delimiting brackets when needed
+        13. Handle special functions correctly (sin, cos, log, etc.)
+        14. Format Greek letters properly
+        15. Handle limits, derivatives, and integrals professionally
+
+        Common fixes to apply:
+        - Replace 'x*y' with 'x \\cdot y' or 'xy'
+        - Replace '2x' with '2\\cdot x' when needed
+        - Use \\left( and \\right) for dynamic sizing
+        - Use \\cdots for ellipsis
+        - Format binomials with \\binom
+        - Use proper spacing \\, \\: \\; \\quad \\qquad
+        - Replace 'inf' with '\\infty'
+        - Add \\limits when appropriate
+        - Use \\displaystyle for better fraction display
+        - Format piecewise functions with cases environment
+
+        Examples:
+        Input: "sum_(i=1)^n x_i"
+        Output: "$$\\sum_{{i=1}}^{{n}} x_{{i}}$$"
+
+        Input: "int_a^b f(x)dx"
+        Output: "$$\\int_{{a}}^{{b}} f(x)\\,dx$$"
+
+        Input: "f'(x) = lim_(h->0) (f(x+h)-f(x))/h"
+        Output: "$$f'(x) = \\lim_{{h \\to 0}} \\frac{{f(x+h)-f(x)}}{{h}}$$"
+
+        Format the given LaTeX equation to be perfectly formatted:
+        """
+        
+        response = genAIModel.generate_content(prompt)
+        formatted_latex = response.text.strip()
+        
+        # Apply additional formatting for common edge cases
+        # formatted_latex = format_latex_content(formatted_latex)
+        
+        # # Final cleanup pass
+        # formatted_latex = cleanup_latex(formatted_latex)
+        
+        return jsonify({
+            'formatted': formatted_latex,
+            'message': 'LaTeX formatted successfully with AI'
+        })
+        
+    except Exception as e:
+        print(f"Error formatting LaTeX with AI: {str(e)}")
+        return jsonify({
+            'error': 'Failed to format LaTeX with AI',
+            'details': str(e)
+        }), 500
+
+def cleanup_latex(latex: str) -> str:
+    """Additional cleanup for LaTeX code after AI formatting"""
+    
+    # Remove any extra whitespace
+    latex = ' '.join(latex.split())
+    
+    # Ensure proper equation environment
+    if not any(env in latex for env in ['$$', r'\begin{equation}', r'\begin{align']):
+        latex = f'$${latex}$$'
+    
+    # Fix spacing around operators
+    operators = ['+', '-', '=', r'\times', r'\cdot', r'\div', r'\pm', r'\mp']
+    for op in operators:
+        latex = latex.replace(f' {op} ', f' {op} ')
+    
+    # Fix missing multiplication dots
+    import re
+    latex = re.sub(r'(\d)([a-zA-Z])', r'\1\cdot \2', latex)
+    
+    # Fix spacing in subscripts and superscripts
+    latex = re.sub(r'_(\w)', r'_{\\!\\!\1}', latex)
+    latex = re.sub(r'\^(\w)', r'^{\\!\\!\1}', latex)
+    
+    # Add proper sizing for parentheses
+    latex = re.sub(r'\((.*?)\)', lambda m: r'\left(' + m.group(1) + r'\right)', latex)
+    
+    # Fix spacing in integrals
+    latex = latex.replace(r'\int', r'\int\!')
+    latex = latex.replace('dx', r'\,dx')
+    
+    # Ensure proper fraction spacing
+    latex = latex.replace(r'\frac', r'\displaystyle\frac')
+    
+    # Fix limits in sums and integrals
+    latex = latex.replace(r'\sum_', r'\sum\limits_')
+    latex = latex.replace(r'\prod_', r'\prod\limits_')
+    latex = latex.replace(r'\int_', r'\int\limits_')
+    
+    return latex
+
+def format_latex_content(content: str) -> str:
+    """
+    Format LaTeX content for proper rendering.
+    
+    Rules:
+    1. Ensure proper equation environment
+    2. Fix common syntax issues
+    3. Add proper spacing
+    4. Handle multi-line equations
+    """
+    # Remove extra whitespace and normalize line endings
+    content = content.strip()
+    
+    # Handle common LaTeX formatting issues
+    replacements = {
+        # Fix spacing around operators
+        '+': ' + ',
+        '-': ' - ',
+        '=': ' = ',
+        
+        # Fix fraction formatting
+        'frac': '\\frac',
+        
+        # Fix sum/integral formatting
+        'sum': '\\sum',
+        'int': '\\int',
+        
+        # Fix subscript/superscript spacing
+        '_': '_{',
+        '^': '^{',
+        
+        # Fix common function names
+        'sin': '\\sin',
+        'cos': '\\cos',
+        'tan': '\\tan',
+        'log': '\\log',
+        'ln': '\\ln',
+        'lim': '\\lim',
+        
+        # Fix matrix environments
+        'matrix': '\\matrix',
+        'pmatrix': '\\pmatrix',
+        'bmatrix': '\\bmatrix',
+        
+        # Fix Greek letters
+        'alpha': '\\alpha',
+        'beta': '\\beta',
+        'gamma': '\\gamma',
+        'delta': '\\delta',
+        'theta': '\\theta',
+        'pi': '\\pi',
+        'sigma': '\\sigma',
+        'omega': '\\omega',
+        
+        # Fix arrows and symbols
+        '->': '\\rightarrow',
+        '<-': '\\leftarrow',
+        '<=': '\\leq',
+        '>=': '\\geq',
+        '!=': '\\neq',
+        'inf': '\\infty',
+    }
+    
+    # Apply replacements while preserving existing correct formatting
+    formatted = content
+    for old, new in replacements.items():
+        if old not in ['_', '^']:  # Skip subscript/superscript for now
+            # Only replace if not already in LaTeX format
+            if not formatted.find(new) >= 0:
+                formatted = formatted.replace(old, new)
+    
+    # Handle equation environments
+    if not formatted.startswith('\\begin{equation}') and not formatted.startswith('$$'):
+        # Check if it's a single-line equation
+        if '\n' not in formatted:
+            formatted = f'$${formatted}$$'
+        else:
+            # Multi-line equation
+            formatted = '\\begin{align*}\n' + formatted + '\n\\end{align*}'
+    
+    # Handle subscripts and superscripts
+    lines = formatted.split('\n')
+    for i, line in enumerate(lines):
+        # Find subscripts/superscripts without braces and add them
+        for char in ['_', '^']:
+            parts = line.split(char)
+            for j in range(1, len(parts)):
+                if parts[j] and parts[j][0] != '{':
+                    # Add braces around single character or number
+                    first_char = parts[j][0]
+                    parts[j] = '{' + first_char + '}' + parts[j][1:]
+            lines[i] = char.join(parts)
+    
+    formatted = '\n'.join(lines)
+    
+    # Ensure proper spacing around delimiters
+    delimiters = ['\\left', '\\right', '\\big', '\\Big']
+    for delimiter in delimiters:
+        formatted = formatted.replace(delimiter, f' {delimiter} ')
+    
+    # Clean up multiple spaces
+    formatted = ' '.join(formatted.split())
+    
+    # Handle special cases for matrices
+    if '\\begin{matrix}' in formatted:
+        formatted = formatted.replace('&', ' & ')
+        formatted = formatted.replace('\\\\', '\\\\\n')
+    
+    # Restore proper line breaks for multi-line equations
+    formatted = formatted.replace('\\\\', '\\\\\n')
+    
+    # Fix common mistakes with parentheses
+    formatted = formatted.replace('( ', '(').replace(' )', ')')
+    
+    return formatted

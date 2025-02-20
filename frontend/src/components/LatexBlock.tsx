@@ -2,7 +2,8 @@ import "katex/dist/katex.min.css";
 import Latex from "react-latex-next";
 import { createReactBlockSpec } from "@blocknote/react";
 import { defaultProps } from "@blocknote/core";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { FormatLatexButton } from "./FormatLatexButton";
 
 export const LatexBlock = createReactBlockSpec(
   {
@@ -23,6 +24,22 @@ export const LatexBlock = createReactBlockSpec(
   {
     render: ({ block, editor }) => {
       const [isHovered, setIsHovered] = useState(false);
+      const [isFormatting, setIsFormatting] = useState(false);
+      const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+      // Auto-resize textarea
+      const adjustHeight = () => {
+        const textarea = textareaRef.current;
+        if (textarea) {
+          textarea.style.height = "auto";
+          textarea.style.height = `${textarea.scrollHeight}px`;
+        }
+      };
+
+      // Adjust height on content change
+      useEffect(() => {
+        adjustHeight();
+      }, [block.props.equation]);
 
       const toggleEditMode = () => {
         editor.updateBlock(block, {
@@ -34,6 +51,40 @@ export const LatexBlock = createReactBlockSpec(
         editor.updateBlock(block, {
           props: { ...block.props, equation: newEquation },
         });
+      };
+
+      const formatLatexEquation = async () => {
+        if (!block.props.equation) return;
+
+        setIsFormatting(true);
+        try {
+          const response = await fetch(
+            "http://127.0.0.1:5000/notes/format_latex_with_ai/",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ equation: block.props.equation }),
+            }
+          );
+
+          const data = await response.json();
+          if (data.error) {
+            console.error("LaTeX formatting error:", data.error);
+            // You might want to show an error toast here
+            return;
+          }
+
+          if (data.formatted) {
+            updateEquation(data.formatted);
+          }
+        } catch (error) {
+          console.error("Error formatting LaTeX:", error);
+          // You might want to show an error toast here
+        } finally {
+          setIsFormatting(false);
+        }
       };
 
       return (
@@ -52,6 +103,12 @@ export const LatexBlock = createReactBlockSpec(
               }
             `}
           >
+            {block.props.isEditing && block.props.equation && (
+              <FormatLatexButton
+                onFormat={formatLatexEquation}
+                isFormatting={isFormatting}
+              />
+            )}
             <button
               onClick={toggleEditMode}
               className='px-3 py-1 text-xs rounded-md bg-accent/50 hover:bg-accent text-foreground/80 hover:text-foreground transition-colors'
@@ -74,17 +131,21 @@ export const LatexBlock = createReactBlockSpec(
             {block.props.isEditing ? (
               <div className='space-y-4'>
                 <textarea
+                  ref={textareaRef}
                   value={block.props.equation}
                   onChange={(e) => updateEquation(e.target.value)}
-                  className='w-full p-4 border rounded-md min-h-[120px] font-mono bg-background resize-none focus:outline-none focus:ring-2 focus:ring-accent'
+                  className='w-full p-4 border rounded-md font-mono bg-background 
+                           resize-none focus:outline-none focus:ring-2 focus:ring-accent
+                           overflow-hidden min-h-[80px] transition-all duration-200'
                   placeholder='Enter LaTeX equation... (e.g., \sum_{i=1}^n x_i)'
+                  style={{ lineHeight: "1.5" }}
                 />
                 {block.props.equation && (
                   <div className='p-4 border rounded-md bg-background'>
                     <p className='text-xs text-muted-foreground mb-2'>
                       Preview:
                     </p>
-                    <Latex strict>{block.props.equation}</Latex>
+                    <Latex>{block.props.equation}</Latex>
                   </div>
                 )}
               </div>
@@ -93,9 +154,7 @@ export const LatexBlock = createReactBlockSpec(
                 className='cursor-pointer max-w-3xl'
                 onClick={toggleEditMode}
               >
-                <Latex strict>
-                  {block.props.equation || "Click to add equation"}
-                </Latex>
+                <Latex>{block.props.equation || "Click to add equation"}</Latex>
               </div>
             )}
           </div>
