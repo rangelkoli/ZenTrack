@@ -239,7 +239,7 @@ async def add_attachment(note_id):
 def delete_attachment(note_id, attachment_id):
     try:
         # Get attachment info
-        attachment = db.from_('note_attachments').select('*').eq('id', str(attachment_id)).single().execute()
+        attachment = db.from_('notes_attachments').select('*').eq('id', str(attachment_id)).single().execute()
         
         if not attachment.data:
             return jsonify({'error': 'Attachment not found'}), 404
@@ -345,7 +345,6 @@ def format_with_ai():
                 *   `bold`: (boolean, optional)
                 *   `italic`: (boolean, optional)
                 *   `underline`: (boolean, optional)
-                *   `strikethrough`: (boolean, optional)
                 *   `textColor`: (string, optional)
                 *   `backgroundColor`: (string, optional)
         *   `link`: A hyperlink.

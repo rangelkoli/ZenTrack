@@ -5,6 +5,8 @@ import {
   locales,
   PartialBlock,
   BlockNoteEditor,
+  defaultBlockSpecs,
+  insertOrUpdateBlock,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView, Theme } from "@blocknote/mantine";
@@ -43,8 +45,18 @@ import "./editorstyles.css";
 import { FormatWithAIButton } from "./FormatButton";
 import { AttachmentsList } from "./AttachmentsList";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Paperclip, Clock } from "lucide-react";
+import { PlusCircle, Paperclip, Clock, FileText, Trash2 } from "lucide-react";
 import { useAutosave } from "@/hooks/use-autosave";
+import { LatexBlock } from "./LatexBlock";
+
+interface Attachment {
+  id: string;
+  filename: string;
+  url: string;
+  file_type?: string;
+  size: number;
+  created_at: string;
+}
 
 export default function NotesEditor() {
   const [initialContent, setInitialContent] = useState<
@@ -138,6 +150,19 @@ export default function NotesEditor() {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Add attachments state
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Add scroll listener
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   async function uploadFile(file: File) {
     const body = new FormData();
     body.append("file", file);
@@ -151,13 +176,24 @@ export default function NotesEditor() {
     return data.url;
   }
 
+  // Define the schema with multi-column and latex block support
+  const schema = withMultiColumn(
+    BlockNoteSchema.create({
+      blockSpecs: {
+        ...defaultBlockSpecs,
+        latex: LatexBlock,
+      },
+    })
+  );
+
   // Modify editor creation to include content tracking
   const editor = useMemo(() => {
     if (initialContent === "loading") return undefined;
 
     const editorInstance = BlockNoteEditor.create({
       initialContent,
-      schema: withMultiColumn(BlockNoteSchema.create()),
+      schema: schema,
+
       dropCursor: multiColumnDropCursor,
       dictionary: {
         ...locales.en,
@@ -210,6 +246,14 @@ export default function NotesEditor() {
     hasChanges.current = true;
     save();
   }, [save]);
+  const insertLatexBlock = (editor: typeof schema.BlockNoteEditor) => ({
+    title: "Latex",
+    onItemClick: () => {
+      insertOrUpdateBlock(editor, {
+        type: "latex",
+      });
+    },
+  });
 
   // Update saveToStorage to use autosave
   const saveToStorage = async () => {
@@ -246,11 +290,60 @@ export default function NotesEditor() {
     return undefined;
   }
 
+  // Add function to load attachments
+  const loadAttachments = async () => {
+    if (!id) return;
+
+    try {
+      const response = await axios.get(`${BASE_URL}/notes/${id}/attachments`);
+      if (Array.isArray(response.data)) {
+        setAttachments(response.data);
+      }
+    } catch (error) {
+      console.error("Error loading attachments:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load attachments",
+        style: { backgroundColor: "#ff4444", color: "#F3F4F6" },
+      });
+    }
+  };
+
+  // Add formatFileSize utility function
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
+
+  // Add function to handle attachment deletion
+  const handleDelete = async (attachmentId: string) => {
+    try {
+      await axios.delete(`${BASE_URL}/notes/${id}/attachments/${attachmentId}`);
+      setAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
+      toast({
+        title: "Success",
+        description: "Attachment deleted",
+        style: { backgroundColor: "#4BB543", color: "#F3F4F6" },
+      });
+    } catch (error) {
+      console.error("Error deleting attachment:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete attachment",
+        style: { backgroundColor: "#ff4444", color: "#F3F4F6" },
+      });
+    }
+  };
+
   useEffect(() => {
     loadFromStorage().then((content) => {
       setInitialContent(content);
     });
-  }, []);
+    loadAttachments();
+  }, [id]);
 
   // Gets the default slash menu items merged with the multi-column ones.
   const getSlashMenuItems = useMemo(() => {
@@ -259,10 +352,13 @@ export default function NotesEditor() {
     }
     return async (query: string) =>
       filterSuggestionItems(
-        combineByGroup(
-          getDefaultReactSlashMenuItems(editor),
-          getMultiColumnSlashMenuItems(editor)
-        ),
+        [
+          ...combineByGroup(
+            getDefaultReactSlashMenuItems(editor),
+            getMultiColumnSlashMenuItems(editor)
+          ),
+          insertLatexBlock(editor),
+        ],
         query
       );
   }, [editor]);
@@ -341,7 +437,7 @@ export default function NotesEditor() {
   const handleFiles = async (files: FileList) => {
     const formData = new FormData();
     for (const file of Array.from(files)) {
-      formData.append("files[]", file);
+      formData.append("file", file);
     }
 
     try {
@@ -362,6 +458,8 @@ export default function NotesEditor() {
         style: { backgroundColor: "#4BB543", color: "#F3F4F6" },
         duration: 3000,
       });
+
+      await loadAttachments(); // Refresh attachments after successful upload
     } catch (error) {
       console.error("Error uploading files:", error);
       toast({
@@ -396,9 +494,10 @@ export default function NotesEditor() {
 
   return (
     <div className='relative'>
-      {/* Title section - Make it sticky */}
+      {/* Title and Attachments sticky header */}
       <div className='sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b'>
-        <div className='max-w-4xl mx-auto px-4 py-4'>
+        {/* Title section */}
+        <div className='max-w-4xl mx-auto px-4 py-2'>
           <div className='flex justify-between items-center'>
             <div className='flex-1'>
               {isEditingTitle ? (
@@ -431,26 +530,148 @@ export default function NotesEditor() {
             </div>
           </div>
         </div>
+
+        {/* Updated Attachments section with improved grid */}
+        <div className='border-t border-border/50 bg-background/50'>
+          <div className='max-w-4xl mx-auto px-4'>
+            <div
+              className={`
+                transition-all duration-500 ease-in-out transform-gpu
+                ${isScrolled ? "h-12 py-2" : "py-4"}
+              `}
+            >
+              {/* Header section */}
+              <div className='flex items-center justify-between mb-2'>
+                <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+                  <Paperclip
+                    size={14}
+                    className='transition-all duration-300'
+                  />
+                  <span className='font-medium'>
+                    {attachments.length}{" "}
+                    {attachments.length === 1 ? "Attachment" : "Attachments"}
+                  </span>
+                </div>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  className='h-8 hover:bg-accent'
+                  onClick={() => setShowAttachmentInput(!showAttachmentInput)}
+                >
+                  <PlusCircle size={16} className='mr-2' />
+                  Add Files
+                </Button>
+              </div>
+
+              {/* Improved grid container */}
+              <div
+                className={`
+                  transition-all duration-500 ease-in-out
+                  ${
+                    isScrolled
+                      ? "flex items-center space-x-4 overflow-x-auto hide-scrollbar"
+                      : "grid grid-flow-col auto-cols-[280px] gap-4 pb-4 overflow-x-auto scrollbar-thin"
+                  }
+                `}
+              >
+                {attachments.length > 0 ? (
+                  attachments.map((attachment) => (
+                    <div
+                      key={attachment.id}
+                      className={`
+                        group relative flex-shrink-0
+                        transition-all duration-300 ease-in-out
+                        ${
+                          isScrolled
+                            ? "inline-flex items-center bg-accent/5 rounded-md px-3 py-1.5 hover:bg-accent/10"
+                            : "flex flex-col p-4 border rounded-lg hover:shadow-md hover:border-accent"
+                        }
+                      `}
+                      style={{
+                        width: isScrolled ? "auto" : "280px",
+                        minWidth: isScrolled ? "200px" : "280px",
+                      }}
+                    >
+                      <div className='flex items-center gap-3 w-full'>
+                        <FileText
+                          size={isScrolled ? 16 : 20}
+                          className={`
+                            flex-shrink-0 transition-all duration-300
+                            ${getFileIconColor(attachment.file_type)}
+                          `}
+                        />
+                        <div className='flex-1 min-w-0'>
+                          <a
+                            href={attachment.url}
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            className='block truncate text-sm font-medium hover:underline'
+                            title={attachment.filename}
+                          >
+                            {attachment.filename}
+                          </a>
+                          {!isScrolled && (
+                            <div className='mt-2 space-y-1'>
+                              <p className='text-xs text-muted-foreground'>
+                                {formatFileSize(attachment.size)}
+                              </p>
+                              <p className='text-xs text-muted-foreground'>
+                                {new Date(
+                                  attachment.created_at
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleDelete(attachment.id)}
+                          className={`
+                            text-muted-foreground hover:text-destructive
+                            transition-opacity duration-200
+                            ${
+                              isScrolled
+                                ? "opacity-0 group-hover:opacity-100 ml-2"
+                                : "opacity-0 group-hover:opacity-100"
+                            }
+                          `}
+                        >
+                          <Trash2 size={isScrolled ? 14 : 16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div
+                    className={`
+                    flex items-center justify-center text-muted-foreground
+                    ${
+                      isScrolled
+                        ? "w-full h-8"
+                        : "w-[280px] h-[120px] border-2 border-dashed rounded-lg"
+                    }
+                  `}
+                  >
+                    <span className='text-sm'>No attachments yet</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Main content */}
-      <div className=''>
-        <div className='m-10 gap-4 flex flex-col'>
-          {/* Cover image and attachments */}
-          {coverUrl ? (
+      <div className='mt-4'>
+        {/* Move cover image outside sticky header */}
+        {coverUrl && (
+          <div className='mx-auto max-w-4xl px-4 mb-8'>
             <img
               src={coverUrl}
-              alt='Deploy'
-              className='w-full h-80 max-w-4xl mx-auto object-cover rounded-lg'
+              alt='Cover'
+              className='w-full h-80 object-cover rounded-lg'
             />
-          ) : (
-            <AttachmentsEditor />
-          )}
-
-          <div className='max-w-4xl mx-auto w-full'>
-            <AttachmentsList />
           </div>
-        </div>
+        )}
 
         {/* Rest of the editor */}
         <div className='w-full mx-auto px-2 lg:px-20'>
@@ -534,4 +755,23 @@ export default function NotesEditor() {
       {renderAttachmentInput()}
     </div>
   );
+}
+
+// Add this helper function at the top of the file
+function getFileIconColor(fileType?: string): string {
+  if (!fileType) return "text-muted-foreground";
+
+  const type = fileType.split("/")[0];
+  switch (type) {
+    case "image":
+      return "text-green-500";
+    case "video":
+      return "text-blue-500";
+    case "audio":
+      return "text-purple-500";
+    case "application":
+      return "text-orange-500";
+    default:
+      return "text-muted-foreground";
+  }
 }

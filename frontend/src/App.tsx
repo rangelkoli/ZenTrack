@@ -4,7 +4,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import FinanceDashboard from "./components/finance-dashboard";
 import NotesDashboard from "./components/notes-dashboard";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NotesEditor from "./components/notes-editor";
 // import {
 //   CommandDialog,
@@ -37,6 +37,7 @@ import { Toaster } from "@/components/ui/toaster";
 import HabitTracker from "./pages/HabitTracker";
 import "./App.css";
 import { AnimatePresence } from "framer-motion";
+import { HabitsProvider } from "@/contexts/HabitsContext";
 
 function App() {
   const isLoggedIn = useUserStore((state) => state.user.isLoggedIn);
@@ -81,57 +82,38 @@ function App() {
   // const title = useNotesContent((state) => state.title);
   return (
     <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
-      <Toaster />
-      <AnimatePresence>
-        {isLoggedIn ? (
-          <div className='bg-white dark:bg-slate-900 text-black dark:text-white '>
-            <SidebarProvider>
-              <AppSidebar />
-              <SidebarInset>
-                <main className=''>
-                  {/* <header className='relative top-0 flex h-16 shrink-0 items-center gap-2 border-b bg-white dark:bg-slate-900 px-4 z-50'>
-              <SidebarTrigger className-='-ml-1' />
-              <Separator orientation='vertical' className='mr-2 h-4' />
-              {title ? (
-                <div>
-                <h1 className='text-lg font-semibold'>{title}</h1>
-                </div>
-                ) : (
-                  <div className='relative w-full'>
-                  <Search className='absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
-                  <Input
-                  placeholder='Search books here'
-                  className='w-full pl-8'
-                  />
-                  </div>
-                  )}
-                </header> */}
-                  <BrowserRouter>
-                    <Routes>
-                      <Route path='/notes' element={<NotesDashboard />} />
-                      <Route path='/finance' element={<FinanceDashboard />} />
-                      <Route path='/notes/:id' element={<NotesEditor />} />
-                      <Route path='/' element={<Home />} />
-                      <Route path='/tasks' element={<TodoList />} />
-                      <Route path='/habit-tracker' element={<HabitTracker />} />
-                    </Routes>
-                  </BrowserRouter>
-                </main>
-              </SidebarInset>
-            </SidebarProvider>
-          </div>
-        ) : (
-          <div className='bg-background h-screen flex items-center justify-center w-screen'>
-            <BrowserRouter>
-              <Routes>
-                <Route path='/login' element={<LoginPage />} />
-                <Route path='/signup' element={<SignUpPage />} />
-                <Route path='/' element={<LandingPage />} />
-              </Routes>
-            </BrowserRouter>
-          </div>
-        )}
-      </AnimatePresence>
+      <HabitsProvider>
+        <Toaster />
+        <AnimatePresence>
+          {isLoggedIn ? (
+            <div className=' dark:bg-slate-900 text-black dark:text-white min-h-screen'>
+              <main className=''>
+                <Router>
+                  <Routes>
+                    <Route path='/notes' element={<NotesDashboard />} />
+                    <Route path='/finance' element={<FinanceDashboard />} />
+                    <Route path='/notes/:id' element={<NotesEditor />} />
+                    <Route path='/' element={<Home />} />
+                    <Route path='/tasks' element={<TodoList />} />
+                    <Route path='/habit-tracker' element={<HabitTracker />} />
+                    <Route path='/landing' element={<LandingPage />} />
+                  </Routes>
+                </Router>
+              </main>
+            </div>
+          ) : (
+            <div className='min-h-screen bg-background'>
+              <Router>
+                <Routes>
+                  <Route path='/login' element={<LoginPage />} />
+                  <Route path='/signup' element={<SignUpPage />} />
+                  <Route path='/*' element={<LandingPage />} />
+                </Routes>
+              </Router>
+            </div>
+          )}
+        </AnimatePresence>
+      </HabitsProvider>
     </ThemeProvider>
   );
 }

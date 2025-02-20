@@ -98,6 +98,15 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+}
 
 @layer utilities {
   .scrollbar-hide {
@@ -105,6 +114,16 @@
     scrollbar-width: none;
   }
   .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
 }
@@ -115,8 +134,14 @@
   --bn-colors-side-menu: var(--foreground);
 }
 
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
 .scrollbar-thin::-webkit-scrollbar {
-  height: 8px;
+  height: 6px;
+  width: 6px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
@@ -124,17 +149,24 @@
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 4px;
+  background-color: var(--scrollbar-thumb, #d1d5db);
+  border-radius: 3px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background-color: var(--scrollbar-thumb-hover, #9ca3af);
 }
 
-/* Add smooth transition for sticky header */
+.overflow-x-auto {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+}
+
+/* Smooth transitions for sticky header */
 .sticky {
-  transition: backdrop-filter 0.3s ease;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
 }
 
 .sticky:before {
@@ -144,4 +176,53 @@
   z-index: -1;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Add hardware acceleration for smoother animations */
+.transform-gpu {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform;
+  -webkit-transform: translate3d(0, 0, 0);
+}
+
+/* Card hover effects */
+.hover\:shadow-md {
+  transition: all 0.2s ease-in-out;
+}
+
+.hover\:shadow-md:hover {
+  transform: translateY(-1px);
+}
+
+/* Ensure smooth transitions */
+.motion-safe {
+  @media (prefers-reduced-motion: no-preference) {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+}
+
+/* Improve text rendering */
+.text-rendering-optimized {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Performance optimizations for animations */
+.will-change-transform {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+.latex-block {
+  transition: all 0.2s ease;
+}
+
+.latex-block:hover {
+  box-shadow: 0 0 0 2px var(--accent);
 }
