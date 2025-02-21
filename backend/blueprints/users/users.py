@@ -2,139 +2,168 @@ from flask import Blueprint, request, jsonify
 from supabase import create_client
 from db import db
 import flask_bcrypt
-from flask_jwt_extended import  create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from datetime import timedelta
+import re
 
-# Create a blueprint for authentication
 auth_blueprint = Blueprint('auth', __name__)
+
+def validate_email(email):
+    pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    return re.match(pattern, email) is not None
+
+def validate_password(password):
+    return len(password) >= 6
 
 @auth_blueprint.route('/register', methods=['POST'])
 def signup():
-    # Get the user's email and password from the request
-    email = request.json.get('email')
-    password = request.json.get('password')
-    name = request.json.get('name')
-    print(email, password, name)
-    # Hash the user's password
-    hashed_password = flask_bcrypt.generate_password_hash(password).decode('utf-8')
-    print(hashed_password)
-    # Check if the user already exists
-    user = db.table('users').select().eq('email', email).execute()
-    print(user)
-    if user.data:
-        return jsonify({'error': 'User already exists'})
-    
-    # Sign up the user using Supabase
-    res = db.table('users').insert({
-        'email': email,
-        'password': hashed_password,
-        'username': name
-    }).execute()
+    try:
+        if not request.is_json:
+            return jsonify({'error': 'Missing JSON in request'}), 422
 
+        data = request.get_json()
+        email = data.get('email', '').lower().strip()
+        password = data.get('password', '')
+        name = data.get('name', '').strip()
 
-    print(res)
-    # Create a response
-    if res:
-        response = {
-            'message': 'User created successfully'
-        }
-    else:
-        response = {
-            'error': 'Failed to create user'
-        }
-   
-    # Return the response as JSON
-    return jsonify(response)
+        # Validate required fields
+        if not all([email, password, name]):
+            return jsonify({'error': 'All fields are required'}), 422
 
+        # Validate email format
+        if not validate_email(email):
+            return jsonify({'error': 'Invalid email format'}), 422
 
+        # Validate password strength
+        if not validate_password(password):
+            return jsonify({'error': 'Password must be at least 6 characters long'}), 422
+
+        # Check if user exists
+        existing_user = db.table('users').select('*').eq('email', email).execute()
+        if existing_user.data:
+            return jsonify({'error': 'User already exists'}), 409
+
+        hashed_password = flask_bcrypt.generate_password_hash(password).decode('utf-8')
+        
+        new_user = db.table('users').insert({
+            'email': email,
+            'password': hashed_password,
+            'username': name
+        }).execute()
+
+        if not new_user.data:
+            return jsonify({'error': 'Failed to create user'}), 500
+
+        return jsonify({
+            'message': 'User created successfully',
+            'user': {'email': email, 'name': name}
+        }), 201
+
+    except Exception as e:
+        print(f"Registration error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @auth_blueprint.route('/login', methods=['POST'])
 def login():
-    # Get the user's email and password from the request
-    email = request.json.get('email')
-    email = email.lower()
-    email = email.strip()
-    email = email.replace(" ", "")
-    password = request.json.get('password')
-    print(email, password)
-    
-    # Query the database for the user
-    user = db.from_('users').select().execute()
-    print(user)
-    # Check if the user exists
+    try:
+        if not request.is_json:
+            return jsonify({'error': 'Missing JSON in request'}), 422
 
-    if not user.data:
-        return jsonify({'error': 'User does not exist'}), 404
-    
-    # Get the user's hashed password
-    hashed_password = user.data[0]['password']
-    
-    # Check if the password is correct
-    if not flask_bcrypt.check_password_hash(hashed_password, password):
-        return jsonify({'error': 'Invalid password'})
-    
-    # Create an access token
-    access_token = create_access_token(
-        identity=email,
-        additional_claims={'email': email, 'name': user.data[0]['username']}
-    )
-    
-    # Create a response
-    response = {
-        'access_token': access_token,
-        'user': {
-            'email': email,
-            'name': user.data[0]['username']
+        data = request.get_json()
+        print("Received login data:", data)  # Debug log
+        
+        email = data.get('email', '').lower().strip()
+        password = data.get('password', '')
 
+        if not all([email, password]):
+            return jsonify({'error': 'Email and password are required'}), 422
+
+        # Debug log
+        print(f"Attempting login for email: {email}")
+
+        # Query the database for the user with exact email match
+        user_result = db.table('users').select('*').eq('email', email).execute()
+        print("Database query result:", user_result.data)  # Debug log
+
+        if not user_result.data:
+            print(f"No user found for email: {email}")  # Debug log
+            return jsonify({'error': 'Invalid email or password'}), 401
+
+        user = user_result.data[0]
+        
+        # Debug log for password verification
+        print(f"Verifying password for user: {user['email']}")
+        is_valid = flask_bcrypt.check_password_hash(user['password'], password)
+        print(f"Password verification result: {is_valid}")  # Debug log
+
+        if not is_valid:
+            return jsonify({'error': 'Invalid email or password'}), 401
+
+        access_token = create_access_token(
+            identity=email,
+            additional_claims={
+                'email': email,
+                'name': user['username'],
+                'user_id': user['id']
+            },
+            expires_delta=timedelta(days=7)
+        )
+
+        response_data = {
+            'access_token': access_token,
+            'user': {
+                'email': email,
+                'name': user['username'],
+                'id': user['id']
+            }
         }
-    }
-    
-    # Return the response as JSON
-    return jsonify(response)
+        print("Successful login, returning:", response_data)  # Debug log
+        return jsonify(response_data), 200
 
-@auth_blueprint.route('/logout', methods=['POST'])
-def logout():
-    # Get the user's access token from the request
-    access_token = request.json.get('access_token')
-
-    # Log out the user using Supabase
-    response = db.auth.sign_out(access_token)
-
-    # Return the response as JSON
-    return jsonify(response)
+    except Exception as e:
+        print(f"Login error: {str(e)}")  # Debug log
+        import traceback
+        traceback.print_exc()  # Print full stack trace
+        return jsonify({'error': 'Internal server error'}), 500
 
 @auth_blueprint.route('/get_user', methods=['POST'])
 @jwt_required()
 def get_user():
     try:
-        # Log the incoming request
-        print('Request JSON:', request.json)
-        print('Authorization Header:', request.headers.get('Authorization'))
+        # Get user identity from JWT
+        current_user_email = get_jwt_identity()
+        
+        # Query user details from database
+        user_result = db.table('users').select('*').eq('email', current_user_email).execute()
+        
+        if not user_result.data:
+            return jsonify({'error': 'User not found'}), 404
 
-        # Extract access token from the request
-        access_token = request.json.get('access_token')
-        if not access_token:
-            return jsonify({"error": "access_token missing"}), 400
-
-        # Extract the email from JWT
-        email = get_jwt_identity()
-        print('JWT Email:', email)
-
-        # Query the database for user information
-        user_query = db.table('users').select().eq('email', email).execute()
-        user = user_query.data[0] if user_query.data else None
-
-        if not user:
-            return jsonify({"error": "User not found"}), 404
-
-        # Build the response
-        response = {
+        user = user_result.data[0]
+        
+        return jsonify({
             'user': {
-                'email': email,
+                'email': user['email'],
                 'name': user['username'],
+                'id': user['id']
             }
-        }
-        return jsonify(response), 200
+        }), 200
 
     except Exception as e:
-        print('Error occurred:', str(e))
-        return jsonify({"error": "Internal server error"}), 500
+        print(f"Get user error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@auth_blueprint.route('/validate_token', methods=['POST'])
+@jwt_required()
+def validate_token():
+    try:
+        current_user_email = get_jwt_identity()
+        return jsonify({
+            'valid': True,
+            'email': current_user_email
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'valid': False,
+            'error': str(e)
+        }), 401
