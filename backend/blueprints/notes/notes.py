@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify, Response, stream_with_context
-
 import datetime
 from db import db
 from ai import genAIModel
@@ -521,7 +520,10 @@ def format_latex_with_ai():
         
         response = genAIModel.generate_content(prompt)
         formatted_latex = response.text.strip()
-        
+        formatted_latex = (formatted_latex
+                    .replace('```latex', '')
+                    .replace('```', '')
+                    .strip())
         # Apply additional formatting for common edge cases
         # formatted_latex = format_latex_content(formatted_latex)
         

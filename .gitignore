@@ -1,6 +1,15 @@
-/backend/venv/
-/backend/.venv/
-/backend/venv/
+# Python virtual environments
+venv
+.venv
+**/venv/
+**/env/
+**/.venv/
+**/.env/
+**/ENV/
+__pycache__/
+*.py[cod]
+
+# Existing backend ignores
 /backend/.env
 /backend/.env.local
 /backend/.env.development.local
@@ -10,8 +19,9 @@
 /backend/.mypy_cache/
 /backend/.coverage
 /backend/.pytest_cache/
+backend/venv/
 
-
+# Existing frontend ignores
 /frontend/node_modules/
 /frontend/.next/
 /frontend/.env

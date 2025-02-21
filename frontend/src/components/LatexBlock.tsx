@@ -56,9 +56,11 @@ export const LatexBlock = createReactBlockSpec(
         if (!block.props.equation) return;
 
         setIsFormatting(true);
+        console.log("Formatting LaTeX equation:", block.props.equation);
+        console.log("Backend URL:", import.meta.env.VITE_BACKEND_URL);
         try {
           const response = await fetch(
-            "http://127.0.0.1:5000/notes/format_latex_with_ai/",
+            `${import.meta.env.VITE_BACKEND_URL}/notes/format_latex_with_ai/`,
             {
               method: "POST",
               headers: {
