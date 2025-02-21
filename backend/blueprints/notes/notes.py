@@ -520,10 +520,11 @@ def format_latex_with_ai():
         
         response = genAIModel.generate_content(prompt)
         formatted_latex = response.text.strip()
+        print(formatted_latex)
         formatted_latex = (formatted_latex
                     .replace('```latex', '')
                     .replace('```', '')
-                    .strip())
+                    )
         # Apply additional formatting for common edge cases
         # formatted_latex = format_latex_content(formatted_latex)
         
