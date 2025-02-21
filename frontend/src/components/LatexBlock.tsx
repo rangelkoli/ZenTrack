@@ -12,7 +12,6 @@ export const LatexBlock = createReactBlockSpec(
       textAlignment: defaultProps.textAlignment,
       equation: {
         default: "",
-        values: ["String"],
       },
       isEditing: {
         default: true,
