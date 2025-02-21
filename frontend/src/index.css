@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -225,4 +226,40 @@ body {
 
 .latex-block:hover {
   box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* BlockNote Editor Styles */
+.bn-container {
+  font-family: 'Inter', sans-serif;
+}
+
+.bn-editor {
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.bn-container[data-theming-css-variables-editor][data-color-scheme="dark"] {
+  --bn-colors-editor-text: #fff;
+  --bn-colors-editor-background: var(--background);
+  --bn-colors-menu: var(--popover);
+  --bn-colors-tooltip: var(--popover);
+  --bn-colors-hovered: var(--accent);
+  --bn-colors-selected: var(--accent);
+  --bn-colors-disabled: var(--muted);
+  --bn-colors-shadow: rgba(0, 0, 0, 0.1);
+  --bn-colors-border: var(--border);
+  --bn-colors-side-menu: var(--muted);
+}
+
+.bn-container[data-theming-css-variables-editor][data-color-scheme="light"] {
+  --bn-colors-editor-text: #000;
+  --bn-colors-editor-background: var(--background);
+  --bn-colors-menu: var(--popover);
+  --bn-colors-tooltip: var(--popover);
+  --bn-colors-hovered: var(--accent);
+  --bn-colors-selected: var(--accent);
+  --bn-colors-disabled: var(--muted);
+  --bn-colors-shadow: rgba(0, 0, 0, 0.1);
+  --bn-colors-border: var(--border);
+  --bn-colors-side-menu: var(--muted);
 }

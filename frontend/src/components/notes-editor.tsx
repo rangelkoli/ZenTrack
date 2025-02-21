@@ -8,9 +8,10 @@ import {
   defaultBlockSpecs,
   insertOrUpdateBlock,
 } from "@blocknote/core";
-import "@blocknote/core/fonts/inter.css";
+// Remove these CSS imports
+// import "@blocknote/core/fonts/inter.css";
+// import "@blocknote/mantine/style.css";
 import { BlockNoteView, Theme } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 import {
   FormattingToolbarController,
   SuggestionMenuController,
