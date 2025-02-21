@@ -18,7 +18,7 @@ type UserStore = {
 
 const useUserStore = create<UserStore>((set: any) => ({
   user: {
-    isLoggedIn: true,
+    isLoggedIn: false,
     details: {
       name: '',
       email: '',
