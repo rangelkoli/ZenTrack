@@ -17,16 +17,14 @@ export function Navbar() {
     <nav className='border-b'>
       <div className='flex h-16 items-center px-4 container mx-auto'>
         <div className='flex items-center space-x-4'>
-          {/* Logo */}
           <Button
             variant='link'
             className='text-xl font-bold'
-            onClick={() => navigate("/")}
+            onClick={() => navigate(isAuthenticated ? "/dashboard" : "/")}
           >
             Dashboard
           </Button>
 
-          {/* Navigation Links - Only show if authenticated */}
           {isAuthenticated && (
             <div className='hidden md:flex items-center space-x-4'>
               <Button variant='ghost' onClick={() => navigate("/notes")}>

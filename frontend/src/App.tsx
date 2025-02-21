@@ -29,11 +29,15 @@ function App() {
                 <Navbar />
                 <main>
                   <Routes>
+                    {/* Public Routes */}
                     <Route path='/login' element={<LoginPage />} />
                     <Route path='/signup' element={<SignUpPage />} />
                     <Route path='/landing' element={<LandingPage />} />
+                    <Route path='/' element={<LandingPage />} />
+
+                    {/* Protected Routes */}
                     <Route
-                      path='/'
+                      path='/dashboard'
                       element={
                         <ProtectedRoute>
                           <Home />

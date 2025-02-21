@@ -24,7 +24,7 @@ export function LoginForm() {
         title: "Success",
         description: "Successfully logged in",
       });
-      navigate("/");
+      navigate("/dashboard");
     } catch (error: any) {
       toast({
         variant: "destructive",
