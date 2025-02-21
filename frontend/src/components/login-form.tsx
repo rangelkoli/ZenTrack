@@ -19,11 +19,13 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      console.log("Form submission:", { email, password: "***" });
       await login(email, password);
+      toast({
+        title: "Success",
+        description: "Successfully logged in",
+      });
       navigate("/");
     } catch (error: any) {
-      console.error("Login error:", error);
       toast({
         variant: "destructive",
         title: "Login Failed",

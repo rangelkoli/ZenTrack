@@ -3,7 +3,6 @@ import FinanceDashboard from "./components/finance-dashboard";
 import NotesDashboard from "./components/notes-dashboard";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NotesEditor from "./components/notes-editor";
-import React from "react";
 import LoginPage from "./pages/Login";
 import SignUpPage from "./pages/Signup";
 import Home from "./pages/Home";
@@ -16,6 +15,7 @@ import { AnimatePresence } from "framer-motion";
 import { HabitsProvider } from "@/contexts/HabitsContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { Navbar } from "@/components/navbar";
 
 function App() {
   return (
@@ -25,59 +25,64 @@ function App() {
           <Toaster />
           <AnimatePresence>
             <Router>
-              <Routes>
-                <Route path='/login' element={<LoginPage />} />
-                <Route path='/signup' element={<SignUpPage />} />
-                <Route path='/landing' element={<LandingPage />} />
-                <Route
-                  path='/'
-                  element={
-                    <ProtectedRoute>
-                      <Home />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/notes'
-                  element={
-                    <ProtectedRoute>
-                      <NotesDashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/finance'
-                  element={
-                    <ProtectedRoute>
-                      <FinanceDashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/notes/:id'
-                  element={
-                    <ProtectedRoute>
-                      <NotesEditor />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/tasks'
-                  element={
-                    <ProtectedRoute>
-                      <TodoList />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/habit-tracker'
-                  element={
-                    <ProtectedRoute>
-                      <HabitTracker />
-                    </ProtectedRoute>
-                  }
-                />
-              </Routes>
+              <div className='min-h-screen bg-background'>
+                <Navbar />
+                <main>
+                  <Routes>
+                    <Route path='/login' element={<LoginPage />} />
+                    <Route path='/signup' element={<SignUpPage />} />
+                    <Route path='/landing' element={<LandingPage />} />
+                    <Route
+                      path='/'
+                      element={
+                        <ProtectedRoute>
+                          <Home />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path='/notes'
+                      element={
+                        <ProtectedRoute>
+                          <NotesDashboard />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path='/finance'
+                      element={
+                        <ProtectedRoute>
+                          <FinanceDashboard />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path='/notes/:id'
+                      element={
+                        <ProtectedRoute>
+                          <NotesEditor />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path='/tasks'
+                      element={
+                        <ProtectedRoute>
+                          <TodoList />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path='/habit-tracker'
+                      element={
+                        <ProtectedRoute>
+                          <HabitTracker />
+                        </ProtectedRoute>
+                      }
+                    />
+                  </Routes>
+                </main>
+              </div>
             </Router>
           </AnimatePresence>
         </HabitsProvider>
