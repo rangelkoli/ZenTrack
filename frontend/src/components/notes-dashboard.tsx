@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-// import { NotesCard } from "./NotesCard";
-// import { Button } from "./ui/button";
 import { AudioPlayer } from "@/components/audio-player";
 import { BookCard } from "@/components/book-card";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, Search } from "lucide-react";
+import { Input } from "./ui/input";
+
 type Note = {
   title: string;
   content: string;
@@ -41,85 +42,131 @@ export default function NotesDashboard() {
 
   return (
     <motion.div
-      className='flex flex-col h-screen bg-muted w-screen'
+      className='min-h-screen bg-background'
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      {/* <header className='border-b px-6 py-4'>
-        <div className='relative'>
-          <Search className='absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
-          <Input placeholder='Search books here' className='w-full pl-8' />
+      <div className='sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b'>
+        <div className='container mx-auto px-4 py-4'>
+          <div className='flex items-center justify-between gap-4'>
+            <motion.div
+              className='relative flex-1 max-w-md'
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
+              <Input
+                placeholder='Search notes...'
+                className='w-full pl-9 bg-muted/50'
+              />
+            </motion.div>
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <Button
+                onClick={() => {
+                  console.log("Button clicked");
+                  fetch("http://127.0.0.1:5000/notes/add_note/", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      title: "New note 1",
+                      content: JSON.stringify([
+                        {
+                          id: "64fd0b46-aa42-40f6-afd3-32b7d5b1b420",
+                          type: "paragraph",
+                          props: {
+                            textColor: "default",
+                            backgroundColor: "default",
+                            textAlignment: "left",
+                          },
+                          content: [],
+                          children: [],
+                        },
+                      ]),
+                    }),
+                  }).then((response) => {
+                    console.log(response);
+                  });
+                }}
+                className='flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground'
+              >
+                <Plus className='h-4 w-4' />
+                New Notebook
+              </Button>
+            </motion.div>
+          </div>
         </div>
-      </header> */}
-      <Button
-        onClick={() => {
-          console.log("Button clicked");
-          fetch("http://127.0.0.1:5000/notes/add_note/", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              title: "New note 1",
-              content: JSON.stringify([
-                {
-                  id: "64fd0b46-aa42-40f6-afd3-32b7d5b1b420",
-                  type: "paragraph",
-                  props: {
-                    textColor: "default",
-                    backgroundColor: "default",
-                    textAlignment: "left",
-                  },
-                  content: [],
-                  children: [],
-                },
-              ]),
-            }),
-          }).then((response) => {
-            console.log(response);
-          });
-        }}
-      >
-        New Notebook
-      </Button>
-      <main className='flex-1 overflow-auto'>
-        <div className='p-6'>
+      </div>
+
+      <main className='container mx-auto px-4 py-8'>
+        <AnimatePresence mode='wait'>
           {recentNote[0] && (
-            <AudioPlayer
-              title={recentNote[0].title}
-              author='Author'
-              coverUrl={recentNote[0].cover_image}
-              id={recentNote[0].id}
-            />
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className='mb-12'
+            >
+              <AudioPlayer
+                title={recentNote[0].title}
+                author='Author'
+                coverUrl={recentNote[0].cover_image}
+                id={recentNote[0].id}
+              />
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
 
-        <div className='px-6'>
-          <div className='flex items-center justify-between'>
-            <h2 className='text-lg font-semibold'>Recently Played</h2>
-            <Button variant='link'>See All</Button>
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
+          <div className='flex items-center justify-between mb-6'>
+            <h2 className='text-2xl font-semibold'>Recently Updated</h2>
+            <Button
+              variant='ghost'
+              className='text-muted-foreground hover:text-foreground'
+            >
+              View All
+            </Button>
           </div>
-        </div>
 
-        <div className='mt-4 flex gap-4 overflow-x-auto px-6 pb-4 scrollbar-hide'>
-          {notes.map((book) => (
-            <BookCard key={book.id} {...book} />
-          ))}
-        </div>
-
-        {/* <div className='px-6 pt-8'>
-          <div className='flex items-center justify-between'>
-            <h2 className='text-lg font-semibold'>Most Popular</h2>
-            <Button variant='link'>See All</Button>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
+            {notes.map((note, index) => (
+              <motion.div
+                key={note.id}
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -4 }}
+                className='transition-shadow duration-300 hover:shadow-lg'
+              >
+                <BookCard {...note} />
+              </motion.div>
+            ))}
           </div>
-        </div>
+        </motion.div>
 
-        <div className='mt-4 flex gap-4 overflow-x-auto px-6 pb-4 scrollbar-hide'>
-          {popularBooks.map((book) => (
-            <BookCard key={book.title} {...book} />
-          ))}
-        </div> */}
+        {notes.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className='text-center py-12'
+          >
+            <p className='text-muted-foreground'>
+              No notes yet. Create your first note!
+            </p>
+          </motion.div>
+        )}
       </main>
     </motion.div>
   );

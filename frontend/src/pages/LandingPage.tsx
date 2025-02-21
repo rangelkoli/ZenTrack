@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import {
   Calendar,
   ClipboardList,
@@ -10,13 +9,10 @@ import {
   FileText,
   Clock,
   Shield,
-  ArrowDown,
   CheckCircle,
   Brain,
   Sparkles,
-  CreditCard,
   Check,
-  Star,
 } from "lucide-react";
 import TestImage from "./test.png";
 
@@ -50,14 +46,6 @@ export default function LandingPage() {
   // Features section animations
   const featuresOpacity = useTransform(scrollYProgress, [0.25, 0.4], [0, 1]);
   const featuresY = useTransform(scrollYProgress, [0.25, 0.4], [100, 0]);
-
-  // Testimonials section animations
-  const testimonialsOpacity = useTransform(
-    scrollYProgress,
-    [0.35, 0.5],
-    [0, 1]
-  );
-  const testimonialsY = useTransform(scrollYProgress, [0.35, 0.5], [100, 0]);
 
   // Pricing section animations
   const pricingOpacity = useTransform(scrollYProgress, [0.45, 0.6], [0, 1]);

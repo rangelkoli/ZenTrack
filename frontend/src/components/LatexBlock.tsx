@@ -12,7 +12,7 @@ export const LatexBlock = createReactBlockSpec(
       textAlignment: defaultProps.textAlignment,
       equation: {
         default: "",
-        values: ["string"],
+        values: ["String"],
       },
       isEditing: {
         default: true,

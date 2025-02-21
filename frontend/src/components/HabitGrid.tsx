@@ -35,9 +35,6 @@ export function HabitGrid({
 
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const today = new Date().getDate();
-  const isCurrentMonth =
-    selectedDate.getMonth() === new Date().getMonth() &&
-    selectedDate.getFullYear() === new Date().getFullYear();
 
   const getButtonStyle = (status: number) => {
     switch (status) {
