@@ -210,10 +210,19 @@ export default function NotesEditor() {
 
     try {
       setIsSaving(true);
-      await axios.put(`${BASE_URL}/notes/update_note/${id}`, {
-        title,
-        content: JSON.stringify(editor.document),
-      });
+      await axios.put(
+        `${BASE_URL}/notes/update_note/${id}`,
+        {
+          title,
+          content: JSON.stringify(editor.document),
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        }
+      );
 
       hasChanges.current = false;
       setLastSaved(new Date());
@@ -279,15 +288,22 @@ export default function NotesEditor() {
   async function loadFromStorage() {
     // Gets the previously stored editor contents.
 
-    axios.get(`http://127.0.0.1:5000/notes/get_note/${id}`).then((res) => {
-      console.log("res", res.data[0].note);
-      setTitle(res.data[0].title);
-      setInitialContent(JSON.parse(res.data[0].note));
-      setCoverUrl(res.data[0].cover_image);
-      console.log("coverUrl", res.data[0].cover_image);
-      setNewTitle(res.data[0].title);
-      setLastSaved(new Date(res.data[0].updated_at));
-    });
+    axios
+      .get(`http://127.0.0.1:5000/notes/get_note/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      })
+      .then((res) => {
+        console.log("res", res.data[0].note);
+        setTitle(res.data[0].title);
+        setInitialContent(JSON.parse(res.data[0].note));
+        setCoverUrl(res.data[0].cover_image);
+        console.log("coverUrl", res.data[0].cover_image);
+        setNewTitle(res.data[0].title);
+        setLastSaved(new Date(res.data[0].updated_at));
+      });
     return undefined;
   }
 
@@ -296,7 +312,11 @@ export default function NotesEditor() {
     if (!id) return;
 
     try {
-      const response = await axios.get(`${BASE_URL}/notes/${id}/attachments`);
+      const response = await axios.get(`${BASE_URL}/notes/${id}/attachments`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      });
       if (Array.isArray(response.data)) {
         setAttachments(response.data);
       }
@@ -389,8 +409,23 @@ export default function NotesEditor() {
   const handleTitleBlur = async () => {
     setIsEditingTitle(false);
     try {
-      await axios.put(`${BASE_URL}/notes/update_title/${id}`, {
-        title: title,
+      await axios.put(
+        `${BASE_URL}/notes/update_title/${id}`,
+        {
+          title: title,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        }
+      );
+      toast({
+        title: "Success",
+        description: "Title updated successfully",
+        style: { backgroundColor: "#4BB543", color: "#F3F4F6" },
+        duration: 3000,
       });
       setNewTitle(title); // Update the global state
     } catch (err) {

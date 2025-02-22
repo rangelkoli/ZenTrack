@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
@@ -47,6 +48,7 @@ export function Navbar() {
         </div>
 
         <div className='ml-auto flex items-center space-x-4'>
+          <ThemeToggle />
           {isAuthenticated ? (
             <div className='flex items-center space-x-4'>
               <span className='text-sm hidden md:inline-block'>

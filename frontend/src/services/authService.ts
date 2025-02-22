@@ -48,9 +48,9 @@ export const authService = {
       const token = localStorage.getItem('access_token');
       if (!token) throw new Error('No token found');
 
-      const response = await axios.post(
+      const response = await axios.get(
         `${API_URL}/get_user`,
-        {},
+
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -70,6 +70,7 @@ export const authService = {
 
   async register(email: string, password: string, name: string): Promise<RegisterResponse> {
     try {
+      console.log('Attempting registration with:', { email: email.trim(), name: name.trim() });
       const response = await axios.post(`${API_URL}/register`, {
         email: email.trim(),
         password,

@@ -21,6 +21,7 @@ export default function NotesDashboard() {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
       },
     })
       .then((response) => response.json())
@@ -74,6 +75,10 @@ export default function NotesDashboard() {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
+                      "Access-Control-Allow-Origin": "*",
+                      Authorization: `Bearer ${localStorage.getItem(
+                        "access_token"
+                      )}`,
                     },
                     body: JSON.stringify({
                       title: "New note 1",
@@ -92,7 +97,9 @@ export default function NotesDashboard() {
                       ]),
                     }),
                   }).then((response) => {
-                    console.log(response);
+                    if (response.status === 200) {
+                      window.location.reload();
+                    }
                   });
                 }}
                 className='flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground'

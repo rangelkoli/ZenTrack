@@ -25,7 +25,7 @@ function App() {
           <Toaster />
           <AnimatePresence>
             <Router>
-              <div className='min-h-screen bg-background'>
+              <div className='min-h-screen bg-white dark:bg-gray-900 text-white dark:text-gray-100'>
                 <Navbar />
                 <main>
                   <Routes>

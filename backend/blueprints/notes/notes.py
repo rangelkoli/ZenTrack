@@ -9,6 +9,7 @@ from io import BytesIO
 import PIL.Image
 import uuid
 import json
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 notes_blueprint = Blueprint('notes_blueprint', __name__, url_prefix='/notes')
 
@@ -18,7 +19,9 @@ def notes_test():
     return jsonify({"message": response})
 
 @notes_blueprint.route('/add_note/', methods=['POST'])
+@jwt_required()
 def add_note():
+    user_id = get_jwt_identity()
     data = request.json
     print(data)
     new_note = {
@@ -26,23 +29,32 @@ def add_note():
         'note': data['content'],
         'created_at': datetime.now().isoformat(),
         'updated_at': datetime.now().isoformat(),
-        'user_id': 1
+        'user_id': user_id
     }
     db.from_('notes').insert(new_note).execute()
     return jsonify(new_note)
 
 @notes_blueprint.route('/get_notes/', methods=['GET'])
+@jwt_required()
 def get_notes():
-    notes = db.from_('notes').select().execute()
+    id = get_jwt_identity()
+    print(id)
+    notes = db.from_('notes').select().eq('user_id', id).execute()
+    print(notes.data)
     return jsonify(notes.data)
 
 
-@notes_blueprint.route('/get_note/<int:id>', methods=['GET'])
+
+@notes_blueprint.route('/get_note/<uuid:id>', methods=['GET'])
+@jwt_required()
 def get_note(id):
-    note = db.from_('notes').select().eq('id', id).execute()
+    user_id = get_jwt_identity()
+    print(id)
+    note = db.from_('notes').select().eq('id', id).eq('user_id', user_id).execute()
+    print(note.data)
     return jsonify(note.data)
 
-@notes_blueprint.route('/update_note/<int:id>', methods=['PUT', 'POST'])
+@notes_blueprint.route('/update_note/<uuid:id>', methods=['PUT', 'POST'])
 def update_note(id):
     data = request.json
     print(data)
@@ -55,7 +67,7 @@ def update_note(id):
 
     return jsonify(updated_note)
 
-@notes_blueprint.route('/update_title/<int:id>', methods=['PUT'])
+@notes_blueprint.route('/update_title/<uuid:id>', methods=['PUT'])
 def update_title(id):
     data = request.json
     title = data.get('title', '')

@@ -22,16 +22,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const isValid = await authService.validateToken();
-      if (isValid) {
-        const userData = await authService.getCurrentUser();
-        setUser(userData.user);
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
-        setUser(null);
-        localStorage.removeItem("access_token");
-      }
+      const userData = await authService.getCurrentUser();
+      setUser(userData.user);
+      setIsAuthenticated(true);
     } catch (error) {
       setIsAuthenticated(false);
       setUser(null);

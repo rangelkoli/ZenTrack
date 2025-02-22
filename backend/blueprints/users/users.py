@@ -48,7 +48,7 @@ def signup():
         new_user = db.table('users').insert({
             'email': email,
             'password': hashed_password,
-            'username': name
+            'name': name
         }).execute()
 
         if not new_user.data:
@@ -100,10 +100,10 @@ def login():
             return jsonify({'error': 'Invalid email or password'}), 401
 
         access_token = create_access_token(
-            identity=email,
+            identity=user['id'],
             additional_claims={
                 'email': email,
-                'name': user['username'],
+                'name': user['name'],
                 'user_id': user['id']
             },
             expires_delta=timedelta(days=7)
@@ -113,7 +113,7 @@ def login():
             'access_token': access_token,
             'user': {
                 'email': email,
-                'name': user['username'],
+                'name': user['name'],
                 'id': user['id']
             }
         }
@@ -126,15 +126,15 @@ def login():
         traceback.print_exc()  # Print full stack trace
         return jsonify({'error': 'Internal server error'}), 500
 
-@auth_blueprint.route('/get_user', methods=['POST'])
+@auth_blueprint.route('/get_user', methods=['GET'])
 @jwt_required()
 def get_user():
     try:
         # Get user identity from JWT
-        current_user_email = get_jwt_identity()
+        id = get_jwt_identity()
         
         # Query user details from database
-        user_result = db.table('users').select('*').eq('email', current_user_email).execute()
+        user_result = db.table('users').select('*').eq('id', id).execute()
         
         if not user_result.data:
             return jsonify({'error': 'User not found'}), 404
@@ -144,7 +144,7 @@ def get_user():
         return jsonify({
             'user': {
                 'email': user['email'],
-                'name': user['username'],
+                'name': user['name'],
                 'id': user['id']
             }
         }), 200
