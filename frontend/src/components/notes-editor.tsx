@@ -39,7 +39,6 @@ import { useParams } from "react-router";
 import useNotesContent from "@/stores/notesContent";
 import axios from "axios";
 import { TableOfContents } from "./table-of-contents";
-import BASE_URL from "@/constants/baseurl";
 import { useToast } from "@/hooks/use-toast";
 import "./editorstyles.css";
 import { FormatWithAIButton } from "./FormatButton";
@@ -166,10 +165,13 @@ export default function NotesEditor() {
     const body = new FormData();
     body.append("file", file);
 
-    const ret = await fetch("http://127.0.0.1:5000/notes/upload_file/", {
-      method: "POST",
-      body: body,
-    });
+    const ret = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/notes/upload_file/`,
+      {
+        method: "POST",
+        body: body,
+      }
+    );
     console.log(ret);
     const data = await ret.json();
     return data.url;
@@ -211,7 +213,7 @@ export default function NotesEditor() {
     try {
       setIsSaving(true);
       await axios.put(
-        `${BASE_URL}/notes/update_note/${id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/notes/update_note/${id}`,
         {
           title,
           content: JSON.stringify(editor.document),
@@ -289,7 +291,7 @@ export default function NotesEditor() {
     // Gets the previously stored editor contents.
 
     axios
-      .get(`http://127.0.0.1:5000/notes/get_note/${id}`, {
+      .get(`${import.meta.env.VITE_BACKEND_URL}/notes/get_note/${id}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -312,11 +314,14 @@ export default function NotesEditor() {
     if (!id) return;
 
     try {
-      const response = await axios.get(`${BASE_URL}/notes/${id}/attachments`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      });
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/notes/${id}/attachments`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        }
+      );
       if (Array.isArray(response.data)) {
         setAttachments(response.data);
       }
@@ -342,7 +347,11 @@ export default function NotesEditor() {
   // Add function to handle attachment deletion
   const handleDelete = async (attachmentId: string) => {
     try {
-      await axios.delete(`${BASE_URL}/notes/${id}/attachments/${attachmentId}`);
+      await axios.delete(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/notes/${id}/attachments/${attachmentId}`
+      );
       setAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
       toast({
         title: "Success",
@@ -410,7 +419,7 @@ export default function NotesEditor() {
     setIsEditingTitle(false);
     try {
       await axios.put(
-        `${BASE_URL}/notes/update_title/${id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/notes/update_title/${id}`,
         {
           title: title,
         },
@@ -478,7 +487,7 @@ export default function NotesEditor() {
 
     try {
       const response = await axios.post(
-        `${BASE_URL}/notes/${id}/attachments`,
+        `${import.meta.env.VITE_BACKEND_URL}/notes/${id}/attachments`,
         formData,
         {
           headers: {

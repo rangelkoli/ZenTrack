@@ -42,7 +42,9 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
 
       try {
         const response = await axios.get(
-          `http://127.0.0.1:5000/habits/get_habits/1/${month}/${year}`
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/habits/get_habits/1/${month}/${year}`
         );
         setHabits((prev) => ({
           ...prev,
@@ -89,7 +91,7 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
 
       try {
         const response = await axios.post(
-          "http://127.0.0.1:5000/habits/add_habit/",
+          `${import.meta.env.VITE_BACKEND_URL}/habits/add_habit/`,
           newHabit
         );
 

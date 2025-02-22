@@ -25,7 +25,7 @@ app.config["JWT_SECRET_KEY"] = 'asdasddasdasd'
 app.config['JWT_TOKEN_LOCATION'] = ['headers']
 CORS(app, resources={
     r"/*": {
-        "origins": ["http://localhost:5173"],
+        "origins": ["http://localhost:5173", "https://personal-dashboard-black.vercel.app/"],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"]
     }

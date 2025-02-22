@@ -16,7 +16,7 @@ type Note = {
 
 export default function NotesDashboard() {
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/notes/get_notes/", {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/notes/get_notes/`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -71,7 +71,7 @@ export default function NotesDashboard() {
               <Button
                 onClick={() => {
                   console.log("Button clicked");
-                  fetch("http://127.0.0.1:5000/notes/add_note/", {
+                  fetch(`${import.meta.env.VITE_BACKEND_URL}/notes/add_note/`, {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
