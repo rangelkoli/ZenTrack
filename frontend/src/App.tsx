@@ -61,7 +61,7 @@ function App() {
                       }
                     />
                     <Route
-                      path='/notes/:id'
+                      path='/notes/:uuid'
                       element={
                         <ProtectedRoute>
                           <NotesEditor />
