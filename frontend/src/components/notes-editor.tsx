@@ -63,7 +63,7 @@ export default function NotesEditor() {
   const { toast } = useToast();
 
   // Gets the note ID from the URL.
-  const { id } = useParams<{ id: string }>();
+  const { uuid } = useParams<{ uuid: string }>();
   const [coverUrl, setCoverUrl] = useState("");
 
   // const notes = useNotesContent((state: any) => state.notes);
@@ -208,12 +208,12 @@ export default function NotesEditor() {
   }, [initialContent]);
   // Renders the editor instance using a React component.
   const handleAutosave = useCallback(async () => {
-    if (!editor || !id || !hasChanges.current) return;
+    if (!editor || !uuid || !hasChanges.current) return;
 
     try {
       setIsSaving(true);
       await axios.put(
-        `${import.meta.env.VITE_BACKEND_URL}/notes/update_note/${id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/notes/update_note/${uuid}`,
         {
           title,
           content: JSON.stringify(editor.document),
@@ -245,7 +245,7 @@ export default function NotesEditor() {
     } finally {
       setIsSaving(false);
     }
-  }, [editor, id, title]);
+  }, [editor, uuid, title]);
   // Initialize autosave with the changes check
   const { save } = useAutosave({
     onSave: handleAutosave,
@@ -291,7 +291,7 @@ export default function NotesEditor() {
     // Gets the previously stored editor contents.
 
     axios
-      .get(`${import.meta.env.VITE_BACKEND_URL}/notes/get_note/${id}`, {
+      .get(`${import.meta.env.VITE_BACKEND_URL}/notes/get_note/${uuid}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -311,11 +311,11 @@ export default function NotesEditor() {
 
   // Add function to load attachments
   const loadAttachments = async () => {
-    if (!id) return;
+    if (!uuid) return;
 
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/notes/${id}/attachments`,
+        `${import.meta.env.VITE_BACKEND_URL}/notes/${uuid}/attachments`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -350,7 +350,7 @@ export default function NotesEditor() {
       await axios.delete(
         `${
           import.meta.env.VITE_BACKEND_URL
-        }/notes/${id}/attachments/${attachmentId}`
+        }/notes/${uuid}/attachments/${attachmentId}`
       );
       setAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
       toast({
@@ -373,7 +373,7 @@ export default function NotesEditor() {
       setInitialContent(content);
     });
     loadAttachments();
-  }, [id]);
+  }, [uuid]);
 
   // Gets the default slash menu items merged with the multi-column ones.
   const getSlashMenuItems = useMemo(() => {
@@ -419,7 +419,7 @@ export default function NotesEditor() {
     setIsEditingTitle(false);
     try {
       await axios.put(
-        `${import.meta.env.VITE_BACKEND_URL}/notes/update_title/${id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/notes/update_title/${uuid}`,
         {
           title: title,
         },
@@ -487,7 +487,7 @@ export default function NotesEditor() {
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/notes/${id}/attachments`,
+        `${import.meta.env.VITE_BACKEND_URL}/notes/${uuid}/attachments`,
         formData,
         {
           headers: {
