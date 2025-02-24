@@ -26,8 +26,10 @@ app.config['JWT_TOKEN_LOCATION'] = ['headers']
 CORS(app, resources={
     r"/*": {
         "origins": ["http://localhost:5173", "https://personal-dashboard-black.vercel.app/"],
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"]
+        "methods": ["*"],
+        "allow_headers": ["*"],
+        "expose_headers=": ["*"]
+
     }
 })
 jwt = JWTManager(app)
