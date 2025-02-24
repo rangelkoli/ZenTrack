@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "./ui/button";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LogOut, UserCircle } from "lucide-react";
 import {
   DropdownMenu,
@@ -70,10 +70,12 @@ export function Navbar() {
             </div>
           ) : (
             <div className='flex items-center space-x-4'>
-              <Button variant='ghost' onClick={() => navigate("/login")}>
-                Login
-              </Button>
-              <Button onClick={() => navigate("/signup")}>Sign Up</Button>
+              <Link to='/login'>
+                <Button variant='ghost'>Login</Button>
+              </Link>
+              <Link to='/signup'>
+                <Button>Sign Up</Button>
+              </Link>
             </div>
           )}
         </div>

@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { authService } from "@/services/authService";
+import axios from "axios"; // Add this line
+
+axios.defaults.withCredentials = true; // Add this line
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -22,7 +25,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const userData = await authService.getCurrentUser();
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/auth/get_user`,
+        {
+          withCredentials: true,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        }
+      );
+      const userData = response.data;
       setUser(userData.user);
       setIsAuthenticated(true);
     } catch (error) {
