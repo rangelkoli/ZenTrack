@@ -11,7 +11,7 @@ interface AudioPlayerProps {
 export function AudioPlayer({ title, author, coverUrl, id }: AudioPlayerProps) {
   return (
     <Card className='overflow-hidden'>
-      <Link to={`/audio/${id}`} className='block'>
+      <Link to={`/notes/${id}`} className='block'>
         <CardContent className='relative p-0'>
           <div className='relative h-[300px] w-full'>
             <img

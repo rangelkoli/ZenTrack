@@ -14,7 +14,8 @@ import {
   Sparkles,
   Check,
 } from "lucide-react";
-import TestImage from "./test.png";
+import IllustrationLight from "@/assets/LandingPageIlustration.jpg";
+import { TypeAnimation } from "react-type-animation";
 
 export default function LandingPage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -52,197 +53,225 @@ export default function LandingPage() {
   const pricingY = useTransform(scrollYProgress, [0.45, 0.6], [100, 0]);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative bg-[url('/grid-pattern.svg')] bg-fixed"
-    >
-      <div className='absolute inset-0 bg-gradient-to-b from-background via-background/90 to-background pointer-events-none' />
+    <div ref={containerRef} className='relative '>
       {/* Hero Section */}
       <motion.section
         style={{ opacity: heroOpacity, y: heroY, scale: heroScale }}
-        className='min-h-screen flex items-center justify-center relative overflow-hidden'
+        className='flex items-center justify-center relative overflow-hidden'
       >
-        <div className='max-w-6xl mx-auto px-4 py-20 text-center relative z-10'>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className='space-y-8'
-          >
-            {/* Enhanced Hero Text */}
-            <div className='space-y-4'>
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className='inline-block text-primary font-medium text-lg px-4 py-1 rounded-full border border-primary/20 bg-primary/10'
-              >
-                🚀 Coming Soon
-              </motion.span>
-              <h1 className='text-5xl md:text-7xl font-bold tracking-tight leading-tight'>
-                <span className='bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent'>
-                  Your AI-Powered
-                </span>
-                <br />
-                <span className='inline-block mt-2'>
-                  Life{" "}
-                  <span className='relative'>
-                    Dashboard
-                    <motion.svg
-                      viewBox='0 0 284 24'
-                      className='absolute -bottom-2 left-0 w-full opacity-80'
-                      xmlns='http://www.w3.org/2000/svg'
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ duration: 1, delay: 1 }}
-                    >
-                      <path
-                        d='M2 22C82.5683 5.68764 155.318 1.66661 282 2.00006'
-                        stroke='url(#paint0_linear)'
-                        strokeWidth='4'
-                        strokeLinecap='round'
-                        fill='none'
-                      />
-                      <defs>
-                        <linearGradient
-                          id='paint0_linear'
-                          x1='2'
-                          y1='12'
-                          x2='282'
-                          y2='12'
-                        >
-                          <stop stopColor='#3B82F6' />
-                          <stop offset='1' stopColor='#8B5CF6' />
-                        </linearGradient>
-                      </defs>
-                    </motion.svg>
-                  </span>
-                </span>
-              </h1>
-            </div>
-
-            <p className='text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed'>
-              Stop juggling 10 apps. Let{" "}
-              <span className='text-primary font-semibold'>AI organize</span>{" "}
-              your habits, finances, and journaling so you can{" "}
-              <span className='text-primary font-semibold'>
-                focus on what matters
-              </span>
-              .
-            </p>
-
-            {/* Waitlist Form */}
-            <motion.form
-              onSubmit={handleWaitlistSignup}
+        <div className='container mx-auto px-6   flex flex-col md:flex-row items-center'>
+          {/* Left Column - Text Content */}
+          <div className='md:w-1/2 flex flex-col items-start mb-12 md:mb-0'>
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className='max-w-md mx-auto flex flex-col sm:flex-row gap-2 p-2 rounded-lg bg-secondary/30'
+              transition={{ duration: 0.6 }}
+              className='text-5xl md:text-6xl font-bold leading-tight mb-6'
+            >
+              <TypeAnimation
+                sequence={[
+                  "Transform Your Daily Productivity",
+                  500,
+                  "Streamline Your Life with AI",
+                  500,
+                  "Achieve Your Goals Faster",
+                  500,
+                  "Master Your Daily Routine",
+                  500,
+                ]}
+                wrapper='h1'
+                speed={50}
+                repeat={Infinity}
+                className='text-foreground text-5xl md:text-6xl font-bold leading-tight mb-6'
+              />
+            </motion.div>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className='text-xl text-muted-foreground mb-8'
+            >
+              Simplify your notes, build lasting habits, journal your thoughts,
+              and manage your finances – all in one powerful, intuitive
+              platform.
+            </motion.p>
+
+            {/* Social Proof */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className='flex items-center gap-4 bg-secondary/30 p-4 rounded-lg'
+            >
+              <div className='flex -space-x-3'>
+                {[...Array(3)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.8 + i * 0.1 }}
+                    className='w-8 h-8 rounded-full bg-gradient-to-r from-primary to-purple-600 border-2 border-background'
+                  />
+                ))}
+              </div>
+              <span className='text-muted-foreground'>
+                <span className='font-medium'>100+ </span>
+                <span className='text-yellow-500'>★★★★★ </span>
+                <span>happy users</span>
+              </span>
+            </motion.div>
+            {/* Email Signup Form */}
+            <motion.form
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              onSubmit={handleWaitlistSignup}
+              className='flex gap-3 w-full max-w-xl mb-8 p-1.5 rounded-2xl bg-background/20 backdrop-blur-sm border border-border/40 hover:border-primary/20 transition-colors'
             >
               <Input
                 type='email'
                 placeholder='Enter your email'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className='flex-grow bg-background'
-                required
+                className='flex-grow border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/50'
               />
               <Button
                 type='submit'
                 disabled={isSubmitting}
-                className='relative group'
+                className=' bg-white cursor-pointer rounded-xl border-2 border-[#9748FF] shadow-[inset_0px_-2px_0px_1px_#9748FF] group hover:bg-[#9748FF] transition duration-300 ease-in-out'
               >
-                <span className='relative z-10'>
-                  {isSubmitting ? "Joining..." : "Join Waitlist"}
-                </span>
-                <motion.div
-                  className='absolute inset-0 bg-gradient-to-r from-primary to-purple-600 rounded-md opacity-20 group-hover:opacity-40 transition-opacity'
-                  animate={{
-                    scale: isSubmitting ? [1, 1.05, 1] : 1,
-                  }}
-                  transition={{
-                    duration: 1,
-                    repeat: isSubmitting ? Infinity : 0,
-                  }}
-                />
+                {isSubmitting ? (
+                  <motion.div
+                    initial={{ opacity: 0.5 }}
+                    animate={{ opacity: 1 }}
+                    transition={{
+                      repeat: Infinity,
+                      duration: 0.6,
+                      ease: "easeInOut",
+                    }}
+                    className='font-medium text-[#333] group-hover:text-white'
+                  >
+                    Joining...
+                  </motion.div>
+                ) : (
+                  <span className='font-medium text-[#333] group-hover:text-white'>
+                    Join Waitlist
+                  </span>
+                )}
               </Button>
             </motion.form>
+          </div>
 
-            <div className='flex items-center justify-center gap-8 text-sm text-muted-foreground'>
-              <span className='flex items-center gap-2'>
-                <CheckCircle className='w-4 h-4 text-primary' />
-                Free Early Access
-              </span>
-              <span className='flex items-center gap-2'>
-                <CheckCircle className='w-4 h-4 text-primary' />
-                No Credit Card
-              </span>
+          {/* Right Column - Illustration */}
+          <div className='md:w-1/2 flex justify-end relative'>
+            <div className='relative w-full justify-center flex'>
+              <img
+                src={IllustrationLight}
+                alt='Illustration'
+                className='relative z-10 w-full h-full object-cover'
+              />
             </div>
-
-            {/* Existing dashboard preview */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className='mt-12 relative'
-            >
-              <div className='relative rounded-lg overflow-hidden shadow-2xl border border-border/50'>
-                <img
-                  src={TestImage}
-                  alt='Dashboard Preview'
-                  className='w-full rounded-lg bg-cover'
-                />
-                <div className='absolute inset-0 bg-gradient-to-t from-background/80 to-transparent' />
-              </div>
-            </motion.div>
-          </motion.div>
+          </div>
         </div>
       </motion.section>
 
       {/* Problem & Solution Section */}
       <motion.section
         style={{ opacity: problemOpacity, y: problemY }}
-        className='py-20 bg-secondary/30'
+        className='bg-green-300 py-12'
       >
         <div className='max-w-6xl mx-auto px-4'>
-          <div className='grid md:grid-cols-2 gap-12 items-center'>
-            <div className='space-y-6'>
-              <h2 className='text-3xl font-bold'>The Problem</h2>
+          <div className='grid md:grid-cols-2 gap-12 items-stretch'>
+            {/* Problem Card */}
+            <div className='bg-white p-8 rounded-xl shadow-lg flex flex-col justify-center'>
+              <h2 className='text-3xl font-bold mb-4'>
+                Tired of Scattered Notes, Broken Habits, and Financial
+                Frustration?
+              </h2>
               <ul className='space-y-4'>
-                {problems.map((problem, index) => (
-                  <motion.li
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className='flex items-start gap-3'
-                  >
-                    <CheckCircle className='w-6 h-6 text-primary mt-1' />
-                    <p className='text-lg text-muted-foreground'>{problem}</p>
-                  </motion.li>
-                ))}
+                <motion.li
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0 }}
+                >
+                  <CheckCircle className='w-6 h-6 text-primary inline-block mr-2' />
+                  <span className='text-lg text-muted-foreground'>
+                    Juggling multiple apps for notes, habits, journaling, and
+                    finances?
+                  </span>
+                </motion.li>
+                <motion.li
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <CheckCircle className='w-6 h-6 text-primary inline-block mr-2' />
+                  <span className='text-lg text-muted-foreground'>
+                    Struggling to stay consistent with your goals and track your
+                    progress?
+                  </span>
+                </motion.li>
+                <motion.li
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <CheckCircle className='w-6 h-6 text-primary inline-block mr-2' />
+                  <span className='text-lg text-muted-foreground'>
+                    Feeling overwhelmed by disorganized information and
+                    financial clutter?
+                  </span>
+                </motion.li>
+                <motion.li
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <CheckCircle className='w-6 h-6 text-primary inline-block mr-2' />
+                  <span className='text-lg text-muted-foreground'>
+                    Lacking a clear overview of your finances and spending
+                    habits?
+                  </span>
+                </motion.li>
+                <motion.li
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <CheckCircle className='w-6 h-6 text-primary inline-block mr-2' />
+                  <span className='text-lg text-muted-foreground'>
+                    Spending too much time switching between different
+                    platforms?
+                  </span>
+                </motion.li>
               </ul>
             </div>
-            <div className='space-y-6'>
-              <h2 className='text-3xl font-bold'>Our Solution</h2>
-              <div className='space-y-4'>
-                {solutions.map((solution, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className='p-4 rounded-lg bg-background border'
-                  >
-                    <h3 className='text-xl font-semibold mb-2 flex items-center gap-2'>
-                      <Brain className='w-5 h-5 text-primary' />
-                      {solution.title}
-                    </h3>
-                    <p className='text-muted-foreground'>
-                      {solution.description}
-                    </p>
-                  </motion.div>
-                ))}
+            {/* Custom Solution Card */}
+            <div className='bg-white p-8 rounded-xl shadow-lg flex flex-col justify-center'>
+              <h2 className='text-3xl font-bold mb-4'>
+                Introducing [Your Dashboard Name]: Your All-in-One Personal
+                Command Center
+              </h2>
+              <p className='text-lg text-muted-foreground mb-4'>
+                We understand the challenges of managing different aspects of
+                your life. [Your Dashboard Name] simplifies everything by
+                bringing your notes, habits, journals, and finances together in
+                one seamless platform. Our intuitive design and powerful
+                features empower you to take control, achieve your goals, and
+                live a more organized and fulfilling life.
+              </p>
+              <div className='flex items-center justify-center'>
+                {/* Placeholder video; replace src with your video path or swap with an image */}
+                <video
+                  controls
+                  className='w-full rounded-md'
+                  src='path_to_video.mp4'
+                >
+                  Your browser does not support the video tag.
+                </video>
+                {/* Alternatively, use an image:
+          <img src="path_to_screenshot.jpg" alt="[Your Dashboard Name] screenshot" className="w-full rounded-md" /> */}
               </div>
             </div>
           </div>
@@ -496,31 +525,6 @@ export default function LandingPage() {
     </div>
   );
 }
-
-const problems = [
-  "Switching between multiple apps to track different aspects of life",
-  "No clear insights from scattered data",
-  "Difficult to maintain consistency with habits",
-  "Time-consuming manual data entry",
-];
-
-const solutions = [
-  {
-    title: "Unified Dashboard",
-    description:
-      "One place for habits, finances, and personal notes with AI-powered insights.",
-  },
-  {
-    title: "Smart Automation",
-    description:
-      "Automatic data sync and AI-generated recommendations based on your patterns.",
-  },
-  {
-    title: "Personalized Experience",
-    description:
-      "Adapts to your needs with customizable widgets and intelligent suggestions.",
-  },
-];
 
 const features = [
   {
