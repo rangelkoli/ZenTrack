@@ -40,6 +40,9 @@ export function Navbar() {
               >
                 Habits
               </Button>
+              <Button variant='ghost' onClick={() => navigate("/smart-tasks")}>
+                Smart Tasks
+              </Button>
               <Button variant='ghost' onClick={() => navigate("/finance")}>
                 Finance
               </Button>

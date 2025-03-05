@@ -1,0 +1,48 @@
+/* Calendar dark mode support */
+.dark .rdp {
+  --rdp-background-color: hsl(var(--background));
+  --rdp-accent-color: hsl(var(--primary));
+  --rdp-text-color: hsl(var(--foreground));
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--background)) !important;
+}
+
+.dark .rdp-day {
+  color: hsl(var(--foreground));
+}
+
+.dark .rdp-day_selected {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.dark .rdp-button:hover:not([disabled]) {
+  background-color: hsl(var(--accent));
+}
+
+.dark .calendar-wrapper,
+.dark [data-radix-popper-content-wrapper] {
+  background-color: hsl(var(--background));
+  border-color: hsl(var(--border));
+}
+
+.dark .popover-calendar {
+  background-color: hsl(var(--background));
+  border-color: hsl(var(--border));
+}
+
+/* Fix z-index issues */
+.calendar-container {
+  position: relative;
+  z-index: 1000 !important;
+}
+
+.calendar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}

@@ -129,8 +129,7 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
               onSubmit={handleWaitlistSignup}
-              className='flex gap-3 w-full max-w-xl mb-8 p-1.5 rounded-2xl bg-background/20 backdrop-blur-sm border border-border/40 hover:border-primary/20 transition-colors'
-              style={{ position: "relative", zIndex: 50 }}
+              className='flex gap-3 w-full max-w-xl mb-8 p-1.5 rounded-2xl bg-background/20 backdrop-blur-sm border border-border/40 hover:border-primary/20 transition-colors relative'
             >
               <Input
                 type='email'
@@ -139,17 +138,11 @@ export default function LandingPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 onClick={(e) => e.currentTarget.focus()}
                 className='flex-grow border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/50'
-                style={{
-                  pointerEvents: "auto",
-                  position: "relative",
-                  zIndex: 5,
-                }}
               />
               <Button
                 type='submit'
                 disabled={isSubmitting}
-                className='bg-white cursor-pointer rounded-xl border-2 border-[#9748FF] shadow-[inset_0px_-2px_0px_1px_#9748FF] group hover:bg-[#9748FF] transition duration-300 ease-in-out relative z-5'
-                style={{ pointerEvents: "auto" }}
+                className='bg-white cursor-pointer rounded-xl border-2 border-[#9748FF] shadow-[inset_0px_-2px_0px_1px_#9748FF] group hover:bg-[#9748FF] transition duration-300 ease-in-out'
               >
                 {isSubmitting ? (
                   <motion.div
