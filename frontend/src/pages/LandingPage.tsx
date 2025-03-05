@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import IllustrationLight from "@/assets/LandingPageIlustration.jpg";
 import { TypeAnimation } from "react-type-animation";
+import BlockNotePreview from "@/components/BlockNoteView";
 
 export default function LandingPage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,6 +27,7 @@ export default function LandingPage() {
 
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState("notes");
 
   const handleWaitlistSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,18 +130,26 @@ export default function LandingPage() {
               transition={{ duration: 0.6, delay: 0.4 }}
               onSubmit={handleWaitlistSignup}
               className='flex gap-3 w-full max-w-xl mb-8 p-1.5 rounded-2xl bg-background/20 backdrop-blur-sm border border-border/40 hover:border-primary/20 transition-colors'
+              style={{ position: "relative", zIndex: 50 }}
             >
               <Input
                 type='email'
                 placeholder='Enter your email'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onClick={(e) => e.currentTarget.focus()}
                 className='flex-grow border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/50'
+                style={{
+                  pointerEvents: "auto",
+                  position: "relative",
+                  zIndex: 5,
+                }}
               />
               <Button
                 type='submit'
                 disabled={isSubmitting}
-                className=' bg-white cursor-pointer rounded-xl border-2 border-[#9748FF] shadow-[inset_0px_-2px_0px_1px_#9748FF] group hover:bg-[#9748FF] transition duration-300 ease-in-out'
+                className='bg-white cursor-pointer rounded-xl border-2 border-[#9748FF] shadow-[inset_0px_-2px_0px_1px_#9748FF] group hover:bg-[#9748FF] transition duration-300 ease-in-out relative z-5'
+                style={{ pointerEvents: "auto" }}
               >
                 {isSubmitting ? (
                   <motion.div
@@ -175,118 +185,179 @@ export default function LandingPage() {
           </div>
         </div>
       </motion.section>
-
-      {/* Problem & Solution Section */}
-      <motion.section
-        style={{ opacity: problemOpacity, y: problemY }}
-        className='bg-green-300 py-12'
-      >
+      {/* Features Showcase Section */}
+      <section className='py-10 bg-gray-50'>
         <div className='max-w-6xl mx-auto px-4'>
-          <div className='grid md:grid-cols-2 gap-12 items-stretch'>
-            {/* Problem Card */}
-            <div className='bg-white p-8 rounded-xl shadow-lg flex flex-col justify-center'>
-              <h2 className='text-3xl font-bold mb-4'>
-                Tired of Scattered Notes, Broken Habits, and Financial
-                Frustration?
-              </h2>
-              <ul className='space-y-4'>
-                <motion.li
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0 }}
-                >
-                  <CheckCircle className='w-6 h-6 text-primary inline-block mr-2' />
-                  <span className='text-lg text-muted-foreground'>
-                    Juggling multiple apps for notes, habits, journaling, and
-                    finances?
-                  </span>
-                </motion.li>
-                <motion.li
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 }}
-                >
-                  <CheckCircle className='w-6 h-6 text-primary inline-block mr-2' />
-                  <span className='text-lg text-muted-foreground'>
-                    Struggling to stay consistent with your goals and track your
-                    progress?
-                  </span>
-                </motion.li>
-                <motion.li
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <CheckCircle className='w-6 h-6 text-primary inline-block mr-2' />
-                  <span className='text-lg text-muted-foreground'>
-                    Feeling overwhelmed by disorganized information and
-                    financial clutter?
-                  </span>
-                </motion.li>
-                <motion.li
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <CheckCircle className='w-6 h-6 text-primary inline-block mr-2' />
-                  <span className='text-lg text-muted-foreground'>
-                    Lacking a clear overview of your finances and spending
-                    habits?
-                  </span>
-                </motion.li>
-                <motion.li
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <CheckCircle className='w-6 h-6 text-primary inline-block mr-2' />
-                  <span className='text-lg text-muted-foreground'>
-                    Spending too much time switching between different
-                    platforms?
-                  </span>
-                </motion.li>
-              </ul>
-            </div>
-            {/* Custom Solution Card */}
-            <div className='bg-white p-8 rounded-xl shadow-lg flex flex-col justify-center'>
-              <h2 className='text-3xl font-bold mb-4'>
-                Introducing [Your Dashboard Name]: Your All-in-One Personal
-                Command Center
-              </h2>
-              <p className='text-lg text-muted-foreground mb-4'>
-                We understand the challenges of managing different aspects of
-                your life. [Your Dashboard Name] simplifies everything by
-                bringing your notes, habits, journals, and finances together in
-                one seamless platform. Our intuitive design and powerful
-                features empower you to take control, achieve your goals, and
-                live a more organized and fulfilling life.
-              </p>
-              <div className='flex items-center justify-center'>
-                {/* Placeholder video; replace src with your video path or swap with an image */}
-                <video
-                  controls
-                  className='w-full rounded-md'
-                  src='path_to_video.mp4'
-                >
-                  Your browser does not support the video tag.
-                </video>
-                {/* Alternatively, use an image:
+          <h2 className='text-3xl font-bold mb-6 text-center'>
+            Try our features without signing up
+          </h2>
+          <div className='mb-4 flex justify-center space-x-4'>
+            <button
+              onClick={() => setActiveTab("notes")}
+              className={`px-4 py-2 rounded ${
+                activeTab === "notes"
+                  ? "bg-primary text-white"
+                  : "bg-white text-primary border"
+              }`}
+            >
+              Notes
+            </button>
+            <button
+              onClick={() => setActiveTab("tab2")}
+              className={`px-4 py-2 rounded ${
+                activeTab === "tab2"
+                  ? "bg-primary text-white"
+                  : "bg-white text-primary border"
+              }`}
+            >
+              Tab 2
+            </button>
+            <button
+              onClick={() => setActiveTab("tab3")}
+              className={`px-4 py-2 rounded ${
+                activeTab === "tab3"
+                  ? "bg-primary text-white"
+                  : "bg-white text-primary border"
+              }`}
+            >
+              Tab 3
+            </button>
+          </div>
+          <div className='bg-white p-6 rounded-md shadow'>
+            {activeTab === "notes" && <BlockNotePreview />}
+            {activeTab !== "notes" && (
+              <div className='h-40 flex items-center justify-center text-muted-foreground'>
+                {/* Placeholder for future content */}
+                No content available.
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+      {/* Problem & Solution Section */}
+      <div className='bg-gray-100'>
+        <motion.section
+          style={{ opacity: problemOpacity, y: problemY }}
+          className=' py-12'
+        >
+          <div className='max-w-6xl mx-auto px-4'>
+            <div className='grid md:grid-cols-2 gap-12 items-stretch'>
+              {/* Problem Card */}
+              <div className='bg-white p-8 rounded-xl shadow-lg flex flex-col justify-center'>
+                <h2 className='text-3xl font-bold mb-4'>
+                  Tired of Scattered Notes, Broken Habits, and Financial
+                  Frustration?
+                </h2>
+                <ul className='space-y-4'>
+                  <motion.li
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0 }}
+                  >
+                    <CheckCircle className='w-6 h-6 text-primary inline-block mr-2' />
+                    <span className='text-lg text-muted-foreground'>
+                      Juggling multiple apps for notes, habits, journaling, and
+                      finances?
+                    </span>
+                  </motion.li>
+                  <motion.li
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    <CheckCircle className='w-6 h-6 text-primary inline-block mr-2' />
+                    <span className='text-lg text-muted-foreground'>
+                      Struggling to stay consistent with your goals and track
+                      your progress?
+                    </span>
+                  </motion.li>
+                  <motion.li
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <CheckCircle className='w-6 h-6 text-primary inline-block mr-2' />
+                    <span className='text-lg text-muted-foreground'>
+                      Feeling overwhelmed by disorganized information and
+                      financial clutter?
+                    </span>
+                  </motion.li>
+                  <motion.li
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <CheckCircle className='w-6 h-6 text-primary inline-block mr-2' />
+                    <span className='text-lg text-muted-foreground'>
+                      Lacking a clear overview of your finances and spending
+                      habits?
+                    </span>
+                  </motion.li>
+                  <motion.li
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    <CheckCircle className='w-6 h-6 text-primary inline-block mr-2' />
+                    <span className='text-lg text-muted-foreground'>
+                      Spending too much time switching between different
+                      platforms?
+                    </span>
+                  </motion.li>
+                </ul>
+              </div>
+              {/* Custom Solution Card */}
+              <div className='bg-white p-8 rounded-xl shadow-lg flex flex-col justify-center'>
+                <h2 className='text-3xl font-bold mb-4'>
+                  Introducing [Your Dashboard Name]: Your All-in-One Personal
+                  Command Center
+                </h2>
+                <p className='text-lg text-muted-foreground mb-4'>
+                  We understand the challenges of managing different aspects of
+                  your life. [Your Dashboard Name] simplifies everything by
+                  bringing your notes, habits, journals, and finances together
+                  in one seamless platform. Our intuitive design and powerful
+                  features empower you to take control, achieve your goals, and
+                  live a more organized and fulfilling life.
+                </p>
+                <div className='flex items-center justify-center'>
+                  {/* Placeholder video; replace src with your video path or swap with an image */}
+                  <video
+                    controls
+                    className='w-full rounded-md'
+                    src='path_to_video.mp4'
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                  {/* Alternatively, use an image:
           <img src="path_to_screenshot.jpg" alt="[Your Dashboard Name] screenshot" className="w-full rounded-md" /> */}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </motion.section>
-
+        </motion.section>
+      </div>
       {/* Features Section */}
       <motion.section
         style={{ opacity: featuresOpacity, y: featuresY }}
-        className='py-20'
+        className='py-20 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden'
       >
-        <div className='max-w-6xl mx-auto px-4'>
-          <h2 className='text-4xl font-bold text-center mb-16'>
-            Powered by AI, Built for You
-          </h2>
+        <div className='absolute inset-0 bg-grid-pattern opacity-5' />
+        <div className='max-w-6xl mx-auto px-4 relative'>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className='text-center mb-16'
+          >
+            <h2 className='text-4xl font-bold mb-4'>
+              Powered by AI, Built for You
+            </h2>
+            <p className='text-xl text-muted-foreground'>
+              Experience the future of personal productivity
+            </p>
+          </motion.div>
+
           <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-8'>
             {features.map((feature, index) => (
               <motion.div
@@ -294,14 +365,21 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className='p-6 rounded-lg bg-secondary/10 border hover:shadow-lg transition-all group'
+                whileHover={{
+                  scale: 1.02,
+                  boxShadow: "0 10px 30px -10px rgba(0,0,0,0.1)",
+                }}
+                className='p-6 rounded-lg bg-white border hover:border-primary/50 transition-all group relative'
               >
                 <div className='mb-4 relative'>
-                  <feature.icon className='w-12 h-12 text-primary' />
+                  <feature.icon className='w-12 h-12 text-primary transition-transform group-hover:scale-110' />
                   <motion.div
-                    animate={{ rotate: 360 }}
+                    animate={{
+                      rotate: 360,
+                      scale: [1, 1.2, 1],
+                    }}
                     transition={{
-                      duration: 20,
+                      duration: 3,
                       repeat: Infinity,
                       ease: "linear",
                     }}
@@ -313,9 +391,13 @@ export default function LandingPage() {
                 <h3 className='text-xl font-semibold mb-2'>{feature.title}</h3>
                 <p className='text-muted-foreground'>{feature.description}</p>
                 {feature.example && (
-                  <div className='mt-4 p-3 rounded bg-secondary/20 text-sm'>
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    whileInView={{ opacity: 1, height: "auto" }}
+                    className='mt-4 p-3 rounded bg-secondary/20 text-sm'
+                  >
                     <strong>Example:</strong> {feature.example}
-                  </div>
+                  </motion.div>
                 )}
               </motion.div>
             ))}

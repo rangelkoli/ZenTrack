@@ -36,38 +36,65 @@ export function LoginForm() {
     }
   };
 
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    console.log("Email changing to:", newValue); // For debugging, can remove later
+    setEmail(newValue);
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
   return (
     <div className='grid gap-6'>
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        style={{ position: "relative", zIndex: 10 }}
+      >
         <div className='grid gap-4'>
-          <div className='grid gap-1'>
+          <div className='grid gap-1 input-wrapper'>
             <Label htmlFor='email'>Email</Label>
             <Input
               id='email'
+              name='email'
               type='email'
-              placeholder='name@example.com'
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleEmailChange}
+              onClick={(e) => e.currentTarget.focus()}
+              autoFocus
+              autoComplete='email'
+              placeholder='your.email@example.com'
+              className='w-full px-4 py-2 focus:ring-2 focus:ring-primary relative z-10'
+              style={{ pointerEvents: "auto" }}
               required
             />
           </div>
-          <div className='grid gap-1'>
+          <div className='grid gap-1 input-wrapper'>
             <Label htmlFor='password'>Password</Label>
             <Input
               id='password'
               type='password'
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handlePasswordChange}
+              onClick={(e) => e.currentTarget.focus()}
+              placeholder='••••••••'
+              className='w-full px-4 py-2 relative z-10'
+              style={{ pointerEvents: "auto" }}
               required
             />
           </div>
-          <Button type='submit' disabled={isLoading}>
+          <Button type='submit' disabled={isLoading} className='relative z-10'>
             {isLoading ? "Signing in..." : "Sign in"}
           </Button>
         </div>
       </form>
       <div className='text-center'>
-        <Button variant='link' onClick={() => navigate("/signup")}>
+        <Button
+          variant='link'
+          onClick={() => navigate("/signup")}
+          className='relative z-10'
+        >
           Don't have an account? Sign up
         </Button>
       </div>
