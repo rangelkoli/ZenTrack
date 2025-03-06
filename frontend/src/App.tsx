@@ -18,9 +18,9 @@ import { Toaster } from "@/components/ui/toaster";
 import HabitTracker from "./pages/HabitTracker";
 import "./App.css";
 import { AnimatePresence } from "framer-motion";
-import { HabitsProvider } from "@/contexts/HabitsContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { TaskProvider } from "@/contexts/TaskContext"; // Import TaskProvider
+import { HabitProvider } from "@/contexts/HabitContext"; // Use the correct import
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Navbar } from "@/components/navbar";
 
@@ -28,10 +28,8 @@ function App() {
   return (
     <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
       <AuthProvider>
-        <HabitsProvider>
-          <TaskProvider>
-            {" "}
-            {/* Add TaskProvider */}
+        <TaskProvider>
+          <HabitProvider> {/* Use the correct provider name */}
             <Toaster />
             <AnimatePresence>
               <Router>
@@ -115,8 +113,8 @@ function App() {
                 </div>
               </Router>
             </AnimatePresence>
-          </TaskProvider>
-        </HabitsProvider>
+          </HabitProvider>
+        </TaskProvider>
       </AuthProvider>
     </ThemeProvider>
   );
