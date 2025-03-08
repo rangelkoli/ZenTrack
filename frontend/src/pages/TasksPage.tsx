@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 
 export default function TasksPage() {
-  const { getCategorizedTasks } = useTasks();
+  const { loading, getCategorizedTasks } = useTasks();
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddTaskDialog, setShowAddTaskDialog] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -33,13 +33,7 @@ export default function TasksPage() {
     }, 200); // Delay clearing the editing task to avoid UI flicker
 
     // Show toast when a task is added or edited
-    if (!editingTask) {
-      toast({
-        title: "Task added",
-        description: "Your task has been successfully created.",
-        duration: 3000,
-      });
-    } else {
+    if (editingTask) {
       toast({
         title: "Task updated",
         description: "Your task has been successfully updated.",
@@ -57,7 +51,8 @@ export default function TasksPage() {
     return categorizedTasks[category].some(
       (task) =>
         task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        task.description.toLowerCase().includes(searchQuery.toLowerCase())
+        (task.description &&
+          task.description.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   });
 
@@ -70,6 +65,17 @@ export default function TasksPage() {
     ? Math.round((completedTasks / totalTasks) * 100)
     : 0;
 
+  if (loading) {
+    return (
+      <div className='container mx-auto py-8 flex justify-center items-center h-64'>
+        <div className='text-center'>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto'></div>
+          <p className='mt-4 text-muted-foreground'>Loading tasks...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='container mx-auto py-8 max-w-5xl'>
       <div className='flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4'>
@@ -80,10 +86,10 @@ export default function TasksPage() {
           </p>
         </div>
 
-        <div className='flex flex-col items-end gap-2 relative z-10'>
+        <div className='flex flex-col items-end gap-2'>
           <Button
             onClick={() => setShowAddTaskDialog(true)}
-            className='flex items-center gap-2 relative z-10'
+            className='flex items-center gap-2'
           >
             <PlusIcon className='h-4 w-4' />
             Add Task
@@ -98,7 +104,7 @@ export default function TasksPage() {
         </div>
       </div>
 
-      <div className='bg-white border rounded-lg shadow-sm p-6 relative z-10'>
+      <div className='bg-white border rounded-lg shadow-sm p-6'>
         {/* Search and filter controls */}
         <div className='flex flex-col md:flex-row gap-4 mb-6'>
           <div className='relative flex-grow'>
@@ -113,7 +119,7 @@ export default function TasksPage() {
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className='absolute right-3 top-1/2 transform -translate-y-1/2 z-10 pointer-events-auto cursor-pointer'
+                className='absolute right-3 top-1/2 transform -translate-y-1/2'
               >
                 <X className='h-4 w-4 text-gray-400' />
               </button>
@@ -139,9 +145,10 @@ export default function TasksPage() {
                 className='flex items-center gap-1'
               >
                 <div
-                  className={`w-2 h-2 rounded-full ${getCategoryColor(
-                    category
-                  ).replace("bg-", "")}`}
+                  className={`w-2 h-2 ${getCategoryColor(category)
+                    .replace("border-l-4 ", "bg-")
+                    .replace("border-", "bg-")}`}
+                  style={{ borderRadius: "50%" }}
                 />
                 {category}
                 <span className='ml-1 text-xs bg-secondary rounded-full px-2 py-0.5'>
@@ -161,7 +168,9 @@ export default function TasksPage() {
                       <div
                         className={`w-3 h-3 rounded-full ${getCategoryColor(
                           category
-                        ).replace("bg-", "")}`}
+                        )
+                          .replace("border-l-4 ", "bg-")
+                          .replace("border-", "bg-")}`}
                       />
                       <h3 className='text-lg font-semibold ml-2'>{category}</h3>
                       <span className='ml-2 text-xs bg-secondary rounded-full px-2 py-0.5 text-muted-foreground'>
@@ -177,9 +186,10 @@ export default function TasksPage() {
                             task.title
                               .toLowerCase()
                               .includes(searchQuery.toLowerCase()) ||
-                            task.description
-                              .toLowerCase()
-                              .includes(searchQuery.toLowerCase())
+                            (task.description &&
+                              task.description
+                                .toLowerCase()
+                                .includes(searchQuery.toLowerCase()))
                         )
                         .map((task) => (
                           <motion.div
@@ -226,7 +236,9 @@ export default function TasksPage() {
                   <div
                     className={`w-3 h-3 rounded-full ${getCategoryColor(
                       category
-                    ).replace("bg-", "")}`}
+                    )
+                      .replace("border-l-4 ", "bg-")
+                      .replace("border-", "bg-")}`}
                   />
                   <h3 className='text-lg font-semibold ml-2'>{category}</h3>
                   <span className='ml-2 text-xs bg-secondary rounded-full px-2 py-0.5 text-muted-foreground'>
@@ -242,9 +254,10 @@ export default function TasksPage() {
                         task.title
                           .toLowerCase()
                           .includes(searchQuery.toLowerCase()) ||
-                        task.description
-                          .toLowerCase()
-                          .includes(searchQuery.toLowerCase())
+                        (task.description &&
+                          task.description
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()))
                     )
                     .map((task) => (
                       <motion.div
@@ -265,9 +278,10 @@ export default function TasksPage() {
                     task.title
                       .toLowerCase()
                       .includes(searchQuery.toLowerCase()) ||
-                    task.description
-                      .toLowerCase()
-                      .includes(searchQuery.toLowerCase())
+                    (task.description &&
+                      task.description
+                        .toLowerCase()
+                        .includes(searchQuery.toLowerCase()))
                 ).length === 0 && (
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -292,7 +306,7 @@ export default function TasksPage() {
 
       {/* Task form dialog */}
       <Dialog open={showAddTaskDialog} onOpenChange={setShowAddTaskDialog}>
-        <DialogContent className='sm:max-w-md relative z-50'>
+        <DialogContent className='sm:max-w-md'>
           <TaskForm onClose={handleCloseForm} editingTask={editingTask} />
         </DialogContent>
       </Dialog>

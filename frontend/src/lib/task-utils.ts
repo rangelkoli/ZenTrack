@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+
 // Common task categories mapped to keywords and phrases
 const categoryKeywords: Record<string, string[]> = {
   'Work': [
@@ -74,46 +76,49 @@ export const suggestCategory = (text: string, existingCategories: string[] = [])
 };
 
 // Format date for display
-export const formatDate = (date: Date | null): string => {
-  if (!date) return '';
-  
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  
-  const isToday = date.toDateString() === today.toDateString();
-  const isTomorrow = date.toDateString() === tomorrow.toDateString();
-  
-  if (isToday) return 'Today';
-  if (isTomorrow) return 'Tomorrow';
-  
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
-  });
+export const formatDate = (date: Date): string => {
+  try {
+    return format(date, "MMM d, yyyy");
+  } catch (error) {
+    console.error("Date formatting error:", error);
+    return "Invalid date";
+  }
 };
 
 // Priority color mapping
 export const priorityColors: Record<string, string> = {
-  low: 'bg-blue-100 text-blue-800',
-  medium: 'bg-amber-100 text-amber-800',
-  high: 'bg-red-100 text-red-800',
+  low: "bg-blue-100 text-blue-800",
+  medium: "bg-amber-100 text-amber-800",
+  high: "bg-red-100 text-red-800",
 };
 
-// Category color mapping for visual distinction
+// Get category color for visual indication
 export const getCategoryColor = (category: string): string => {
-  const colors: Record<string, string> = {
-    'Work': 'bg-indigo-100 border-indigo-300',
-    'Personal': 'bg-purple-100 border-purple-300',
-    'Shopping': 'bg-green-100 border-green-300',
-    'Finance': 'bg-blue-100 border-blue-300',
-    'Education': 'bg-yellow-100 border-yellow-300',
-    'Home': 'bg-orange-100 border-orange-300',
-    'Travel': 'bg-sky-100 border-sky-300',
-    'Health': 'bg-rose-100 border-rose-300',
-    'Other': 'bg-gray-100 border-gray-300',
+  // Generate a consistent color based on the category name
+  const colors = [
+    "border-l-4 border-blue-500",
+    "border-l-4 border-green-500",
+    "border-l-4 border-purple-500",
+    "border-l-4 border-orange-500",
+    "border-l-4 border-pink-500",
+    "border-l-4 border-indigo-500",
+    "border-l-4 border-cyan-500",
+    "border-l-4 border-rose-500",
+  ];
+
+  if (!category) {
+    return "border-l-4 border-gray-300";
+  }
+
+  // Use a hash function to get a consistent index for the same category
+  const hashCode = (str: string): number => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return hash;
   };
-  
-  return colors[category] || 'bg-gray-100 border-gray-300';
+
+  const index = Math.abs(hashCode(category) % colors.length);
+  return colors[index];
 };

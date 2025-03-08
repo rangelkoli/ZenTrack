@@ -436,7 +436,7 @@ def format_with_ai():
 
         # If we get here, send error
         error_msg = {
-            'error': 'Could not process AI response',
+            'error':  'Could not process AI response',
             'debug': accumulated_text[:200]  # First 200 chars for debugging
         }
         yield f"data: {json.dumps(error_msg)}\n\n"

@@ -7,6 +7,7 @@ import {
   BlockNoteEditor,
   defaultBlockSpecs,
   insertOrUpdateBlock,
+  withPageBreak,
 } from "@blocknote/core";
 // Remove these CSS imports
 // import "@blocknote/core/fonts/inter.css";
@@ -26,6 +27,7 @@ import {
   NestBlockButton,
   TextAlignButton,
   UnnestBlockButton,
+  getPageBreakReactSlashMenuItems,
 } from "@blocknote/react";
 import {
   getMultiColumnSlashMenuItems,
@@ -46,6 +48,12 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, Paperclip, Clock, FileText, Trash2 } from "lucide-react";
 import { useAutosave } from "@/hooks/use-autosave";
 import { LatexBlock } from "./LatexBlock";
+import {
+  PDFExporter,
+  pdfDefaultSchemaMappings,
+} from "@blocknote/xl-pdf-exporter";
+import { PDFViewer } from "@react-pdf/renderer";
+import { Text } from "@react-pdf/renderer";
 
 interface Attachment {
   id: string;
@@ -178,13 +186,15 @@ export default function NotesEditor() {
   }
 
   // Define the schema with multi-column and latex block support
-  const schema = withMultiColumn(
-    BlockNoteSchema.create({
-      blockSpecs: {
-        ...defaultBlockSpecs,
-        latex: LatexBlock,
-      },
-    })
+  const schema = withPageBreak(
+    withMultiColumn(
+      BlockNoteSchema.create({
+        blockSpecs: {
+          ...defaultBlockSpecs,
+          latex: LatexBlock,
+        },
+      })
+    )
   );
 
   // Modify editor creation to include content tracking
@@ -385,7 +395,8 @@ export default function NotesEditor() {
         [
           ...combineByGroup(
             getDefaultReactSlashMenuItems(editor),
-            getMultiColumnSlashMenuItems(editor)
+            getMultiColumnSlashMenuItems(editor),
+            getPageBreakReactSlashMenuItems(editor)
           ),
           insertLatexBlock(editor),
         ],
@@ -533,6 +544,9 @@ export default function NotesEditor() {
     return date.toLocaleDateString();
   };
 
+  const [pdfContent, setPdfContent] = useState<any>(null);
+  const [pdfvisible, setPdfVisible] = useState(false);
+
   if (editor === undefined) {
     return "Loading content...";
   }
@@ -542,9 +556,9 @@ export default function NotesEditor() {
       {/* Title and Attachments sticky header */}
       <div className='sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b'>
         {/* Title section */}
-        <div className='max-w-4xl mx-auto px-4 py-2'>
-          <div className='flex justify-between items-center'>
-            <div className='flex-1'>
+        <div className='max-w-4xl mx-auto px-4 py-2 flex items-center'>
+          <div className='flex flex-col w-full md:flex-row md:items-center md:justify-between'>
+            <div className='flex-1 sm:mr-4'>
               {isEditingTitle ? (
                 <input
                   type='text'
@@ -564,14 +578,68 @@ export default function NotesEditor() {
                 </h1>
               )}
             </div>
+            <div className='flex items-center gap-2 text-sm text-muted-foreground sm:gap-4'>
+              <div className='flex items-center gap-2 text-sm text-muted-foreground sm:gap-4'>
+                <Clock size={14} />
+                {isSaving ? (
+                  <span className='text-primary animate-pulse'>Saving...</span>
+                ) : (
+                  <span>Last saved: {formatLastSaved(lastSaved)}</span>
+                )}
+              </div>
+              {/* Export button */}
+              <Button
+                variant='ghost'
+                size='sm'
+                className='flex items-center gap-1 text-muted-foreground hover:text-foreground'
+                onClick={async () => {
+                  const exporter = new PDFExporter(editor.schema, {
+                    // Add custom schema mappings for LaTeX block
+                    ...pdfDefaultSchemaMappings,
+                    block: {
+                      latex: {
+                        render: (props: any) => {
+                          // Return a simple representation of the LaTeX equation
+                          return (
+                            <Text
+                              style={{
+                                fontFamily: "KaTeX_Main",
+                                fontSize: 12,
+                                color: "black",
+                              }}
+                            >
+                              {props.content}
+                            </Text>
+                          );
+                        },
+                      },
+                    },
+                  });
 
-            <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-              <Clock size={14} />
-              {isSaving ? (
-                <span className='text-primary animate-pulse'>Saving...</span>
-              ) : (
-                <span>Last saved: {formatLastSaved(lastSaved)}</span>
-              )}
+                  const pdfDoc = await exporter.toReactPDFDocument(
+                    editor.document
+                  );
+                  setPdfContent(pdfDoc);
+                  setPdfVisible(true);
+                }}
+              >
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='16'
+                  height='16'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                >
+                  <path d='M14 2v6h6' />
+                  <path d='M4 14v6h16v-7' />
+                  <path d='M4 9V4a2 2 0 0 1 2-2h8l6 6v2' />
+                </svg>
+                Export PDF
+              </Button>
             </div>
           </div>
         </div>
@@ -706,6 +774,40 @@ export default function NotesEditor() {
       </div>
 
       {/* Main content */}
+      <div
+        className={`fixed top-0 left-0 right-0 bottom-0 z-50 bg-background/95 backdrop-blur-sm w-screen h-screen flex flex-col ${
+          pdfvisible ? "block" : "hidden"
+        }`}
+      >
+        <div className='p-4 flex justify-end'>
+          <Button
+            variant='ghost'
+            size='sm'
+            className='hover:bg-accent'
+            onClick={() => setPdfVisible(false)}
+          >
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              width='24'
+              height='24'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+            >
+              <line x1='18' y1='6' x2='6' y2='18'></line>
+              <line x1='6' y1='6' x2='18' y2='18'></line>
+            </svg>
+          </Button>
+        </div>
+        {pdfContent && (
+          <PDFViewer style={{ width: "100%", height: "calc(100% - 60px)" }}>
+            {pdfContent}
+          </PDFViewer>
+        )}
+      </div>
       <div className='mt-4'>
         {/* Move cover image outside sticky header */}
         {coverUrl && (
