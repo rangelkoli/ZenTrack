@@ -841,3 +841,20 @@ def move_note(note_id):
     # Get updated note
     updated_note = db.from_('notes').select('*').eq('id', note_id).single().execute()
     return jsonify(updated_note.data)
+
+@notes_blueprint.route('/delete_note/<uuid:note_id>', methods=['DELETE'])
+@cross_origin()
+@jwt_required()
+def delete_note(note_id):
+    user_id = get_jwt_identity()
+    
+    # First check if the note belongs to the user
+    note = db.from_('notes').select('*').eq('id', note_id).eq('user_id', user_id).single().execute()
+    
+    if not note.data:
+        return jsonify({'error': 'Note not found or access denied'}), 404
+    
+    # Delete the note
+    db.from_('notes').delete().eq('id', note_id).execute()
+    
+    return jsonify({'message': 'Note deleted successfully'})

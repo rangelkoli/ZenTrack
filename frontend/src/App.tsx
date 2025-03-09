@@ -26,20 +26,22 @@ import { Navbar } from "@/components/navbar";
 
 function App() {
   return (
-    <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
+    <ThemeProvider defaultTheme='system' storageKey='app-theme'>
       <AuthProvider>
         <TaskProvider>
-          <HabitProvider> {/* Use the correct provider name */}
+          <HabitProvider>
+            {" "}
+            {/* Use the correct provider name */}
             <Toaster />
             <AnimatePresence>
               <Router>
-                <div className='min-h-screen'>
+                <div className='min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100'>
                   {/* Fix: Add pointer-events-none to background element but keep content clickable */}
                   <div className='absolute inset-0 pointer-events-none'>
                     <div className='absolute inset-0 -z-10 h-full w-full bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]'></div>
                   </div>
                   <Navbar />
-                  <main className='pointer-events-auto relative'>
+                  <main className='container mx-auto p-4'>
                     <Routes>
                       {/* Public Routes */}
                       <Route path='/login' element={<LoginPage />} />

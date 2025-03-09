@@ -31,9 +31,6 @@ export function Navbar() {
               <Button variant='ghost' onClick={() => navigate("/notes")}>
                 Notes
               </Button>
-              <Button variant='ghost' onClick={() => navigate("/tasks")}>
-                Tasks
-              </Button>
               <Button
                 variant='ghost'
                 onClick={() => navigate("/habit-tracker")}

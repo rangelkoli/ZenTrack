@@ -30,7 +30,7 @@ export function BookCard({
     : "";
 
   return (
-    <Card className='overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer h-full flex flex-col'>
+    <Card className='overflow-hidden hover:shadow-lg dark:hover:shadow-primary/10 transition-shadow duration-300 cursor-pointer h-full flex flex-col dark:border-border/40'>
       <div
         className='aspect-[3/4] relative'
         onClick={() => {
@@ -45,25 +45,27 @@ export function BookCard({
             onError={handleImageError}
           />
         ) : (
-          <div className='w-full h-full bg-gradient-to-br from-muted/60 to-muted flex items-center justify-center'>
-            <span className='text-2xl font-semibold text-foreground/30'>
+          <div className='w-full h-full bg-gradient-to-br from-muted/60 to-muted dark:from-muted/20 dark:to-muted/60 flex items-center justify-center'>
+            <span className='text-2xl font-semibold text-foreground/30 dark:text-foreground/20'>
               {title.charAt(0)}
             </span>
           </div>
         )}
       </div>
-      <CardContent className='p-4 flex-grow flex flex-col justify-between'>
+      <CardContent className='p-4 flex-grow flex flex-col justify-between dark:bg-card'>
         <div>
-          <h3 className='font-semibold line-clamp-2 mb-1'>{title}</h3>
+          <h3 className='font-semibold line-clamp-2 mb-1 dark:text-primary-foreground/90'>
+            {title}
+          </h3>
           {folder && (
-            <div className='flex items-center gap-1 text-xs text-muted-foreground mb-1'>
+            <div className='flex items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground/70 mb-1'>
               <Folder className='h-3 w-3' />
               <span>{folder}</span>
             </div>
           )}
         </div>
         {updated_at && (
-          <div className='text-xs text-muted-foreground mt-2'>
+          <div className='text-xs text-muted-foreground dark:text-muted-foreground/60 mt-2'>
             Updated {formattedDate}
           </div>
         )}
