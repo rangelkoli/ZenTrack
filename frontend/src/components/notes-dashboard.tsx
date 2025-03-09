@@ -19,8 +19,6 @@ export default function NotesDashboard() {
     fetch(`${import.meta.env.VITE_BACKEND_URL}/notes/get_notes/`, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
         Authorization: `Bearer ${localStorage.getItem("access_token")}`,
       },
     })

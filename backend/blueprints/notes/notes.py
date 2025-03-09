@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, Response, stream_with_context
-import datetime
 from db import db
 from ai import genAIModel
+import datetime
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
@@ -10,15 +10,17 @@ import PIL.Image
 import uuid
 import json
 from flask_jwt_extended import jwt_required, get_jwt_identity
-
+from flask_cors import cross_origin
 notes_blueprint = Blueprint('notes_blueprint', __name__, url_prefix='/notes')
 
 @notes_blueprint.route('/main/', methods=['POST', 'GET'])
+@cross_origin()
 def notes_test():
     response = jsonify({"message": "Finance Blueprint"})
     return jsonify({"message": response})
 
 @notes_blueprint.route('/add_note/', methods=['POST'])
+@cross_origin()
 @jwt_required()
 def add_note():
     user_id = get_jwt_identity()
@@ -35,6 +37,7 @@ def add_note():
     return jsonify(new_note)
 
 @notes_blueprint.route('/get_notes/', methods=['GET'])
+@cross_origin()
 @jwt_required()
 def get_notes():
     id = get_jwt_identity()
@@ -46,6 +49,7 @@ def get_notes():
 
 
 @notes_blueprint.route('/get_note/<uuid:id>', methods=['GET'])
+@cross_origin()
 @jwt_required()
 def get_note(id):
     user_id = get_jwt_identity()
@@ -55,6 +59,7 @@ def get_note(id):
     return jsonify(note.data)
 
 @notes_blueprint.route('/update_note/<uuid:id>', methods=['PUT', 'POST'])
+@cross_origin()
 def update_note(id):
     data = request.json
     print(data)
@@ -68,6 +73,7 @@ def update_note(id):
     return jsonify(updated_note)
 
 @notes_blueprint.route('/update_title/<uuid:id>', methods=['PUT'])
+@cross_origin()
 def update_title(id):
     data = request.json
     title = data.get('title', '')
@@ -83,7 +89,9 @@ def update_title(id):
         print(f"Error updating title: {str(e)}")
         return jsonify({'error': 'Failed to update title'}), 500
 
+
 @notes_blueprint.route('/upload_image/', methods=['POST'])
+@cross_origin()
 def upload_image():
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
@@ -120,13 +128,14 @@ def upload_image():
             return jsonify({"error": "Error"}), 400
     else:
         return jsonify({"error": "Unsupported file type"}), 400
-
+@cross_origin()
 def allowed_file(filename):
     ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif','webp'}
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @notes_blueprint.route('/get_image/<string:filename>', methods=['GET'])
+@cross_origin()
 def get_image(filename):
     response = db.storage.from_("cover_images").list(path=filename).execute()
     return response.text, 200, {'Content-Type': response.headers['content-type']}
@@ -182,6 +191,7 @@ def upload_file():
         return jsonify({"error": "Unsupported file type"}), 400
 
 @notes_blueprint.route('/<int:note_id>/attachments', methods=['GET'])
+@cross_origin()
 def get_attachments(note_id):
     try:
         attachments = db.from_('notes_attachments').select('*').eq('note_id', note_id).execute()
@@ -191,6 +201,7 @@ def get_attachments(note_id):
         return jsonify({'error': 'Failed to get attachments'}), 500
 
 @notes_blueprint.route('/<int:note_id>/attachments', methods=['POST'])
+@cross_origin()
 async def add_attachment(note_id):
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
@@ -247,6 +258,7 @@ async def add_attachment(note_id):
         return jsonify({'error': str(e)}), 500
 
 @notes_blueprint.route('/<int:note_id>/attachments/<uuid:attachment_id>', methods=['DELETE'])
+@cross_origin()
 def delete_attachment(note_id, attachment_id):
     try:
         # Get attachment info
@@ -268,6 +280,7 @@ def delete_attachment(note_id, attachment_id):
         return jsonify({'error': 'Failed to delete attachment'}), 500
 
 @notes_blueprint.route('/format_with_ai/', methods=['POST'])
+@cross_origin()
 def format_with_ai():
     data = request.json
     blocks = data.get('blocks', [])
@@ -452,6 +465,7 @@ def format_with_ai():
     return response
 
 @notes_blueprint.route('/format_latex/', methods=['POST'])
+@cross_origin()
 def format_latex():
     data = request.json
     latex_content = data.get('equation', '')
@@ -476,6 +490,7 @@ def format_latex():
         }), 500
 
 @notes_blueprint.route('/format_latex_with_ai/', methods=['POST'])
+@cross_origin()
 def format_latex_with_ai():
     data = request.json
     latex_content = data.get('equation', '')
