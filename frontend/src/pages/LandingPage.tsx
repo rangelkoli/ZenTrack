@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
-  Calendar,
   ClipboardList,
   Layout,
+  Calendar,
   FileText,
   Clock,
   Shield,
@@ -13,11 +13,499 @@ import {
   Brain,
   Sparkles,
   Check,
+  Plus,
+  X,
+  SearchIcon,
 } from "lucide-react";
 import IllustrationLight from "@/assets/LandingPageIlustration.jpg";
 import { TypeAnimation } from "react-type-animation";
 import BlockNotePreview from "@/components/BlockNoteView";
 import axios from "axios";
+import { HabitDateNavigation } from "@/components/habits/HabitDateNavigation";
+import { Skeleton } from "@/components/ui/skeleton";
+import { HabitItem } from "@/components/habits/HabitItem";
+import { Habit } from "@/contexts/HabitContext";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+
+// Enhanced Task interface
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  completed: boolean;
+  category: string;
+  dueDate?: string;
+  priority?: "low" | "medium" | "high";
+  createdAt: string;
+}
+
+// Helper function to get category color
+const getCategoryColor = (category: string) => {
+  const colors: Record<string, string> = {
+    Work: "border-blue-500",
+    Personal: "border-green-500",
+    Shopping: "border-yellow-500",
+    Health: "border-red-500",
+    Education: "border-purple-500",
+    Finance: "border-orange-500",
+  };
+  return colors[category] || "border-gray-500";
+};
+
+// Task Preview Component
+const TasksPreview = () => {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showAddTaskDialog, setShowAddTaskDialog] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [activeFilter, setActiveFilter] = useState<string>("all");
+  const [newTask, setNewTask] = useState({
+    title: "",
+    description: "",
+    category: "Personal",
+  });
+
+  // Load tasks from localStorage
+  useEffect(() => {
+    const savedTasks = localStorage.getItem("preview-tasks");
+    if (savedTasks) {
+      try {
+        const parsedTasks = JSON.parse(savedTasks);
+        // Convert legacy tasks format if needed
+        const formattedTasks = parsedTasks.map((task: any) => {
+          if (!task.title && task.text) {
+            // Convert old format to new format
+            return {
+              id: task.id,
+              title: task.text,
+              completed: task.completed,
+              category: "Personal",
+              createdAt: new Date().toISOString(),
+            };
+          }
+          return task;
+        });
+        setTasks(formattedTasks);
+      } catch (e) {
+        console.error("Error parsing tasks from localStorage", e);
+        setTasks([]);
+      }
+    }
+  }, []);
+
+  // Save tasks to localStorage
+  const saveToLocalStorage = (updatedTasks: Task[]) => {
+    localStorage.setItem("preview-tasks", JSON.stringify(updatedTasks));
+  };
+
+  // Group tasks by category
+  const getCategorizedTasks = () => {
+    const categorized: Record<string, Task[]> = {};
+
+    tasks.forEach((task) => {
+      if (!categorized[task.category]) {
+        categorized[task.category] = [];
+      }
+      categorized[task.category].push(task);
+    });
+
+    return categorized;
+  };
+
+  const categorizedTasks = getCategorizedTasks();
+  const categories = Object.keys(categorizedTasks);
+
+  // Add task
+  const addTask = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!newTask.title.trim()) return;
+
+    const task: Task = {
+      id: Date.now().toString(),
+      title: newTask.title,
+      description: newTask.description,
+      category: newTask.category || "Personal",
+      completed: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    const updatedTasks = [...tasks, task];
+    setTasks(updatedTasks);
+    saveToLocalStorage(updatedTasks);
+    setNewTask({ title: "", description: "", category: "Personal" });
+    setShowAddTaskDialog(false);
+  };
+
+  // Update task
+  const updateTask = () => {
+    if (!editingTask || !editingTask.title.trim()) return;
+
+    const updatedTasks = tasks.map((task) =>
+      task.id === editingTask.id ? editingTask : task
+    );
+
+    setTasks(updatedTasks);
+    saveToLocalStorage(updatedTasks);
+    setShowAddTaskDialog(false);
+    setEditingTask(null);
+  };
+
+  // Toggle task completion
+  const toggleTask = (id: string) => {
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? { ...task, completed: !task.completed } : task
+    );
+    setTasks(updatedTasks);
+    saveToLocalStorage(updatedTasks);
+  };
+
+  // Remove task
+  const removeTask = (id: string) => {
+    const updatedTasks = tasks.filter((task) => task.id !== id);
+    setTasks(updatedTasks);
+    saveToLocalStorage(updatedTasks);
+  };
+
+  // Handle edit task
+  const handleEditTask = (task: Task) => {
+    setEditingTask(task);
+    setShowAddTaskDialog(true);
+  };
+
+  // Handle close form
+  const handleCloseForm = () => {
+    setShowAddTaskDialog(false);
+    setTimeout(() => {
+      setEditingTask(null);
+    }, 200);
+  };
+
+  // Calculate stats
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter((task) => task.completed).length;
+  const completionPercentage = totalTasks
+    ? Math.round((completedTasks / totalTasks) * 100)
+    : 0;
+
+  // Filter tasks based on search and category
+  const filteredCategories = categories.filter((category) => {
+    if (activeFilter !== "all" && activeFilter !== category) return false;
+
+    if (!searchQuery) return true;
+
+    return categorizedTasks[category].some(
+      (task) =>
+        task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (task.description &&
+          task.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  });
+
+  // Task item component
+  const TaskItem = ({ task }: { task: Task }) => (
+    <div
+      className='flex items-center justify-between p-3 rounded border mb-2'
+      style={{
+        borderLeft: `4px solid ${getCategoryColor(task.category)
+          .replace("border-", "rgb(")
+          .replace("500", ")")}`,
+      }}
+    >
+      <div className='flex items-center flex-grow'>
+        <input
+          type='checkbox'
+          checked={task.completed}
+          onChange={() => toggleTask(task.id)}
+          className='h-4 w-4 mr-3 cursor-pointer'
+        />
+        <div>
+          <span
+            className={
+              task.completed
+                ? "line-through text-muted-foreground"
+                : "font-medium"
+            }
+          >
+            {task.title}
+          </span>
+          {task.description && (
+            <p className='text-sm text-muted-foreground mt-1'>
+              {task.description}
+            </p>
+          )}
+        </div>
+      </div>
+      <div className='flex items-center gap-2'>
+        <button
+          onClick={() => handleEditTask(task)}
+          className='text-gray-500 hover:text-gray-700'
+        >
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            width='16'
+            height='16'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth='2'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+          >
+            <path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'></path>
+            <path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'></path>
+          </svg>
+        </button>
+        <button
+          onClick={() => removeTask(task.id)}
+          className='text-muted-foreground hover:text-destructive'
+        >
+          <X className='h-4 w-4' />
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div>
+      <div className='flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4'>
+        <div>
+          <h3 className='text-xl font-bold'>Tasks Demo</h3>
+          <p className='text-muted-foreground text-sm'>
+            Try our task management with categories and search
+          </p>
+        </div>
+
+        <div className='flex flex-col items-end gap-2'>
+          <Button
+            onClick={() => setShowAddTaskDialog(true)}
+            className='flex items-center gap-2'
+          >
+            <Plus className='h-4 w-4' /> Add Task
+          </Button>
+
+          {totalTasks > 0 && (
+            <div className='text-sm text-muted-foreground'>
+              {completedTasks} of {totalTasks} tasks completed (
+              {completionPercentage}%)
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className='mb-4'>
+        <div className='relative'>
+          <SearchIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4' />
+          <Input
+            type='text'
+            placeholder='Search tasks...'
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className='pl-10'
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className='absolute right-3 top-1/2 transform -translate-y-1/2'
+            >
+              <X className='h-4 w-4 text-gray-400' />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Category tabs */}
+      <div className='mb-4 flex flex-wrap gap-2'>
+        <Button
+          variant={activeFilter === "all" ? "default" : "outline"}
+          size='sm'
+          onClick={() => setActiveFilter("all")}
+        >
+          All Tasks
+        </Button>
+
+        {categories.map((category) => (
+          <Button
+            key={category}
+            variant={activeFilter === category ? "default" : "outline"}
+            size='sm'
+            onClick={() => setActiveFilter(category)}
+            className='flex items-center gap-1'
+          >
+            <div
+              className={`w-2 h-2 rounded-full bg-${getCategoryColor(
+                category
+              ).replace("border-", "")}`}
+            />
+            {category}
+            <span className='ml-1 text-xs bg-secondary rounded-full px-2 py-0.5'>
+              {categorizedTasks[category].length}
+            </span>
+          </Button>
+        ))}
+      </div>
+
+      <div className='space-y-2'>
+        {tasks.length === 0 ? (
+          <p className='text-muted-foreground text-center py-4 border rounded-lg'>
+            No tasks yet. Add one to get started!
+          </p>
+        ) : filteredCategories.length > 0 ? (
+          filteredCategories.map((category) => (
+            <div key={category} className='mb-4'>
+              <div className='flex items-center mb-2'>
+                <div
+                  className={`w-3 h-3 rounded-full bg-${getCategoryColor(
+                    category
+                  ).replace("border-", "")}`}
+                />
+                <h3 className='text-md font-semibold ml-2'>{category}</h3>
+                <span className='ml-2 text-xs bg-secondary rounded-full px-2 py-0.5 text-muted-foreground'>
+                  {categorizedTasks[category].length}
+                </span>
+              </div>
+
+              {categorizedTasks[category]
+                .filter(
+                  (task) =>
+                    !searchQuery ||
+                    task.title
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase()) ||
+                    (task.description &&
+                      task.description
+                        .toLowerCase()
+                        .includes(searchQuery.toLowerCase()))
+                )
+                .map((task) => (
+                  <TaskItem key={task.id} task={task} />
+                ))}
+            </div>
+          ))
+        ) : (
+          <div className='text-center py-10'>
+            <p className='text-muted-foreground'>
+              No tasks found matching your filters.
+            </p>
+            <Button
+              variant='link'
+              onClick={() => {
+                setSearchQuery("");
+                setActiveFilter("all");
+              }}
+            >
+              Clear filters
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Task form dialog */}
+      <Dialog open={showAddTaskDialog} onOpenChange={setShowAddTaskDialog}>
+        <DialogContent className='sm:max-w-md'>
+          <div className='p-4'>
+            <h3 className='text-lg font-bold mb-4'>
+              {editingTask ? "Edit Task" : "Add Task"}
+            </h3>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                editingTask ? updateTask() : addTask();
+              }}
+            >
+              <div className='space-y-4'>
+                <div>
+                  <label className='block text-sm font-medium mb-1'>
+                    Title
+                  </label>
+                  <Input
+                    value={editingTask ? editingTask.title : newTask.title}
+                    onChange={(e) => {
+                      if (editingTask) {
+                        setEditingTask({
+                          ...editingTask,
+                          title: e.target.value,
+                        });
+                      } else {
+                        setNewTask({ ...newTask, title: e.target.value });
+                      }
+                    }}
+                    placeholder='Enter task title...'
+                  />
+                </div>
+
+                <div>
+                  <label className='block text-sm font-medium mb-1'>
+                    Description (optional)
+                  </label>
+                  <Input
+                    value={
+                      editingTask
+                        ? editingTask.description || ""
+                        : newTask.description
+                    }
+                    onChange={(e) => {
+                      if (editingTask) {
+                        setEditingTask({
+                          ...editingTask,
+                          description: e.target.value,
+                        });
+                      } else {
+                        setNewTask({ ...newTask, description: e.target.value });
+                      }
+                    }}
+                    placeholder='Add details...'
+                  />
+                </div>
+
+                <div>
+                  <label className='block text-sm font-medium mb-1'>
+                    Category
+                  </label>
+                  <select
+                    value={
+                      editingTask ? editingTask.category : newTask.category
+                    }
+                    onChange={(e) => {
+                      if (editingTask) {
+                        setEditingTask({
+                          ...editingTask,
+                          category: e.target.value,
+                        });
+                      } else {
+                        setNewTask({ ...newTask, category: e.target.value });
+                      }
+                    }}
+                    className='w-full border border-gray-300 rounded-md p-2'
+                  >
+                    <option value='Work'>Work</option>
+                    <option value='Personal'>Personal</option>
+                    <option value='Shopping'>Shopping</option>
+                    <option value='Health'>Health</option>
+                    <option value='Education'>Education</option>
+                    <option value='Finance'>Finance</option>
+                  </select>
+                </div>
+
+                <div className='flex justify-end gap-2 pt-2'>
+                  <Button
+                    type='button'
+                    variant='outline'
+                    onClick={handleCloseForm}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type='submit'>
+                    {editingTask ? "Update" : "Add"} Task
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
 
 export default function LandingPage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -68,6 +556,58 @@ export default function LandingPage() {
   // Pricing section animations
   const pricingOpacity = useTransform(scrollYProgress, [0.45, 0.6], [0, 1]);
   const pricingY = useTransform(scrollYProgress, [0.45, 0.6], [100, 0]);
+
+  //Habits section
+  const [isLoading, setIsLoading] = useState(false);
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  useEffect(() => {
+    setIsLoading(true);
+    setTimeout(() => {
+      const savedHabits = localStorage.getItem("preview-habits");
+      if (savedHabits) {
+        setHabits(JSON.parse(savedHabits));
+      }
+      setIsLoading(false);
+    }, 2000);
+  }, []);
+
+  const handleAddHabit = () => {
+    const newHabit: Habit = {
+      id: Date.now().toString(),
+      name: "New habit",
+      description: "",
+      category: "general",
+      color: "#4287f5",
+      icon: "circle",
+      streak: 0,
+      longest_streak: 0,
+      frequency: {
+        type: "daily",
+        days: [],
+      },
+      timeOfDay: "anytime",
+      completionHistory: {},
+      archived: false,
+      created_at: new Date().toISOString(),
+    };
+
+    setHabits((prevHabits) => [...prevHabits, newHabit]);
+  };
+
+  const handleEditHabit = (habit: Habit) => {
+    console.log("Editing habit", habit);
+  };
+
+  const openHabitDetails = (habit: Habit) => {
+    console.log("Opening habit details", habit);
+
+    // For demo purposes, we'll just log the habit details
+    console.log(habit);
+
+    // You can use this function to open a modal or navigate to a new page
+  };
 
   return (
     <div ref={containerRef} className='relative '>
@@ -234,33 +774,72 @@ export default function LandingPage() {
               Notes
             </button>
             <button
-              onClick={() => setActiveTab("tab2")}
+              onClick={() => setActiveTab("tasks")}
               className={`px-4 py-2 rounded ${
-                activeTab === "tab2"
+                activeTab === "tasks"
                   ? "bg-primary text-white"
                   : "bg-white text-primary border"
               }`}
             >
-              Tab 2
+              Tasks
             </button>
             <button
-              onClick={() => setActiveTab("tab3")}
+              onClick={() => setActiveTab("habits")}
               className={`px-4 py-2 rounded ${
-                activeTab === "tab3"
+                activeTab === "habits"
                   ? "bg-primary text-white"
                   : "bg-white text-primary border"
               }`}
             >
-              Tab 3
+              Habits
             </button>
           </div>
           <div className='bg-white p-6 rounded-md shadow'>
             {activeTab === "notes" && <BlockNotePreview />}
-            {activeTab !== "notes" && (
-              <div className='h-40 flex items-center justify-center text-muted-foreground'>
-                {/* Placeholder for future content */}
-                No content available.
-              </div>
+            {activeTab === "tasks" && <TasksPreview />}
+            {activeTab === "habits" && (
+              <>
+                <HabitDateNavigation
+                  selectedDate={selectedDate}
+                  setSelectedDate={setSelectedDate}
+                />
+
+                {isLoading ? (
+                  <div className='space-y-3'>
+                    <Skeleton className='h-20 w-full' />
+                    <Skeleton className='h-20 w-full' />
+                    <Skeleton className='h-20 w-full' />
+                  </div>
+                ) : habits.length === 0 ? (
+                  <div className='text-center py-20 border rounded-lg bg-muted/30'>
+                    <h3 className='text-xl font-medium mb-2'>No habits yet</h3>
+                    <p className='text-muted-foreground mb-6'>
+                      Start tracking your daily habits to build consistency
+                    </p>
+                    <Button onClick={handleAddHabit}>
+                      <Plus className='mr-2 h-4 w-4' /> Add Your First Habit
+                    </Button>
+                  </div>
+                ) : (
+                  <div>
+                    {habits
+                      .filter((habit) => !habit.archived)
+                      .map((habit) => (
+                        <div
+                          key={habit.id}
+                          className='mb-2'
+                          onClick={() => openHabitDetails(habit)}
+                        >
+                          <HabitItem
+                            habit={habit}
+                            selectedDate={selectedDate}
+                            onEdit={handleEditHabit}
+                          />
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

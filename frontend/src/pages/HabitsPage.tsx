@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { format, addDays, subDays, isSameDay, startOfToday } from "date-fns";
+import { startOfToday } from "date-fns";
 import { useHabits, Habit } from "@/contexts/HabitContext";
 
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,8 @@ import { HabitItem } from "@/components/habits/HabitItem";
 import { HabitForm } from "@/components/habits/HabitForm";
 import { HabitStats } from "@/components/habits/HabitStats";
 import { HabitCalendar } from "@/components/habits/HabitCalendar";
-import { Plus, Calendar, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { HabitDateNavigation } from "@/components/habits/HabitDateNavigation";
+import { Plus, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -30,16 +31,6 @@ export default function HabitsPage() {
       navigate(location.pathname, { replace: true });
     }
   }, [location, navigate]);
-
-  const navigateDay = (direction: "prev" | "next") => {
-    setSelectedDate((prev) =>
-      direction === "prev" ? subDays(prev, 1) : addDays(prev, 1)
-    );
-  };
-
-  const resetToToday = () => {
-    setSelectedDate(startOfToday());
-  };
 
   const handleAddHabit = () => {
     setEditingHabit(null);
@@ -64,8 +55,6 @@ export default function HabitsPage() {
     setSelectedHabit(null);
   };
 
-  const isToday = isSameDay(selectedDate, new Date());
-
   return (
     <div className='container py-6 max-w-4xl'>
       <div className='flex justify-between items-center mb-6'>
@@ -75,40 +64,10 @@ export default function HabitsPage() {
         </Button>
       </div>
 
-      <div className='flex justify-between items-center mb-6'>
-        <div className='flex items-center gap-2'>
-          <Button
-            variant='outline'
-            size='icon'
-            onClick={() => navigateDay("prev")}
-          >
-            <ChevronLeft className='h-4 w-4' />
-          </Button>
-
-          <Button
-            variant={isToday ? "default" : "outline"}
-            onClick={resetToToday}
-          >
-            {isToday ? "Today" : "Go to Today"}
-          </Button>
-
-          <Button
-            variant='outline'
-            size='icon'
-            onClick={() => navigateDay("next")}
-          >
-            <ChevronRight className='h-4 w-4' />
-          </Button>
-
-          <div className='text-lg font-medium ml-2'>
-            {format(selectedDate, "EEEE, MMMM d")}
-          </div>
-        </div>
-
-        <Button variant='outline' size='sm'>
-          <Calendar className='mr-2 h-4 w-4' /> Calendar View
-        </Button>
-      </div>
+      <HabitDateNavigation
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+      />
 
       {isLoading ? (
         <div className='space-y-3'>
