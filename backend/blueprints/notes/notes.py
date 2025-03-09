@@ -11,6 +11,8 @@ import uuid
 import json
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import cross_origin
+import tempfile
+
 notes_blueprint = Blueprint('notes_blueprint', __name__, url_prefix='/notes')
 
 @notes_blueprint.route('/main/', methods=['POST', 'GET'])
@@ -33,6 +35,11 @@ def add_note():
         'updated_at': datetime.now().isoformat(),
         'user_id': user_id
     }
+    
+    # Add folder_id if provided
+    if 'folder_id' in data and data['folder_id']:
+        new_note['folder_id'] = data['folder_id']
+        
     db.from_('notes').insert(new_note).execute()
     return jsonify(new_note)
 
@@ -42,11 +49,9 @@ def add_note():
 def get_notes():
     id = get_jwt_identity()
     print(id)
-    notes = db.from_('notes').select().eq('user_id', id).execute()
+    notes = db.from_('notes').select('*').eq('user_id', id).execute()
     print(notes.data)
     return jsonify(notes.data)
-
-
 
 @notes_blueprint.route('/get_note/<uuid:id>', methods=['GET'])
 @cross_origin()
@@ -88,7 +93,6 @@ def update_title(id):
     except Exception as e:
         print(f"Error updating title: {str(e)}")
         return jsonify({'error': 'Failed to update title'}), 500
-
 
 @notes_blueprint.route('/upload_image/', methods=['POST'])
 @cross_origin()
@@ -140,7 +144,6 @@ def get_image(filename):
     response = db.storage.from_("cover_images").list(path=filename).execute()
     return response.text, 200, {'Content-Type': response.headers['content-type']}
 
-
 @notes_blueprint.route('/upload_file/', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -164,9 +167,6 @@ def upload_file():
     if file and allowed_file(file.filename):
         # Save the file in the same folder
         file.save(secure_filename(file.filename))
-
-
-
 
         try:
             # Upload the file to the storage bucket
@@ -725,3 +725,119 @@ def format_latex_content(content: str) -> str:
     formatted = formatted.replace('( ', '(').replace(' )', ')')
     
     return formatted
+
+# Folder related endpoints
+@notes_blueprint.route('/folders/', methods=['GET'])
+@cross_origin()
+@jwt_required()
+def get_folders():
+    user_id = get_jwt_identity()
+    folders = db.from_('note_folders').select('*').eq('user_id', user_id).execute()
+    return jsonify(folders.data)
+
+@notes_blueprint.route('/folders/', methods=['POST'])
+@cross_origin()
+@jwt_required()
+def create_folder():
+    user_id = get_jwt_identity()
+    data = request.json
+    
+    new_folder = {
+        'name': data['name'],
+        'user_id': user_id,
+        'created_at': datetime.now().isoformat(),
+    }
+    
+    # Add color if provided
+    if 'color' in data:
+        new_folder['color'] = data['color']
+        
+    result = db.from_('note_folders').insert(new_folder).execute()
+    
+    # Get the created folder with ID
+    if result.data:
+        folder_id = result.data[0]['id']
+        folder = db.from_('note_folders').select('*').eq('id', folder_id).single().execute()
+        return jsonify(folder.data)
+    
+    return jsonify(new_folder)
+
+@notes_blueprint.route('/folders/<uuid:folder_id>', methods=['PUT'])
+@cross_origin()
+@jwt_required()
+def update_folder(folder_id):
+    user_id = get_jwt_identity()
+    data = request.json
+    
+    # First check if the folder belongs to the user
+    folder = db.from_('note_folders').select('*').eq('id', folder_id).eq('user_id', user_id).single().execute()
+    
+    if not folder.data:
+        return jsonify({'error': 'Folder not found or access denied'}), 404
+    
+    updates = {}
+    if 'name' in data:
+        updates['name'] = data['name']
+    if 'color' in data:
+        updates['color'] = data['color']
+        
+    if updates:
+        updates['updated_at'] = datetime.now().isoformat()
+        db.from_('note_folders').update(updates).eq('id', folder_id).execute()
+        
+    # Get updated folder
+    updated_folder = db.from_('note_folders').select('*').eq('id', folder_id).single().execute()
+    return jsonify(updated_folder.data)
+
+@notes_blueprint.route('/folders/<uuid:folder_id>', methods=['DELETE'])
+@cross_origin()
+@jwt_required()
+def delete_folder(folder_id):
+    user_id = get_jwt_identity()
+    
+    # First check if the folder belongs to the user
+    folder = db.from_('note_folders').select('*').eq('id', folder_id).eq('user_id', user_id).single().execute()
+    
+    if not folder.data:
+        return jsonify({'error': 'Folder not found or access denied'}), 404
+    
+    # Delete the folder
+    db.from_('note_folders').delete().eq('id', folder_id).execute()
+    
+    # Update notes that were in this folder (set folder_id to null)
+    db.from_('notes').update({'folder_id': None}).eq('folder_id', folder_id).execute()
+    
+    return jsonify({'message': 'Folder deleted successfully'})
+
+@notes_blueprint.route('/notes/<uuid:note_id>/move', methods=['PUT'])
+@cross_origin()
+@jwt_required()
+def move_note(note_id):
+    user_id = get_jwt_identity()
+    data = request.json
+    folder_id = data.get('folder_id')
+    
+    # First check if the note belongs to the user
+    note = db.from_('notes').select('*').eq('id', note_id).eq('user_id', user_id).single().execute()
+    
+    if not note.data:
+        return jsonify({'error': 'Note not found or access denied'}), 404
+    
+    # If folder_id is provided, check if it exists
+    if folder_id:
+        folder = db.from_('note_folders').select('*').eq('id', folder_id).eq('user_id', user_id).single().execute()
+        
+        if not folder.data:
+            return jsonify({'error': 'Folder not found or access denied'}), 404
+    
+    # Update the note's folder
+    update_data = {
+        'folder_id': folder_id,
+        'updated_at': datetime.now().isoformat()
+    }
+    
+    db.from_('notes').update(update_data).eq('id', note_id).execute()
+    
+    # Get updated note
+    updated_note = db.from_('notes').select('*').eq('id', note_id).single().execute()
+    return jsonify(updated_note.data)

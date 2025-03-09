@@ -1,42 +1,73 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "react-router";
+import { Folder } from "lucide-react";
+import { useState } from "react";
 
 interface BookCardProps {
   title: string;
-  cover_image: string;
-  duration?: string;
-  progress?: number;
   id: string;
+  cover_image?: string;
+  updated_at?: Date;
+  folder?: string;
 }
 
-export function BookCard({ title, cover_image, id }: BookCardProps) {
+export function BookCard({
+  title,
+  id,
+  cover_image,
+  updated_at,
+  folder,
+}: BookCardProps) {
+  const [imageError, setImageError] = useState(false);
+
+  // Function to handle broken image links
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  // Format date
+  const formattedDate = updated_at
+    ? new Date(updated_at).toLocaleDateString()
+    : "";
+
   return (
-    <Card className='group relative overflow-hidden border-0 bg-transparent shrink-0'>
-      <Link to={`/notes/${id}`} className='block'>
-        <CardContent className='p-0'>
-          <div className='relative h-64 w-80'>
-            {cover_image ? (
-              <img
-                src={cover_image}
-                alt={title}
-                className='rounded-lg object-cover h-full w-full'
-                sizes=''
-              />
-            ) : (
-              <img
-                src='https://placehold.co/800x750'
-                alt='Placeholder'
-                className='rounded-lg object-fill'
-                sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-              />
-            )}
-            <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg' />
-            <div className='absolute bottom-0 left-0 right-0 p-4 text-white'>
-              <h3 className='text-md font-semibold line-clamp-2'>{title}</h3>
-            </div>
+    <Card className='overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer h-full flex flex-col'>
+      <div
+        className='aspect-[3/4] relative'
+        onClick={() => {
+          window.location.href = `/notes/${id}`;
+        }}
+      >
+        {!imageError && cover_image ? (
+          <img
+            src={cover_image}
+            alt={title}
+            className='w-full h-full object-cover'
+            onError={handleImageError}
+          />
+        ) : (
+          <div className='w-full h-full bg-gradient-to-br from-muted/60 to-muted flex items-center justify-center'>
+            <span className='text-2xl font-semibold text-foreground/30'>
+              {title.charAt(0)}
+            </span>
           </div>
-        </CardContent>
-      </Link>
+        )}
+      </div>
+      <CardContent className='p-4 flex-grow flex flex-col justify-between'>
+        <div>
+          <h3 className='font-semibold line-clamp-2 mb-1'>{title}</h3>
+          {folder && (
+            <div className='flex items-center gap-1 text-xs text-muted-foreground mb-1'>
+              <Folder className='h-3 w-3' />
+              <span>{folder}</span>
+            </div>
+          )}
+        </div>
+        {updated_at && (
+          <div className='text-xs text-muted-foreground mt-2'>
+            Updated {formattedDate}
+          </div>
+        )}
+      </CardContent>
     </Card>
   );
 }
