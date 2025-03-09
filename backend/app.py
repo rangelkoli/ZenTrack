@@ -28,14 +28,13 @@ CORS(app, resources={
         "origins": ["http://localhost:5173", "https://personal-dashboard-black.vercel.app/"],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Origin"],
-        "supports_credentials": True,
+
         "expose_headers":["Content-Type", "Authorization", "Access-Control-Allow-Origin"]
     }, 
 },
 origins=["http://localhost:5173", "https://personal-dashboard-black.vercel.app/"],
 methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 allow_headers=["Content-Type", "Authorization", "Access-Control-Allow-Origin"],
-supports_credentials=True,
 expose_headers=["Content-Type", "Authorization", "Access-Control-Allow-Origin"]
 )
 

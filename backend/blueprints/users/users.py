@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify
-from supabase import create_client
 from db import db
 import flask_bcrypt
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from datetime import timedelta
 import re
+from flask_cors import cross_origin
 
 auth_blueprint = Blueprint('auth', __name__)
 
@@ -64,6 +64,7 @@ def signup():
         return jsonify({'error': 'Internal server error'}), 500
 
 @auth_blueprint.route('/login', methods=['POST'])
+@cross_origin()
 def login():
     try:
         if not request.is_json:

@@ -26,7 +26,8 @@ export const authService = {
       const response = await axios.post(`${API_URL}/login`, { 
         email: email.trim(),
         password 
-      });
+      },
+    );
       console.log('Login response:', response.data);
       return response.data;
     } catch (error) {

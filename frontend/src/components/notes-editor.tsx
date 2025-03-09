@@ -48,12 +48,12 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, Paperclip, Clock, FileText, Trash2 } from "lucide-react";
 import { useAutosave } from "@/hooks/use-autosave";
 import { LatexBlock } from "./LatexBlock";
-import {
-  PDFExporter,
-  pdfDefaultSchemaMappings,
-} from "@blocknote/xl-pdf-exporter";
-import { PDFViewer } from "@react-pdf/renderer";
-import { Text } from "@react-pdf/renderer";
+// import {
+//   PDFExporter,
+//   pdfDefaultSchemaMappings,
+// } from "@blocknote/xl-pdf-exporter";
+// import { PDFViewer } from "@react-pdf/renderer";
+// import { Text } from "@react-pdf/renderer";
 
 interface Attachment {
   id: string;
@@ -544,7 +544,7 @@ export default function NotesEditor() {
     return date.toLocaleDateString();
   };
 
-  const [pdfContent, setPdfContent] = useState<any>(null);
+  // const [pdfContent, setPdfContent] = useState<any>(null);
   const [pdfvisible, setPdfVisible] = useState(false);
 
   if (editor === undefined) {
@@ -588,27 +588,48 @@ export default function NotesEditor() {
                 )}
               </div>
               {/* Export button */}
-              <Button
+              {/* <Button
                 variant='ghost'
                 size='sm'
                 className='flex items-center gap-1 text-muted-foreground hover:text-foreground'
                 onClick={async () => {
-                  const exporter = new PDFExporter(editor.schema, {
+                  const exporter = new PDFExporter(schema, {
                     // Add custom schema mappings for LaTeX block
                     ...pdfDefaultSchemaMappings,
-                    block: {
-                      latex: {
-                        render: (props: any) => {
-                          // Return a simple representation of the LaTeX equation
+                    latex: {
+                      config: {
+                        type: "latex",
+                        content: "none",
+                        propSchema: {
+                          textAlignment: {
+                            default: "center",
+                            values: ["left", "center", "right"],
+                          },
+                          equation: {
+                            default: "",
+                          },
+                          isEditing: {
+                            default: true,
+                            values: ["boolean"],
+                          },
+                        },
+                      },
+                      implementation: {
+                        render: ({
+                          block,
+                          editor,
+                        }: {
+                          block: any;
+                          editor: any;
+                        }) => {
                           return (
                             <Text
                               style={{
-                                fontFamily: "KaTeX_Main",
-                                fontSize: 12,
-                                color: "black",
+                                fontSize: 16,
+                                textAlign: block.props.textAlignment,
                               }}
                             >
-                              {props.content}
+                              {block.props.equation}
                             </Text>
                           );
                         },
@@ -639,7 +660,7 @@ export default function NotesEditor() {
                   <path d='M4 9V4a2 2 0 0 1 2-2h8l6 6v2' />
                 </svg>
                 Export PDF
-              </Button>
+              </Button> */}
             </div>
           </div>
         </div>
@@ -802,11 +823,11 @@ export default function NotesEditor() {
             </svg>
           </Button>
         </div>
-        {pdfContent && (
+        {/* {pdfContent && (
           <PDFViewer style={{ width: "100%", height: "calc(100% - 60px)" }}>
             {pdfContent}
           </PDFViewer>
-        )}
+        )} */}
       </div>
       <div className='mt-4'>
         {/* Move cover image outside sticky header */}
