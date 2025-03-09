@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask_cors import CORS,cross_origin
 from datetime import datetime
 from blueprints.notes.notes import notes_blueprint
 from blueprints.users.users import auth_blueprint
@@ -113,6 +113,21 @@ def generate_image():
 def extensionTest():
 
     return jsonify({"message": "Text Generated"})
+
+@app.route('/waitlist/signup', methods=['POST'])
+@cross_origin()
+def waitlist():
+    data = request.json
+    print(data)
+    
+    # Add the waitlist entry to Supabase table
+    result = supabase_extension.client.from_('waitlist').insert(data).execute()
+    
+    if hasattr(result, 'error') and result.error is not None:
+        return jsonify({"error": str(result.error)}), 400
+        
+    return jsonify({"message": "Added to Waitlist", "success": True})
+
 if __name__ == '__main__':
     db.init_app(app)
     with app.app_context():

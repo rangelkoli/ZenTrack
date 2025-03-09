@@ -17,6 +17,7 @@ import {
 import IllustrationLight from "@/assets/LandingPageIlustration.jpg";
 import { TypeAnimation } from "react-type-animation";
 import BlockNotePreview from "@/components/BlockNoteView";
+import axios from "axios";
 
 export default function LandingPage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -32,7 +33,9 @@ export default function LandingPage() {
   const handleWaitlistSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    axios.post(`${import.meta.env.VITE_BACKEND_URL}/waitlist/signup`, {
+      email,
+    });
     setIsSubmitting(false);
     setEmail("");
   };
@@ -401,7 +404,8 @@ export default function LandingPage() {
       {/* Pricing Section */}
       <motion.section
         style={{ opacity: pricingOpacity, y: pricingY }}
-        className='py-20 bg-gradient-to-b from-background to-secondary/30'
+        className='py-20 bg-gray-50'
+        id='pricing'
       >
         <div className='max-w-6xl mx-auto px-4'>
           <div className='text-center mb-16'>
