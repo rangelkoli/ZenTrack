@@ -128,6 +128,7 @@ def login():
         return jsonify({'error': 'Internal server error'}), 500
 
 @auth_blueprint.route('/get_user', methods=['GET'])
+@cross_origin()
 @jwt_required()
 def get_user():
     try:

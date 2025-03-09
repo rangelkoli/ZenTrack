@@ -27,7 +27,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         `${import.meta.env.VITE_BACKEND_URL}/auth/get_user`,
         {
           headers: {
-            Accept: "application/json",
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },
