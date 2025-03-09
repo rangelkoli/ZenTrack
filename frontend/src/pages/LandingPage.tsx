@@ -29,15 +29,27 @@ export default function LandingPage() {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("notes");
+  const [hasJoinedWaitlist, setHasJoinedWaitlist] = useState(false);
 
   const handleWaitlistSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    axios.post(`${import.meta.env.VITE_BACKEND_URL}/waitlist/signup`, {
-      email,
-    });
+    const res = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/waitlist/signup`,
+      {
+        email,
+      }
+    );
+
+    if (res.status !== 200) {
+      alert("An error occurred. Please try again.");
+      setIsSubmitting(false);
+      return;
+    }
+
     setIsSubmitting(false);
     setEmail("");
+    setHasJoinedWaitlist(true);
   };
 
   // Main hero animations
@@ -71,7 +83,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className='text-5xl md:text-6xl font-bold leading-tight mb-6'
+              className='text-5xl md:text-6xl font-bold leading-tight h-[160px] md:h-[180px] flex items-center justify-center'
             >
               <TypeAnimation
                 sequence={[
@@ -87,7 +99,8 @@ export default function LandingPage() {
                 wrapper='h1'
                 speed={50}
                 repeat={Infinity}
-                className='text-foreground text-5xl md:text-6xl font-bold leading-tight mb-6'
+                className='text-foreground text-5xl md:text-6xl font-bold leading-tight'
+                style={{ display: "block", minHeight: "100%" }}
               />
             </motion.div>
 
@@ -127,46 +140,68 @@ export default function LandingPage() {
               </span>
             </motion.div>
             {/* Email Signup Form */}
-            <motion.form
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              onSubmit={handleWaitlistSignup}
-              className='flex gap-3 w-full max-w-xl mb-8 p-1.5 rounded-2xl bg-background/20 backdrop-blur-sm border border-border/40 hover:border-primary/20 transition-colors relative'
-            >
-              <Input
-                type='email'
-                placeholder='Enter your email'
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onClick={(e) => e.currentTarget.focus()}
-                className='flex-grow border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/50'
-              />
-              <Button
-                type='submit'
-                disabled={isSubmitting}
-                className='bg-white cursor-pointer rounded-xl border-2 border-[#9748FF] shadow-[inset_0px_-2px_0px_1px_#9748FF] group hover:bg-[#9748FF] transition duration-300 ease-in-out'
+            {hasJoinedWaitlist ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className='flex items-center p-5 mb-8 rounded-xl border border-green-500/30 bg-green-50 shadow-sm'
               >
-                {isSubmitting ? (
-                  <motion.div
-                    initial={{ opacity: 0.5 }}
-                    animate={{ opacity: 1 }}
-                    transition={{
-                      repeat: Infinity,
-                      duration: 0.6,
-                      ease: "easeInOut",
-                    }}
-                    className='font-medium text-[#333] group-hover:text-white'
-                  >
-                    Joining...
-                  </motion.div>
-                ) : (
-                  <span className='font-medium text-[#333] group-hover:text-white'>
-                    Join Waitlist
-                  </span>
-                )}
-              </Button>
-            </motion.form>
+                <div className='mr-4 bg-green-100 p-2 rounded-full'>
+                  <CheckCircle className='h-6 w-6 text-green-600' />
+                </div>
+                <div>
+                  <h3 className='font-bold text-lg text-green-800 mb-1'>
+                    You're on the waitlist!
+                  </h3>
+                  <p className='text-green-700'>
+                    Thanks for your interest! We'll notify you as soon as we
+                    launch.
+                  </p>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.form
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                onSubmit={handleWaitlistSignup}
+                className='flex gap-3 w-full max-w-xl mb-8 p-1.5 rounded-2xl bg-background/20 backdrop-blur-sm border border-border/40 hover:border-primary/20 transition-colors relative'
+              >
+                <Input
+                  type='email'
+                  placeholder='Enter your email'
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onClick={(e) => e.currentTarget.focus()}
+                  className='flex-grow border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/50'
+                />
+                <Button
+                  type='submit'
+                  disabled={isSubmitting}
+                  className='bg-white cursor-pointer rounded-xl border-2 border-[#9748FF] shadow-[inset_0px_-2px_0px_1px_#9748FF] group hover:bg-[#9748FF] transition duration-300 ease-in-out'
+                >
+                  {isSubmitting ? (
+                    <motion.div
+                      initial={{ opacity: 0.5 }}
+                      animate={{ opacity: 1 }}
+                      transition={{
+                        repeat: Infinity,
+                        duration: 0.6,
+                        ease: "easeInOut",
+                      }}
+                      className='font-medium text-[#333] group-hover:text-white'
+                    >
+                      Joining...
+                    </motion.div>
+                  ) : (
+                    <span className='font-medium text-[#333] group-hover:text-white'>
+                      Join Waitlist
+                    </span>
+                  )}
+                </Button>
+              </motion.form>
+            )}
           </div>
 
           {/* Right Column - Illustration */}
