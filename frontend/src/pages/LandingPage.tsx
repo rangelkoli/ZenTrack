@@ -207,7 +207,7 @@ const TasksPreview = () => {
   // Task item component
   const TaskItem = ({ task }: { task: Task }) => (
     <div
-      className='flex items-center justify-between p-3 rounded border mb-2'
+      className='flex items-center justify-between p-3 rounded border mb-2 dark:border-gray-700'
       style={{
         borderLeft: `4px solid ${getCategoryColor(task.category)
           .replace("border-", "rgb(")
@@ -241,7 +241,7 @@ const TasksPreview = () => {
       <div className='flex items-center gap-2'>
         <button
           onClick={() => handleEditTask(task)}
-          className='text-gray-500 hover:text-gray-700'
+          className='text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
         >
           <svg
             xmlns='http://www.w3.org/2000/svg'
@@ -297,7 +297,7 @@ const TasksPreview = () => {
 
       <div className='mb-4'>
         <div className='relative'>
-          <SearchIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4' />
+          <SearchIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-4 w-4' />
           <Input
             type='text'
             placeholder='Search tasks...'
@@ -310,7 +310,7 @@ const TasksPreview = () => {
               onClick={() => setSearchQuery("")}
               className='absolute right-3 top-1/2 transform -translate-y-1/2'
             >
-              <X className='h-4 w-4 text-gray-400' />
+              <X className='h-4 w-4 text-gray-400 dark:text-gray-500' />
             </button>
           )}
         </div>
@@ -349,7 +349,7 @@ const TasksPreview = () => {
 
       <div className='space-y-2'>
         {tasks.length === 0 ? (
-          <p className='text-muted-foreground text-center py-4 border rounded-lg'>
+          <p className='text-muted-foreground text-center py-4 border rounded-lg dark:border-gray-700'>
             No tasks yet. Add one to get started!
           </p>
         ) : filteredCategories.length > 0 ? (
@@ -478,7 +478,7 @@ const TasksPreview = () => {
                         setNewTask({ ...newTask, category: e.target.value });
                       }
                     }}
-                    className='w-full border border-gray-300 rounded-md p-2'
+                    className='w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-background'
                   >
                     <option value='Work'>Work</option>
                     <option value='Personal'>Personal</option>
@@ -613,7 +613,7 @@ export default function LandingPage() {
       {/* Hero Section */}
       <motion.section
         style={{ opacity: heroOpacity, y: heroY, scale: heroScale }}
-        className='flex items-center justify-center relative overflow-hidden min-h-[90vh] bg-gradient-to-b from-blue-50 to-white'
+        className='flex items-center justify-center relative overflow-hidden min-h-[90vh] md:min-h-screen text-white dark:text-white'
       >
         <div className='container mx-auto px-6   flex flex-col md:flex-row items-center'>
           {/* Left Column - Text Content */}
@@ -624,7 +624,7 @@ export default function LandingPage() {
               transition={{ duration: 0.6 }}
               className='mb-4'
             >
-              <span className='bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center'>
+              <span className='bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center'>
                 <Star className='w-3 h-3 mr-1' />
                 Your All-in-One Personal Productivity Hub
               </span>
@@ -680,7 +680,7 @@ export default function LandingPage() {
                 { icon: Layout, text: "Seamless Sync Across Devices" },
               ].map((item, index) => (
                 <div key={index} className='flex items-center'>
-                  <div className='mr-3 bg-blue-100 p-1 rounded-full'>
+                  <div className='mr-3 bg-blue-100 dark:bg-blue-900/50 p-1 rounded-full'>
                     <item.icon className='h-4 w-4 text-primary' />
                   </div>
                   <span className='text-muted-foreground'>{item.text}</span>
@@ -693,7 +693,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className='flex items-center gap-4 bg-secondary/30 p-4 rounded-lg mb-8'
+              className='flex items-center gap-4 bg-secondary/30 dark:bg-secondary/10 p-4 rounded-lg mb-8'
             >
               <div className='flex -space-x-3'>
                 {[...Array(3)].map((_, i) => (
@@ -725,16 +725,16 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className='flex items-center p-5 mb-8 rounded-xl border border-green-500/30 bg-green-50 shadow-sm w-full'
+                className='flex items-center p-5 mb-8 rounded-xl border border-green-500/30 bg-green-50 dark:bg-green-900/20 dark:border-green-500/20 shadow-sm w-full'
               >
-                <div className='mr-4 bg-green-100 p-2 rounded-full'>
-                  <CheckCircle className='h-6 w-6 text-green-600' />
+                <div className='mr-4 bg-green-100 dark:bg-green-800/30 p-2 rounded-full'>
+                  <CheckCircle className='h-6 w-6 text-green-600 dark:text-green-400' />
                 </div>
                 <div>
-                  <h3 className='font-bold text-lg text-green-800 mb-1'>
+                  <h3 className='font-bold text-lg text-green-800 dark:text-green-400 mb-1'>
                     You're on the waitlist!
                   </h3>
-                  <p className='text-green-700'>
+                  <p className='text-green-700 dark:text-green-500'>
                     Thanks for your interest! We'll notify you as soon as we
                     launch.
                   </p>
@@ -746,7 +746,7 @@ export default function LandingPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
                 onSubmit={handleWaitlistSignup}
-                className='flex gap-3 w-full max-w-xl mb-8 p-2 rounded-2xl bg-white shadow-lg border-2 border-primary/20 hover:border-primary/50 transition-colors relative'
+                className='flex gap-3 w-full max-w-xl mb-8 p-2 rounded-2xl bg-white dark:bg-gray-800/50 shadow-lg border-2 border-primary/20 hover:border-primary/50 transition-colors relative'
               >
                 <Input
                   type='email'
@@ -818,7 +818,7 @@ export default function LandingPage() {
                 transition={{ duration: 0.8, delay: 0.3 }}
                 src={IllustrationLight}
                 alt='Dashboard Illustration'
-                className='bg-transparent relative z-10 w-full h-full object-cover '
+                className='bg-transparent relative z-10 w-full h-full object-cover dark:opacity-80'
               />
               <div className='absolute -bottom-3 -right-3 bg-blue-500 w-24 h-24 rounded-full blur-3xl opacity-20 z-0'></div>
               <div className='absolute -top-3 -left-3 bg-purple-500 w-24 h-24 rounded-full blur-3xl opacity-20 z-0'></div>
@@ -827,7 +827,10 @@ export default function LandingPage() {
         </div>
       </motion.section>
       {/* Features Showcase Section */}
-      <section id='demo-section' className='py-16 bg-gray-50'>
+      <section
+        id='demo-section'
+        className='py-16 bg-gray-50 dark:bg-gray-900/30'
+      >
         <div className='max-w-6xl mx-auto px-4'>
           <div className='text-center mb-12'>
             <motion.div
@@ -835,7 +838,7 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className='inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full mb-4'
+              className='inline-block bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 text-xs font-medium px-2.5 py-0.5 rounded-full mb-4'
             >
               Interactive Demo
             </motion.div>
@@ -861,7 +864,7 @@ export default function LandingPage() {
           </div>
 
           <div className='mb-6 flex justify-center'>
-            <div className='inline-flex rounded-lg border border-gray-200 p-1 bg-white shadow-sm'>
+            <div className='inline-flex rounded-lg border border-gray-200 dark:border-gray-700 p-1 bg-white dark:bg-gray-800 shadow-sm'>
               {["notes", "tasks", "habits"].map((tab) => (
                 <button
                   key={tab}
@@ -869,7 +872,7 @@ export default function LandingPage() {
                   className={`px-6 py-3 text-sm font-medium rounded-md transition-all duration-200 ${
                     activeTab === tab
                       ? "bg-blue-500 text-white shadow-sm"
-                      : "bg-transparent text-gray-600 hover:bg-gray-100"
+                      : "bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`}
                 >
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -883,7 +886,7 @@ export default function LandingPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className='bg-white p-6 rounded-xl shadow-lg border border-gray-100'
+            className='bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700'
           >
             {activeTab === "notes" && <BlockNotePreview />}
             {activeTab === "tasks" && <TasksPreview />}
@@ -901,7 +904,7 @@ export default function LandingPage() {
                     <Skeleton className='h-20 w-full' />
                   </div>
                 ) : habits.length === 0 ? (
-                  <div className='text-center py-20 border rounded-lg bg-muted/30'>
+                  <div className='text-center py-20 border rounded-lg bg-muted/30 dark:bg-muted/10 dark:border-gray-700'>
                     <h3 className='text-xl font-medium mb-2'>No habits yet</h3>
                     <p className='text-muted-foreground mb-6'>
                       Start tracking your daily habits to build consistency
@@ -938,7 +941,7 @@ export default function LandingPage() {
       {/* Features Section */}
       <motion.section
         style={{ opacity: featuresOpacity, y: featuresY }}
-        className='py-24 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden'
+        className='py-24 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-900/70 relative overflow-hidden'
       >
         <div className='absolute inset-0 bg-grid-pattern opacity-5'></div>
         <div className='max-w-6xl mx-auto px-4 relative'>
@@ -949,7 +952,7 @@ export default function LandingPage() {
             transition={{ duration: 0.6 }}
             className='text-center mb-16'
           >
-            <div className='inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full mb-4'>
+            <div className='inline-block bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 text-xs font-medium px-2.5 py-0.5 rounded-full mb-4'>
               AI-Powered Features
             </div>
             <h2 className='text-4xl font-bold mb-4'>
@@ -973,10 +976,10 @@ export default function LandingPage() {
                   scale: 1.02,
                   boxShadow: "0 10px 30px -10px rgba(0,0,0,0.1)",
                 }}
-                className='p-6 rounded-lg bg-white border hover:border-primary/50 transition-all group relative'
+                className='p-6 rounded-lg bg-white dark:bg-gray-800 border dark:border-gray-700 hover:border-primary/50 dark:hover:border-primary/50 transition-all group relative'
               >
                 <div className='mb-4 relative'>
-                  <div className='p-3 bg-blue-50 rounded-lg inline-block'>
+                  <div className='p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg inline-block'>
                     <feature.icon className='w-8 h-8 text-primary transition-transform group-hover:scale-110' />
                   </div>
                   <motion.div
@@ -1000,7 +1003,7 @@ export default function LandingPage() {
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     whileInView={{ opacity: 1, height: "auto" }}
-                    className='mt-4 p-3 rounded bg-secondary/20 text-sm'
+                    className='mt-4 p-3 rounded bg-secondary/20 dark:bg-secondary/10 text-sm'
                   >
                     <strong>Example:</strong> {feature.example}
                   </motion.div>
@@ -1012,7 +1015,7 @@ export default function LandingPage() {
       </motion.section>
 
       {/* Testimonials Section */}
-      <section className='py-20 bg-white'>
+      <section className='py-20 bg-white dark:bg-gray-900'>
         <div className='max-w-6xl mx-auto px-4'>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -1021,7 +1024,7 @@ export default function LandingPage() {
             transition={{ duration: 0.6 }}
             className='text-center mb-16'
           >
-            <div className='inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full mb-4'>
+            <div className='inline-block bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 text-xs font-medium px-2.5 py-0.5 rounded-full mb-4'>
               Success Stories
             </div>
             <h2 className='text-4xl font-bold mb-4'>
@@ -1041,7 +1044,7 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className='bg-gray-50 p-6 rounded-lg border border-gray-100 relative'
+                className='bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border border-gray-100 dark:border-gray-700 relative'
               >
                 <div className='flex items-center mb-4'>
                   <div className='flex'>
@@ -1053,7 +1056,7 @@ export default function LandingPage() {
                     ))}
                   </div>
                 </div>
-                <p className='text-gray-700 mb-6 italic'>
+                <p className='text-gray-700 dark:text-gray-300 mb-6 italic'>
                   "{testimonial.quote}"
                 </p>
                 <div className='flex items-center'>
@@ -1128,7 +1131,7 @@ export default function LandingPage() {
       {/* Pricing Section */}
       <motion.section
         style={{ opacity: pricingOpacity, y: pricingY }}
-        className='py-24 bg-gray-50'
+        className='py-24 bg-gray-50 dark:bg-gray-900/50'
         id='pricing'
       >
         <div className='max-w-6xl mx-auto px-4'>
@@ -1153,7 +1156,7 @@ export default function LandingPage() {
                   ${
                     plan.featured
                       ? "border-primary shadow-lg ring-2 ring-primary/20"
-                      : "border-border"
+                      : "border-border dark:border-gray-700"
                   }
                 `}
               >
@@ -1200,7 +1203,7 @@ export default function LandingPage() {
       </motion.section>
 
       {/* Footer Section */}
-      <footer className='border-t bg-background/50 backdrop-blur-sm'>
+      <footer className='border-t dark:border-gray-800 bg-background/50 backdrop-blur-sm'>
         <div className='max-w-6xl mx-auto px-4 py-12'>
           <div className='grid grid-cols-2 md:grid-cols-4 gap-8'>
             <div>
@@ -1320,7 +1323,7 @@ export default function LandingPage() {
               </ul>
             </div>
           </div>
-          <div className='border-t mt-12 pt-8 text-center text-muted-foreground'>
+          <div className='border-t dark:border-gray-800 mt-12 pt-8 text-center text-muted-foreground'>
             <p>© 2024 Personal Dashboard. All rights reserved.</p>
           </div>
         </div>

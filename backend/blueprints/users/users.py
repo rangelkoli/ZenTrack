@@ -16,6 +16,7 @@ def validate_password(password):
     return len(password) >= 6
 
 @auth_blueprint.route('/register', methods=['POST'])
+@cross_origin()
 def signup():
     try:
         if not request.is_json:
