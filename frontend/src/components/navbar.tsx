@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "./ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, UserCircle } from "lucide-react";
+import { LogOut, UserCircle, Menu, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,10 +9,17 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { ThemeToggle } from "./ThemeToggle";
+import { useState } from "react";
 
 export function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setIsMenuOpen(false);
+  };
 
   return (
     <nav className='border-b sticky top-0 z-50 bg-background'>
@@ -27,23 +34,45 @@ export function Navbar() {
           </Button>
 
           {isAuthenticated && (
-            <div className='hidden md:flex items-center space-x-4'>
-              <Button variant='ghost' onClick={() => navigate("/notes")}>
-                Notes
-              </Button>
-              <Button
-                variant='ghost'
-                onClick={() => navigate("/habit-tracker")}
-              >
-                Habits
-              </Button>
-              <Button variant='ghost' onClick={() => navigate("/smart-tasks")}>
-                Smart Tasks
-              </Button>
-              <Button variant='ghost' onClick={() => navigate("/finance")}>
-                Finance
-              </Button>
-            </div>
+            <>
+              {/* Desktop Navigation */}
+              <div className='hidden md:flex items-center space-x-4'>
+                <Button variant='ghost' onClick={() => navigate("/notes")}>
+                  Notes
+                </Button>
+                <Button
+                  variant='ghost'
+                  onClick={() => navigate("/habit-tracker")}
+                >
+                  Habits
+                </Button>
+                <Button
+                  variant='ghost'
+                  onClick={() => navigate("/smart-tasks")}
+                >
+                  Smart Tasks
+                </Button>
+                <Button variant='ghost' onClick={() => navigate("/finance")}>
+                  Finance
+                </Button>
+              </div>
+
+              {/* Mobile Navigation Toggle */}
+              <div className='md:hidden'>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  aria-label='Toggle menu'
+                >
+                  {isMenuOpen ? (
+                    <X className='h-5 w-5' />
+                  ) : (
+                    <Menu className='h-5 w-5' />
+                  )}
+                </Button>
+              </div>
+            </>
           )}
         </div>
 
@@ -80,6 +109,42 @@ export function Navbar() {
           )}
         </div>
       </div>
+
+      {/* Mobile Navigation Menu - Expands below header */}
+      {isAuthenticated && isMenuOpen && (
+        <div className='md:hidden bg-background border-b px-4 py-2 animate-in fade-in slide-in-from-top duration-300'>
+          <div className='flex flex-col space-y-2'>
+            <Button
+              variant='ghost'
+              className='justify-start'
+              onClick={() => handleNavigation("/notes")}
+            >
+              Notes
+            </Button>
+            <Button
+              variant='ghost'
+              className='justify-start'
+              onClick={() => handleNavigation("/habit-tracker")}
+            >
+              Habits
+            </Button>
+            <Button
+              variant='ghost'
+              className='justify-start'
+              onClick={() => handleNavigation("/smart-tasks")}
+            >
+              Smart Tasks
+            </Button>
+            <Button
+              variant='ghost'
+              className='justify-start'
+              onClick={() => handleNavigation("/finance")}
+            >
+              Finance
+            </Button>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
