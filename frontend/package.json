@@ -10,11 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@blocknote/core": "^0.23.6",
-    "@blocknote/mantine": "^0.23.6",
-    "@blocknote/react": "^0.23.6",
-    "@blocknote/xl-multi-column": "^0.23.6",
-    "@blocknote/xl-pdf-exporter": "^0.25.1",
+    "@blocknote/core": "^0.26.0",
+    "@blocknote/mantine": "^0.26.0",
+    "@blocknote/react": "^0.26.0",
+    "@blocknote/xl-multi-column": "^0.26.0",
+    "@blocknote/xl-pdf-exporter": "^0.26.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@radix-ui/react-alert-dialog": "^1.1.6",

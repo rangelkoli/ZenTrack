@@ -9,9 +9,6 @@ import {
   insertOrUpdateBlock,
   withPageBreak,
 } from "@blocknote/core";
-// Remove these CSS imports
-// import "@blocknote/core/fonts/inter.css";
-// import "@blocknote/mantine/style.css";
 import { BlockNoteView, Theme } from "@blocknote/mantine";
 import {
   FormattingToolbarController,
@@ -46,13 +43,14 @@ import { FormatWithAIButton } from "./FormatButton";
 import { Button } from "@/components/ui/button";
 import { Clock } from "lucide-react";
 import { useAutosave } from "@/hooks/use-autosave";
-import { LatexBlock } from "./LatexBlock";
-// import {
-//   PDFExporter,
-//   pdfDefaultSchemaMappings,
-// } from "@blocknote/xl-pdf-exporter";
-// import { PDFViewer } from "@react-pdf/renderer";
-// import { Text } from "@react-pdf/renderer";
+import { LatexBlock } from "./blocks/LatexBlock";
+import {
+  PDFExporter,
+  pdfDefaultSchemaMappings,
+} from "@blocknote/xl-pdf-exporter";
+import { Image, PDFViewer, View } from "@react-pdf/renderer";
+import { Text } from "@react-pdf/renderer";
+import { YoutubeVideoBlock } from "./blocks/YoutubeBlock";
 
 export default function NotesEditor() {
   const [initialContent, setInitialContent] = useState<
@@ -63,9 +61,8 @@ export default function NotesEditor() {
   // Gets the note ID from the URL.
   const { uuid } = useParams<{ uuid: string }>();
 
-  // const notes = useNotesContent((state: any) => state.notes);
   const setNewTitle = useNotesContent((state: any) => state.setTitle);
-
+  const [pdfDoc, setPdfDoc] = useState<any>(null);
   // Gets the current theme from the theme provider.
   const { theme } = useTheme();
   const lightTheme = {
@@ -166,6 +163,7 @@ export default function NotesEditor() {
         blockSpecs: {
           ...defaultBlockSpecs,
           latex: LatexBlock,
+          youtubevideo: YoutubeVideoBlock,
         },
       })
     )
@@ -251,6 +249,17 @@ export default function NotesEditor() {
     group: "Math",
   });
 
+  const insertYoutubeBlock = (editor: typeof schema.BlockNoteEditor) => ({
+    title: "Youtube",
+    onItemClick: () => {
+      insertOrUpdateBlock(editor, {
+        type: "youtubevideo",
+      });
+    },
+    icon: <span>Youtube</span>,
+    group: "Media",
+  });
+
   // Update saveToStorage to use autosave
   const saveToStorage = async () => {
     try {
@@ -314,6 +323,7 @@ export default function NotesEditor() {
             getPageBreakReactSlashMenuItems(editor)
           ),
           insertLatexBlock(editor),
+          insertYoutubeBlock(editor),
         ],
         query
       );
@@ -389,7 +399,6 @@ export default function NotesEditor() {
     return date.toLocaleDateString();
   };
 
-  // const [pdfContent, setPdfContent] = useState<any>(null);
   const [pdfvisible, setPdfVisible] = useState(false);
 
   if (editor === undefined) {
@@ -433,59 +442,61 @@ export default function NotesEditor() {
                 )}
               </div>
               {/* Export button */}
-              {/* <Button
+              <Button
                 variant='ghost'
                 size='sm'
                 className='flex items-center gap-1 text-muted-foreground hover:text-foreground'
                 onClick={async () => {
                   const exporter = new PDFExporter(schema, {
-                    // Add custom schema mappings for LaTeX block
-                    ...pdfDefaultSchemaMappings,
-                    latex: {
-                      config: {
-                        type: "latex",
-                        content: "none",
-                        propSchema: {
-                          textAlignment: {
-                            default: "center",
-                            values: ["left", "center", "right"],
-                          },
-                          equation: {
-                            default: "",
-                          },
-                          isEditing: {
-                            default: true,
-                            values: ["boolean"],
-                          },
-                        },
+                    blockMapping: {
+                      ...pdfDefaultSchemaMappings.blockMapping,
+                      latex: (block) => {
+                        return <Text>{block.props.equation}</Text>;
                       },
-                      implementation: {
-                        render: ({
-                          block,
-                          editor,
-                        }: {
-                          block: any;
-                          editor: any;
-                        }) => {
-                          return (
-                            <Text
-                              style={{
-                                fontSize: 16,
-                                textAlign: block.props.textAlignment,
-                              }}
-                            >
-                              {block.props.equation}
-                            </Text>
-                          );
-                        },
+                      youtubevideo: (block) => (
+                        <Image
+                          src={block.props.videoThumbnail}
+                          source={{ uri: block.props.videoThumbnail }}
+                        />
+                      ),
+                      column: (block) => {
+                        return (
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              flexWrap: "wrap",
+                              justifyContent: "space-between",
+                              width: block.props.width,
+                            }}
+                          >
+                            {block.props.width}
+                          </View>
+                        );
+                      },
+                      columnList: () => {
+                        return (
+                          <View
+                            style={{
+                              width: "50%",
+                              flexDirection: "row",
+                              flexWrap: "wrap",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            Hi
+                          </View>
+                        );
                       },
                     },
+                    inlineContentMapping:
+                      pdfDefaultSchemaMappings.inlineContentMapping,
+                    styleMapping: pdfDefaultSchemaMappings.styleMapping,
                   });
 
                   const pdfDoc = await exporter.toReactPDFDocument(
                     editor.document
                   );
-                  setPdfContent(pdfDoc);
+                  setPdfDoc(pdfDoc);
                   setPdfVisible(true);
                 }}
               >
@@ -505,7 +516,7 @@ export default function NotesEditor() {
                   <path d='M4 9V4a2 2 0 0 1 2-2h8l6 6v2' />
                 </svg>
                 Export PDF
-              </Button> */}
+              </Button>
             </div>
           </div>
         </div>
@@ -542,11 +553,11 @@ export default function NotesEditor() {
             </svg>
           </Button>
         </div>
-        {/* {pdfContent && (
+        {pdfDoc && (
           <PDFViewer style={{ width: "100%", height: "calc(100% - 60px)" }}>
-            {pdfContent}
+            {pdfDoc}
           </PDFViewer>
-        )} */}
+        )}
       </div>
       <div className='mt-4'>
         {/* Move cover image outside sticky header */}
@@ -629,5 +640,3 @@ export default function NotesEditor() {
     </div>
   );
 }
-
-// Add this helper function at the top of the file

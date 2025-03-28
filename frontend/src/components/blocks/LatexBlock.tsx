@@ -3,7 +3,7 @@ import Latex from "react-latex-next";
 import { createReactBlockSpec } from "@blocknote/react";
 import { defaultProps } from "@blocknote/core";
 import { useState, useRef, useEffect } from "react";
-import { FormatLatexButton } from "./FormatLatexButton";
+import { FormatLatexButton } from "../FormatLatexButton";
 
 export const LatexBlock = createReactBlockSpec(
   {
@@ -21,6 +21,10 @@ export const LatexBlock = createReactBlockSpec(
     content: "none",
   },
   {
+    toExternalHTML: ({ block }) => block.props.equation,
+    parse: (el) => ({
+      equation: el.innerText,
+    }),
     render: ({ block, editor }) => {
       const [isHovered, setIsHovered] = useState(false);
       const [isFormatting, setIsFormatting] = useState(false);

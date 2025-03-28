@@ -752,7 +752,7 @@ export default function NotesDashboard() {
                                 className='h-full w-full object-cover'
                               />
                             ) : (
-                              <div className='h-full w-full bg-muted dark:bg-muted/50 flex items-center justify-center'>
+                              <div className='h-full w-full bg-muted dark:bg-muted flex items-center justify-center'>
                                 <span className='text-xs text-muted-foreground dark:text-muted-foreground/70'>
                                   Note
                                 </span>
