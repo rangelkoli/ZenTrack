@@ -399,10 +399,10 @@ export default function NotesEditor() {
   return (
     <div className=''>
       {/* Title and Attachments sticky header */}
-      <div className='sticky top-17 z-50 bg-background/80 backdrop-blur-sm border-b border-border/50'>
+      <div className='sticky top-16 z-50 bg-background/80 backdrop-blur-sm border-b border-border/50'>
         {/* Title section */}
-        <div className='max-w-4xl mx-auto py-2 flex items-center '>
-          <div className='flex flex-col w-full md:flex-row  md:items-center md:justify-between'>
+        <div className='max-w-4xl mx-auto py-2 flex items-center'>
+          <div className='flex flex-col w-full md:flex-row md:items-center md:justify-between'>
             <div className='flex-1 sm:mr-4 mx-auto'>
               {isEditingTitle ? (
                 <input
