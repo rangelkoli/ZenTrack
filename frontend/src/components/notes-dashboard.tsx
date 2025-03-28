@@ -14,15 +14,11 @@ import {
   Trash2,
   Pencil,
   MoreHorizontal,
+  LayoutGrid,
+  List,
 } from "lucide-react";
 import { Input } from "./ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   Dialog,
   DialogContent,
@@ -429,7 +425,7 @@ export default function NotesDashboard() {
         <Button
           variant='ghost'
           size='icon'
-          className='h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity'
+          className='h-6 w-6 p-0 opacity-70 hover:opacity-100 transition-opacity'
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
@@ -471,14 +467,14 @@ export default function NotesDashboard() {
 
   return (
     <motion.div
-      className='min-h-screen bg-background dark:bg-background/95'
+      className='min-h-screen bg-background dark:bg-background/95 pb-10'
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <div className='sticky top-0 z-10 bg-background/80 dark:bg-background/90 backdrop-blur-sm border-b dark:border-border/40'>
-        <div className='container mx-auto px-4 py-4'>
-          <div className='flex items-center justify-between gap-4 flex-wrap'>
+      <div className='sticky top-0 z-10 bg-background dark:bg-background backdrop-blur-lg border-b dark:border-border/40 shadow-sm'>
+        <div className='container mx-auto px-4 py-5'>
+          <div className='flex items-center justify-between gap-6 flex-wrap'>
             <motion.div
               className='relative flex-1 max-w-md'
               initial={{ y: -20, opacity: 0 }}
@@ -488,14 +484,14 @@ export default function NotesDashboard() {
               <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
               <Input
                 placeholder='Search notes...'
-                className='w-full pl-9 bg-muted/50 dark:bg-muted/20'
+                className='w-full pl-9 bg-muted/50 dark:bg-muted/20 border-muted/50 focus:border-primary'
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground'
+                  className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors'
                 >
                   <X className='h-4 w-4' />
                 </button>
@@ -503,39 +499,47 @@ export default function NotesDashboard() {
             </motion.div>
 
             <motion.div
-              className='flex gap-2'
+              className='flex gap-3'
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.3 }}
             >
-              <Select
-                value={view}
-                onValueChange={(value) => setView(value as "grid" | "list")}
-              >
-                <SelectTrigger className='w-[100px]'>
-                  <SelectValue placeholder='View' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='grid'>Grid</SelectItem>
-                  <SelectItem value='list'>List</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className='bg-muted dark:bg-muted rounded-md flex items-center p-1'>
+                <Button
+                  size='sm'
+                  variant={view === "grid" ? "secondary" : "ghost"}
+                  className='h-8 px-2'
+                  onClick={() => setView("grid")}
+                  aria-label='Grid view'
+                >
+                  <LayoutGrid className='h-4 w-4' />
+                </Button>
+                <Button
+                  size='sm'
+                  variant={view === "list" ? "secondary" : "ghost"}
+                  className='h-8 px-2'
+                  onClick={() => setView("list")}
+                  aria-label='List view'
+                >
+                  <List className='h-4 w-4' />
+                </Button>
+              </div>
 
               <Button
                 onClick={() => setNewFolderDialogOpen(true)}
                 variant='outline'
-                className='flex items-center gap-2'
+                className='flex items-center gap-2 border-muted-foreground dark:border-muted-foreground'
               >
                 <FolderPlus className='h-4 w-4' />
-                New Folder
+                <span className='hidden sm:inline'>New Folder</span>
               </Button>
 
               <Button
                 onClick={() => createNewNote(selectedFolder)}
-                className='flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground'
+                className='flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm'
               >
                 <Plus className='h-4 w-4' />
-                New Note
+                <span className='hidden sm:inline'>New Note</span>
               </Button>
             </motion.div>
           </div>
@@ -543,7 +547,7 @@ export default function NotesDashboard() {
       </div>
 
       <main className='container mx-auto px-4 py-8'>
-        <div className='grid grid-cols-12 gap-6'>
+        <div className='grid grid-cols-12 gap-6 lg:gap-8'>
           {/* Folders Sidebar */}
           <motion.div
             className='col-span-12 md:col-span-3 space-y-4'
@@ -552,40 +556,40 @@ export default function NotesDashboard() {
             transition={{ delay: 0.2 }}
           >
             <div className='sticky top-24'>
-              <h3 className='font-medium mb-4 dark:text-primary-foreground'>
+              <h3 className='font-semibold mb-4 dark:text-primary-foreground text-base uppercase tracking-wide text-muted-foreground'>
                 Folders
               </h3>
-              <div className='space-y-1'>
+              <div className='space-y-1.5 bg-muted/20 dark:bg-muted/10 rounded-lg p-1.5'>
                 <button
                   onClick={() => setSelectedFolder(null)}
-                  className={`w-full flex items-center justify-between p-2 rounded-md text-left ${
+                  className={`w-full flex items-center justify-between p-2.5 rounded-md text-left transition-all ${
                     selectedFolder === null
-                      ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
-                      : "hover:bg-muted dark:hover:bg-muted/20"
+                      ? "bg-primary text-primary dark:bg-primary dark:text-primary-foreground font-medium"
+                      : "hover:bg-muted dark:hover:bg-muted"
                   }`}
                 >
                   <div className='flex items-center gap-2'>
                     <Folder className='h-4 w-4' />
                     <span>All Notes</span>
                   </div>
-                  <span className='text-xs text-muted-foreground dark:text-muted-foreground/60'>
+                  <span className='text-xs bg-primary/20 dark:bg-primary/30 px-2 py-0.5 rounded-full text-primary-foreground dark:text-primary-foreground font-medium'>
                     {notes.length}
                   </span>
                 </button>
 
                 <button
                   onClick={() => setSelectedFolder("uncategorized")}
-                  className={`w-full flex items-center justify-between p-2 rounded-md text-left ${
+                  className={`w-full flex items-center justify-between p-2.5 rounded-md text-left hover:bg-background dark:hover:bg-background/50 transition-all ${
                     selectedFolder === "uncategorized"
-                      ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
-                      : "hover:bg-muted dark:hover:bg-muted/20"
+                      ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground font-medium"
+                      : "text-foreground dark:text-foreground hover:bg-muted/80 dark:hover:bg-muted/20"
                   }`}
                 >
                   <div className='flex items-center gap-2'>
                     <Folder className='h-4 w-4' />
                     <span>Uncategorized</span>
                   </div>
-                  <span className='text-xs text-muted-foreground dark:text-muted-foreground/60'>
+                  <span className='text-xs bg-muted/50 dark:bg-muted/30 px-2 py-0.5 rounded-full text-foreground dark:text-foreground/90'>
                     {notes.filter((note) => !note.folder_id).length}
                   </span>
                 </button>
@@ -594,10 +598,10 @@ export default function NotesDashboard() {
                   <button
                     key={folder.id}
                     onClick={() => setSelectedFolder(folder.id)}
-                    className={`w-full flex items-center justify-between p-2 rounded-md text-left group ${
+                    className={`w-full flex items-center justify-between p-2.5 rounded-md text-left group hover:bg-background dark:hover:bg-background/50 transition-all ${
                       selectedFolder === folder.id
-                        ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground"
-                        : "hover:bg-muted dark:hover:bg-muted/20"
+                        ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground font-medium"
+                        : "hover:bg-muted/80 dark:hover:bg-muted/20"
                     }`}
                   >
                     <div className='flex items-center gap-2'>
@@ -605,10 +609,12 @@ export default function NotesDashboard() {
                         className='h-4 w-4'
                         style={{ color: folder.color || "currentColor" }}
                       />
-                      <span>{folder.name}</span>
+                      <span className='truncate max-w-[140px]'>
+                        {folder.name}
+                      </span>
                     </div>
                     <div className='flex items-center gap-1'>
-                      <span className='text-xs text-muted-foreground dark:text-muted-foreground/60'>
+                      <span className='text-xs bg-muted/50 dark:bg-muted/30 px-2 py-0.5 rounded-full text-muted-foreground dark:text-muted-foreground/70'>
                         {
                           notes.filter((note) => note.folder_id === folder.id)
                             .length
@@ -638,16 +644,21 @@ export default function NotesDashboard() {
                   transition={{ duration: 0.3 }}
                   className='mb-12'
                 >
-                  <h2 className='text-2xl font-semibold mb-6'>
+                  <h2 className='text-2xl font-semibold mb-6 text-primary/90 dark:text-primary-foreground/90 flex items-center gap-2'>
                     Continue Editing
+                    <span className='text-xs bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground px-2 py-0.5 rounded-full font-normal'>
+                      Recent
+                    </span>
                   </h2>
-                  <div className='relative group'>
-                    <AudioPlayer
-                      title={recentNote[0].title}
-                      author={getFolderName(recentNote[0].folder_id)}
-                      coverUrl={recentNote[0].cover_image}
-                      id={recentNote[0].id}
-                    />
+                  <div className='relative group hover:scale-[1.01] transition-transform duration-200'>
+                    <div className='shadow-md dark:shadow-md/10 rounded-xl overflow-hidden'>
+                      <AudioPlayer
+                        title={recentNote[0].title}
+                        author={getFolderName(recentNote[0].folder_id)}
+                        coverUrl={recentNote[0].cover_image}
+                        id={recentNote[0].id}
+                      />
+                    </div>
                     <div className='absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity'>
                       <NoteActions note={recentNote[0]} />
                     </div>
@@ -661,8 +672,8 @@ export default function NotesDashboard() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              <div className='flex items-center justify-between mb-6'>
-                <h2 className='text-2xl font-semibold dark:text-primary-foreground'>
+              <div className='flex items-center justify-between mb-8'>
+                <h2 className='text-2xl font-semibold text-primary/90 dark:text-primary-foreground'>
                   {selectedFolder
                     ? selectedFolder === "uncategorized"
                       ? "Uncategorized Notes"
@@ -682,7 +693,7 @@ export default function NotesDashboard() {
                       )
                     }
                     size='sm'
-                    className='flex items-center gap-2'
+                    className='flex items-center gap-2 shadow-sm'
                   >
                     <Plus className='h-3 w-3' />
                     Add to Folder
@@ -691,25 +702,27 @@ export default function NotesDashboard() {
               </div>
 
               {isLoading ? (
-                <div className='flex justify-center py-12'>
+                <div className='flex justify-center py-16'>
                   <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary dark:border-primary/70'></div>
                 </div>
               ) : filteredNotes.length > 0 ? (
                 view === "grid" ? (
-                  <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+                  <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5'>
                     {filteredNotes.map((note, index) => (
                       <motion.div
                         key={note.id}
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: index * 0.1 }}
+                        transition={{ delay: index * 0.05 + 0.2 }}
                         whileHover={{ y: -4 }}
-                        className='transition-shadow duration-300 hover:shadow-lg relative group'
+                        className='transition-all duration-300 hover:shadow-lg relative group'
                       >
-                        <BookCard
-                          {...note}
-                          folder={getFolderName(note.folder_id)}
-                        />
+                        <div className='rounded-lg overflow-hidden shadow-sm dark:shadow-md/10 hover:shadow-md dark:hover:shadow-lg/20 transition-shadow'>
+                          <BookCard
+                            {...note}
+                            folder={getFolderName(note.folder_id)}
+                          />
+                        </div>
                         <div className='absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10'>
                           <NoteActions note={note} />
                         </div>
@@ -717,21 +730,21 @@ export default function NotesDashboard() {
                     ))}
                   </div>
                 ) : (
-                  <div className='space-y-2'>
+                  <div className='space-y-2 bg-muted/20 dark:bg-muted/10 rounded-xl overflow-hidden divide-y divide-border/30 dark:divide-border/10 shadow-sm'>
                     {filteredNotes.map((note, index) => (
                       <motion.div
                         key={note.id}
                         initial={{ y: 10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: index * 0.05 }}
+                        transition={{ delay: index * 0.03 }}
                       >
                         <div
-                          className='flex items-center p-3 rounded-lg hover:bg-muted/50 dark:hover:bg-muted/10 cursor-pointer relative group'
+                          className='flex items-center p-4 hover:bg-background/80 dark:hover:bg-background/30 cursor-pointer relative group transition-colors'
                           onClick={() =>
                             (window.location.href = `/notes/${note.id}`)
                           }
                         >
-                          <div className='h-10 w-10 rounded-md overflow-hidden mr-4'>
+                          <div className='h-12 w-12 rounded-md overflow-hidden mr-4 shadow-sm'>
                             {note.cover_image ? (
                               <img
                                 src={note.cover_image}
@@ -750,9 +763,15 @@ export default function NotesDashboard() {
                             <h3 className='font-medium dark:text-primary-foreground/90'>
                               {note.title}
                             </h3>
-                            <p className='text-sm text-muted-foreground dark:text-muted-foreground/70'>
-                              {getFolderName(note.folder_id)} ·{" "}
-                              {new Date(note.updated_at).toLocaleDateString()}
+                            <p className='text-sm text-muted-foreground dark:text-muted-foreground/70 flex items-center gap-2'>
+                              <span className='inline-flex items-center'>
+                                <Folder className='h-3 w-3 mr-1' />
+                                {getFolderName(note.folder_id)}
+                              </span>
+                              <span className='inline-block w-1 h-1 rounded-full bg-muted-foreground/30'></span>
+                              <span>
+                                {new Date(note.updated_at).toLocaleDateString()}
+                              </span>
                             </p>
                           </div>
                           <div className='opacity-0 group-hover:opacity-100 transition-opacity mr-2'>
@@ -768,14 +787,24 @@ export default function NotesDashboard() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className='text-center py-12'
+                  className='text-center py-16 bg-muted/20 dark:bg-muted/10 rounded-xl'
                 >
-                  <p className='text-muted-foreground dark:text-muted-foreground/70'>
+                  <div className='mx-auto w-16 h-16 flex items-center justify-center rounded-full bg-muted/50 dark:bg-muted/30 mb-4'>
+                    <Folder className='h-8 w-8 text-muted-foreground/50' />
+                  </div>
+                  <p className='text-lg font-medium text-foreground/80 dark:text-foreground/70 mb-1'>
                     {searchQuery
-                      ? "No notes found matching your search."
+                      ? "No matching notes found"
                       : selectedFolder
-                      ? "No notes in this folder yet."
-                      : "No notes yet. Create your first note!"}
+                      ? "This folder is empty"
+                      : "No notes yet"}
+                  </p>
+                  <p className='text-muted-foreground dark:text-muted-foreground/70 max-w-md mx-auto'>
+                    {searchQuery
+                      ? "Try adjusting your search term or browse all notes."
+                      : selectedFolder
+                      ? "Create a new note in this folder to get started."
+                      : "Create your first note to begin organizing your thoughts!"}
                   </p>
                 </motion.div>
               )}

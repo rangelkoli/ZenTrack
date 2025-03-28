@@ -4,10 +4,10 @@ import { TaskItem } from "@/components/tasks/TaskItem";
 import { TaskForm } from "@/components/tasks/TaskForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SearchIcon, PlusIcon, X } from "lucide-react";
+import { SearchIcon, PlusIcon, X, ListFilter } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { getCategoryColor } from "@/lib/task-utils";
+import { getCategoryDotColor } from "@/lib/task-utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,6 +20,7 @@ export default function TasksPage() {
   const categorizedTasks = getCategorizedTasks();
   const categories = Object.keys(categorizedTasks);
   const { toast } = useToast();
+
   const handleEditTask = (task: Task) => {
     setEditingTask(task);
     setShowAddTaskDialog(true);
@@ -88,7 +89,7 @@ export default function TasksPage() {
         <div className='flex flex-col items-end gap-2'>
           <Button
             onClick={() => setShowAddTaskDialog(true)}
-            className='flex items-center gap-2'
+            className='flex items-center gap-2 transition-all'
           >
             <PlusIcon className='h-4 w-4' />
             Add Task
@@ -103,11 +104,11 @@ export default function TasksPage() {
         </div>
       </div>
 
-      <div className='bg-white border rounded-lg shadow-sm p-6'>
+      <div className='bg-card dark:bg-card border rounded-lg shadow-sm p-4 md:p-6'>
         {/* Search and filter controls */}
         <div className='flex flex-col md:flex-row gap-4 mb-6'>
           <div className='relative flex-grow'>
-            <SearchIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4' />
+            <SearchIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4' />
             <Input
               type='text'
               placeholder='Search tasks...'
@@ -119,8 +120,9 @@ export default function TasksPage() {
               <button
                 onClick={() => setSearchQuery("")}
                 className='absolute right-3 top-1/2 transform -translate-y-1/2'
+                aria-label='Clear search'
               >
-                <X className='h-4 w-4 text-gray-400' />
+                <X className='h-4 w-4 text-muted-foreground hover:text-foreground transition-colors' />
               </button>
             )}
           </div>
@@ -131,31 +133,37 @@ export default function TasksPage() {
           defaultValue='all'
           value={activeFilter}
           onValueChange={setActiveFilter}
+          className='w-full'
         >
-          <TabsList className='mb-6 flex flex-wrap gap-2'>
-            <TabsTrigger value='all' className='flex items-center gap-1'>
-              All Tasks
-            </TabsTrigger>
-
-            {categories.map((category) => (
+          <div className='overflow-auto pb-2 scrollbar-hide'>
+            <TabsList className='mb-6 flex flex-nowrap gap-1 w-max min-w-full'>
               <TabsTrigger
-                key={category}
-                value={category}
-                className='flex items-center gap-1'
+                value='all'
+                className='flex items-center gap-1 whitespace-nowrap'
               >
-                <div
-                  className={`w-2 h-2 ${getCategoryColor(category)
-                    .replace("border-l-4 ", "bg-")
-                    .replace("border-", "bg-")}`}
-                  style={{ borderRadius: "50%" }}
-                />
-                {category}
-                <span className='ml-1 text-xs bg-secondary rounded-full px-2 py-0.5'>
-                  {categorizedTasks[category].length}
-                </span>
+                <ListFilter className='h-4 w-4' />
+                All Tasks
               </TabsTrigger>
-            ))}
-          </TabsList>
+
+              {categories.map((category) => (
+                <TabsTrigger
+                  key={category}
+                  value={category}
+                  className='flex items-center gap-1 whitespace-nowrap'
+                >
+                  <div
+                    className={`w-3 h-3 rounded-full ${getCategoryDotColor(
+                      category
+                    )}`}
+                  />
+                  {category}
+                  <span className='ml-1 text-xs bg-secondary text-secondary-foreground rounded-full px-2 py-0.5'>
+                    {categorizedTasks[category].length}
+                  </span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
 
           {/* All tasks tab */}
           <TabsContent value='all'>
@@ -165,14 +173,12 @@ export default function TasksPage() {
                   <div key={category} className='mb-8'>
                     <div className='flex items-center mb-3'>
                       <div
-                        className={`w-3 h-3 rounded-full ${getCategoryColor(
+                        className={`w-3 h-3 rounded-full ${getCategoryDotColor(
                           category
-                        )
-                          .replace("border-l-4 ", "bg-")
-                          .replace("border-", "bg-")}`}
+                        )}`}
                       />
                       <h3 className='text-lg font-semibold ml-2'>{category}</h3>
-                      <span className='ml-2 text-xs bg-secondary rounded-full px-2 py-0.5 text-muted-foreground'>
+                      <span className='ml-2 text-xs bg-secondary text-secondary-foreground rounded-full px-2 py-0.5'>
                         {categorizedTasks[category].length}
                       </span>
                     </div>
@@ -233,14 +239,12 @@ export default function TasksPage() {
               <div className='mb-2'>
                 <div className='flex items-center mb-3'>
                   <div
-                    className={`w-3 h-3 rounded-full ${getCategoryColor(
+                    className={`w-3 h-3 rounded-full ${getCategoryDotColor(
                       category
-                    )
-                      .replace("border-l-4 ", "bg-")
-                      .replace("border-", "bg-")}`}
+                    )}`}
                   />
                   <h3 className='text-lg font-semibold ml-2'>{category}</h3>
-                  <span className='ml-2 text-xs bg-secondary rounded-full px-2 py-0.5 text-muted-foreground'>
+                  <span className='ml-2 text-xs bg-secondary text-secondary-foreground rounded-full px-2 py-0.5'>
                     {categorizedTasks[category].length}
                   </span>
                 </div>

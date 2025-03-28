@@ -66,14 +66,16 @@ const HabitTracker = () => {
 
   return (
     <motion.div
-      className='container mx-auto p-4 max-w-7xl'
+      className='container mx-auto p-4 max-w-7xl dark:bg-background'
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
       <header className='flex justify-between items-center mb-6'>
         <div>
-          <h1 className='text-3xl font-bold'>Habit Tracker</h1>
+          <h1 className='text-3xl font-bold dark:text-foreground'>
+            Habit Tracker
+          </h1>
           <p className='text-muted-foreground mt-1'>
             Build consistency with daily habits
           </p>
@@ -88,7 +90,7 @@ const HabitTracker = () => {
         onValueChange={setActiveTab}
         className='space-y-6'
       >
-        <TabsList className='w-full max-w-md mx-auto grid grid-cols-2'>
+        <TabsList className='w-full max-w-md mx-auto grid grid-cols-2 dark:bg-muted'>
           <TabsTrigger value='daily' className='flex items-center gap-2'>
             <Calendar className='h-4 w-4' /> Daily View
           </TabsTrigger>
@@ -99,19 +101,19 @@ const HabitTracker = () => {
 
         <TabsContent value='daily' className='space-y-4'>
           {/* Date Navigation */}
-          <Card className='p-4 mb-6'>
+          <Card className='p-4 mb-6 dark:bg-card dark:text-card-foreground'>
             <div className='flex items-center justify-between'>
               <Button
                 variant='outline'
                 onClick={() => navigateDate("prev")}
                 size='sm'
-                className='flex items-center gap-1'
+                className='flex items-center gap-1 dark:border-border dark:text-foreground dark:hover:bg-accent dark:hover:text-accent-foreground'
               >
                 <ChevronLeft className='h-4 w-4' />
                 Previous Day
               </Button>
 
-              <h2 className='text-xl font-medium'>
+              <h2 className='text-xl font-medium dark:text-foreground'>
                 {isToday ? "Today" : format(selectedDate, "EEEE, MMMM d, yyyy")}
               </h2>
 
@@ -119,7 +121,7 @@ const HabitTracker = () => {
                 variant='outline'
                 onClick={() => navigateDate("next")}
                 size='sm'
-                className='flex items-center gap-1'
+                className='flex items-center gap-1 dark:border-border dark:text-foreground dark:hover:bg-accent dark:hover:text-accent-foreground'
                 disabled={isToday}
               >
                 Next Day
@@ -131,10 +133,12 @@ const HabitTracker = () => {
           {/* Habits List */}
           <div className='space-y-3'>
             {habitsForDate.length === 0 ? (
-              <Card className='p-8'>
+              <Card className='p-8 dark:text-card-foreground bg-card'>
                 <div className='flex flex-col items-center justify-center py-10 text-center'>
                   <AlertCircle className='h-16 w-16 text-muted-foreground mb-4 opacity-50' />
-                  <h3 className='text-xl font-medium mb-2'>No habits yet</h3>
+                  <h3 className='text-xl font-medium mb-2 dark:text-foreground'>
+                    No habits yet
+                  </h3>
                   <p className='text-muted-foreground mb-6 max-w-md'>
                     Start tracking your daily habits to build consistency and
                     achieve your goals
@@ -160,10 +164,10 @@ const HabitTracker = () => {
         <TabsContent value='monthly' className='space-y-4'>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
             {habits.length === 0 ? (
-              <Card className='p-8 col-span-full'>
+              <Card className='p-8 col-span-full dark:bg-card dark:text-card-foreground'>
                 <div className='flex flex-col items-center justify-center py-10 text-center'>
                   <Calendar className='h-16 w-16 text-muted-foreground mb-4 opacity-50' />
-                  <h3 className='text-xl font-medium mb-2'>
+                  <h3 className='text-xl font-medium mb-2 dark:text-foreground'>
                     No habits to display
                   </h3>
                   <p className='text-muted-foreground mb-6 max-w-md'>
@@ -179,7 +183,7 @@ const HabitTracker = () => {
               habits.map((habit) => (
                 <div
                   key={habit.id}
-                  className='cursor-pointer transition-transform hover:scale-102'
+                  className='cursor-pointer transition-transform hover:scale-102 dark:text-foreground'
                   onClick={() => handleViewHabitDetails(habit)}
                 >
                   <HabitCalendar habit={habit} />
@@ -192,7 +196,7 @@ const HabitTracker = () => {
 
       {/* Habit Form Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className='sm:max-w-md p-0 overflow-hidden'>
+        <DialogContent className='sm:max-w-md p-0 overflow-hidden dark:bg-card dark:text-card-foreground'>
           <HabitForm onClose={handleCloseForm} editingHabit={editingHabit} />
         </DialogContent>
       </Dialog>
@@ -202,12 +206,14 @@ const HabitTracker = () => {
         open={!!selectedHabit}
         onOpenChange={() => setSelectedHabit(null)}
       >
-        <DialogContent className='sm:max-w-lg overflow-y-auto max-h-[90vh]'>
+        <DialogContent className='sm:max-w-lg overflow-y-auto max-h-[90vh] dark:bg-card dark:text-card-foreground'>
           {selectedHabit && (
             <div className='space-y-6'>
-              <div className='flex justify-between items-center border-b pb-4'>
+              <div className='flex justify-between items-center border-b pb-4 dark:border-border'>
                 <div>
-                  <h2 className='text-2xl font-bold'>{selectedHabit.name}</h2>
+                  <h2 className='text-2xl font-bold dark:text-foreground'>
+                    {selectedHabit.name}
+                  </h2>
                   {selectedHabit.description && (
                     <p className='text-muted-foreground mt-1'>
                       {selectedHabit.description}
@@ -221,6 +227,7 @@ const HabitTracker = () => {
                     handleEditHabit(selectedHabit);
                     setSelectedHabit(null);
                   }}
+                  className='dark:border-border dark:text-foreground dark:hover:bg-accent dark:hover:text-accent-foreground'
                 >
                   <Edit className='h-4 w-4 mr-2' /> Edit
                 </Button>

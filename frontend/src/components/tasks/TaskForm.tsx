@@ -11,7 +11,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, Tag } from "lucide-react";
+import { CalendarIcon, Tag, X } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { motion } from "framer-motion";
 
@@ -39,7 +39,7 @@ export const TaskForm = ({ onClose, editingTask }: TaskFormProps) => {
       setDescription(editingTask.description || "");
       setCategory(editingTask.category);
       setDueDate(editingTask.dueDate);
-      setPriority(editingTask.priority);
+      setPriority(editingTask.priority || "medium");
     }
   }, [editingTask]);
 
@@ -57,7 +57,10 @@ export const TaskForm = ({ onClose, editingTask }: TaskFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const finalCategory = showCustomCategory ? customCategory : category;
+    const finalCategory =
+      showCustomCategory && customCategory
+        ? customCategory
+        : category || "Other";
 
     if (editingTask) {
       updateTask(editingTask.id, {
@@ -95,40 +98,52 @@ export const TaskForm = ({ onClose, editingTask }: TaskFormProps) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className='bg-white rounded-lg p-6 max-w-md mx-auto z-50 relative'
+      className='rounded-lg bg-background border border-border shadow-lg p-6 max-w-md mx-auto relative'
     >
-      <h2 className='text-xl font-bold mb-4'>
+      <h2 className='text-xl font-bold mb-4 text-foreground'>
         {editingTask ? "Edit Task" : "Add New Task"}
       </h2>
 
       <form onSubmit={handleSubmit} className='space-y-4'>
         <div>
-          <Label htmlFor='title'>Title</Label>
+          <Label
+            htmlFor='title'
+            className='text-sm font-medium text-foreground'
+          >
+            Title
+          </Label>
           <Input
             id='title'
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder='What needs to be done?'
             required
-            className='mt-1'
+            className='mt-1 bg-input text-foreground'
             autoFocus
           />
         </div>
 
         <div>
-          <Label htmlFor='description'>Description (Optional)</Label>
+          <Label
+            htmlFor='description'
+            className='text-sm font-medium text-foreground'
+          >
+            Description (Optional)
+          </Label>
           <Textarea
             id='description'
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder='Add details...'
-            className='mt-1'
+            className='mt-1 bg-input text-foreground'
             rows={3}
           />
         </div>
 
         <div>
-          <Label>Category</Label>
+          <Label className='text-sm font-medium text-foreground'>
+            Category
+          </Label>
 
           {/* AI Suggested Categories */}
           {suggestedCategories.length > 0 && !showCustomCategory && (
@@ -140,8 +155,8 @@ export const TaskForm = ({ onClose, editingTask }: TaskFormProps) => {
                   onClick={() => setCategory(cat)}
                   className={`flex items-center text-sm px-3 py-1 rounded-full transition-colors ${
                     category === cat
-                      ? "bg-primary/20 border border-primary/30 text-primary-foreground"
-                      : "bg-secondary hover:bg-secondary/80 border border-border"
+                      ? "bg-primary text-primary-foreground font-medium"
+                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border"
                   }`}
                 >
                   <Tag className='h-3 w-3 mr-1' />
@@ -151,7 +166,7 @@ export const TaskForm = ({ onClose, editingTask }: TaskFormProps) => {
               <button
                 type='button'
                 onClick={() => setShowCustomCategory(true)}
-                className='flex items-center text-sm px-3 py-1 rounded-full bg-secondary hover:bg-secondary/80 border border-border'
+                className='flex items-center text-sm px-3 py-1 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border'
               >
                 + Custom
               </button>
@@ -165,88 +180,103 @@ export const TaskForm = ({ onClose, editingTask }: TaskFormProps) => {
                 value={customCategory}
                 onChange={(e) => setCustomCategory(e.target.value)}
                 placeholder='Enter custom category'
-                className='flex-grow'
+                className='flex-grow bg-input text-foreground'
               />
               <Button
                 type='button'
-                variant='outline'
+                variant='ghost'
                 size='sm'
                 onClick={() => setShowCustomCategory(false)}
+                className='flex items-center gap-1'
               >
-                Cancel
+                <X className='h-4 w-4' />
               </Button>
             </div>
           )}
         </div>
 
         <div>
-          <Label htmlFor='dueDate'>Due Date (Optional)</Label>
+          <Label
+            htmlFor='dueDate'
+            className='text-sm font-medium text-foreground'
+          >
+            Due Date (Optional)
+          </Label>
           <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant='outline'
-                className='w-full mt-1 justify-start text-left font-normal'
-                type='button' // Add type button to prevent form submission
+                className='w-full mt-1 justify-start text-left font-normal bg-input text-foreground'
+                type='button'
               >
                 <CalendarIcon className='mr-2 h-4 w-4' />
                 {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className='w-auto p-0 z-[100] bg-white'>
-              <div className='bg-white p-1 rounded-md border shadow-md'>
-                <Calendar
-                  mode='single'
-                  selected={dueDate || undefined}
-                  onSelect={(date) => {
-                    setDueDate(date || null);
-                    setIsCalendarOpen(false);
-                  }}
-                  initialFocus
-                  className='bg-white rounded-md'
-                />
-              </div>
+            <PopoverContent className='w-auto p-0 z-[100] bg-popover border border-border shadow-md'>
+              <Calendar
+                mode='single'
+                selected={dueDate || undefined}
+                onSelect={(date) => {
+                  setDueDate(date || null);
+                  setIsCalendarOpen(false);
+                }}
+                initialFocus
+              />
             </PopoverContent>
           </Popover>
         </div>
 
         <div>
-          <Label htmlFor='priority'>Priority</Label>
+          <Label
+            htmlFor='priority'
+            className='text-sm font-medium text-foreground'
+          >
+            Priority
+          </Label>
           <RadioGroup
             value={priority}
             onValueChange={(val: "low" | "medium" | "high") => setPriority(val)}
-            className='flex mt-2'
+            className='flex mt-2 gap-4'
           >
-            <div className='flex items-center space-x-2 mr-4'>
+            <div className='flex items-center gap-2'>
               <RadioGroupItem value='low' id='low' />
-              <Label htmlFor='low' className='text-blue-600'>
+              <Label
+                htmlFor='low'
+                className='text-blue-600 dark:text-blue-400 font-medium'
+              >
                 Low
               </Label>
             </div>
-            <div className='flex items-center space-x-2 mr-4'>
+            <div className='flex items-center gap-2'>
               <RadioGroupItem value='medium' id='medium' />
-              <Label htmlFor='medium' className='text-amber-600'>
+              <Label
+                htmlFor='medium'
+                className='text-amber-600 dark:text-amber-400 font-medium'
+              >
                 Medium
               </Label>
             </div>
-            <div className='flex items-center space-x-2'>
+            <div className='flex items-center gap-2'>
               <RadioGroupItem value='high' id='high' />
-              <Label htmlFor='high' className='text-red-600'>
+              <Label
+                htmlFor='high'
+                className='text-red-600 dark:text-red-400 font-medium'
+              >
                 High
               </Label>
             </div>
           </RadioGroup>
         </div>
 
-        <div className='flex justify-end space-x-2 pt-2'>
-          <Button
-            type='button'
-            variant='outline'
-            onClick={onClose}
-            className='relative z-10 pointer-events-auto'
-          >
+        <div className='flex justify-end space-x-2 pt-4 border-t border-border mt-4'>
+          <Button type='button' variant='outline' onClick={onClose}>
             Cancel
           </Button>
-          <Button type='submit' className='relative z-10 pointer-events-auto'>
+          <Button
+            type='submit'
+            className='bg-primary text-primary-foreground hover:bg-primary/90'
+          >
             {editingTask ? "Update Task" : "Add Task"}
           </Button>
         </div>

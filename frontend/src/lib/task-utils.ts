@@ -76,39 +76,63 @@ export const suggestCategory = (text: string, existingCategories: string[] = [])
 };
 
 // Format date for display
-export const formatDate = (date: Date): string => {
+export const formatDate = (date: Date | null): string => {
+  if (!date) return "No date";
+  
   try {
-    return format(date, "MMM d, yyyy");
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      return format(date, "MMM d, yyyy");
+    }
+    // Handle string date conversion
+    return format(new Date(date), "MMM d, yyyy");
   } catch (error) {
     console.error("Date formatting error:", error);
     return "Invalid date";
   }
 };
 
-// Priority color mapping
+// Priority color mapping - updated for better dark mode support
 export const priorityColors: Record<string, string> = {
-  low: "bg-blue-100 text-blue-800",
-  medium: "bg-amber-100 text-amber-800",
-  high: "bg-red-100 text-red-800",
+  low: "bg-blue-100 dark:bg-blue-950/50 text-blue-800 dark:text-blue-300",
+  medium: "bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300",
+  high: "bg-red-100 dark:bg-red-950/50 text-red-800 dark:text-red-300",
 };
 
-// Get category color for visual indication
+// Updated category colors for better theme support
 export const getCategoryColor = (category: string): string => {
-  // Generate a consistent color based on the category name
-  const colors = [
-    "border-l-4 border-blue-500",
-    "border-l-4 border-green-500",
-    "border-l-4 border-purple-500",
-    "border-l-4 border-orange-500",
-    "border-l-4 border-pink-500",
-    "border-l-4 border-indigo-500",
-    "border-l-4 border-cyan-500",
-    "border-l-4 border-rose-500",
-  ];
-
   if (!category) {
-    return "border-l-4 border-gray-300";
+    return "border-l-4 border-gray-300 dark:border-gray-700";
   }
+  
+  // Updated colors with theme-aware names
+  const categoryColors: Record<string, string> = {
+    'Work': 'border-l-4 border-blue-500 dark:border-blue-600',
+    'Personal': 'border-l-4 border-violet-500 dark:border-violet-600',
+    'Shopping': 'border-l-4 border-amber-500 dark:border-amber-600',
+    'Finance': 'border-l-4 border-emerald-500 dark:border-emerald-600',
+    'Education': 'border-l-4 border-indigo-500 dark:border-indigo-600',
+    'Home': 'border-l-4 border-orange-500 dark:border-orange-600',
+    'Travel': 'border-l-4 border-cyan-500 dark:border-cyan-600',
+    'Health': 'border-l-4 border-green-500 dark:border-green-600',
+    'Other': 'border-l-4 border-gray-500 dark:border-gray-600'
+  };
+
+  // Use predefined color if the category exists in our map
+  if (categoryColors[category]) {
+    return categoryColors[category];
+  }
+
+  // Otherwise use a hash function to get a consistent index
+  const colors = [
+    "border-l-4 border-blue-500 dark:border-blue-600",
+    "border-l-4 border-green-500 dark:border-green-600",
+    "border-l-4 border-purple-500 dark:border-purple-600",
+    "border-l-4 border-orange-500 dark:border-orange-600",
+    "border-l-4 border-pink-500 dark:border-pink-600",
+    "border-l-4 border-indigo-500 dark:border-indigo-600",
+    "border-l-4 border-cyan-500 dark:border-cyan-600",
+    "border-l-4 border-rose-500 dark:border-rose-600",
+  ];
 
   // Use a hash function to get a consistent index for the same category
   const hashCode = (str: string): number => {
@@ -121,4 +145,11 @@ export const getCategoryColor = (category: string): string => {
 
   const index = Math.abs(hashCode(category) % colors.length);
   return colors[index];
+};
+
+// Helper function to get category dot color from border color
+export const getCategoryDotColor = (category: string): string => {
+  return getCategoryColor(category)
+    .replace("border-l-4 ", "")
+    .replace("border-", "bg-");
 };

@@ -58,9 +58,7 @@ export const HabitItem = ({ habit, selectedDate, onEdit }: HabitItemProps) => {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`p-4 rounded-lg border mb-2 flex items-center justify-between ${
-        isToday ? "bg-white" : "bg-gray-50"
-      }`}
+      className={`p-4 rounded-lg border mb-2 flex items-center justify-between bg-card`}
       style={{ borderLeft: `4px solid ${habit.color || "#4CAF50"}` }}
     >
       <div className='flex items-center gap-3'>
