@@ -30,7 +30,6 @@ function App() {
       <AuthProvider>
         <TaskProvider>
           <HabitProvider>
-            {" "}
             {/* Use the correct provider name */}
             <Toaster />
             <AnimatePresence>
@@ -41,7 +40,7 @@ function App() {
                     <div className='absolute inset-0 -z-10 h-full w-full bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]'></div>
                   </div>
                   <Navbar />
-                  <main className='container mx-auto p-4'>
+                  <main className=''>
                     <Routes>
                       {/* Public Routes */}
                       <Route path='/login' element={<LoginPage />} />

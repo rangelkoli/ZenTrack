@@ -20,7 +20,6 @@ export default function TasksPage() {
   const categorizedTasks = getCategorizedTasks();
   const categories = Object.keys(categorizedTasks);
   const { toast } = useToast();
-
   const handleEditTask = (task: Task) => {
     setEditingTask(task);
     setShowAddTaskDialog(true);

@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/popover";
 // Type definitions remain the same
 interface Transaction {
-  id: number;
+  id: string;
   description: string;
   amount: number;
   type: "income" | "expense";
@@ -72,34 +72,29 @@ const FinanceDashboard: React.FC = () => {
   // Functions remain the same
   useEffect(() => {
     fetchTransactions();
+    fetchSummary();
   }, []);
 
   const fetchTransactions = async (): Promise<void> => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/transactions");
+      const response = await fetch(
+        "http://127.0.0.1:5000/finance/transactions"
+      );
       const data: Transaction[] = await response.json();
       setTransactions(data);
-      calculateSummary(data);
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
   };
 
-  const calculateSummary = (transactionData: Transaction[]): void => {
-    const summary = transactionData.reduce(
-      (acc, transaction) => {
-        if (transaction.type === "income") {
-          acc.totalIncome += parseFloat(transaction.amount.toString());
-        } else {
-          acc.totalExpenses += parseFloat(transaction.amount.toString());
-        }
-        return acc;
-      },
-      { totalIncome: 0, totalExpenses: 0 }
-    );
-
-    // summary.balance = summary.totalIncome - summary.totalExpenses;
-    setSummary(summary as FinancialSummary);
+  const fetchSummary = async (): Promise<void> => {
+    try {
+      const response = await fetch("http://127.0.0.1:5000/finance/summary");
+      const data: FinancialSummary = await response.json();
+      setSummary(data);
+    } catch (error) {
+      console.error("Error fetching financial summary:", error);
+    }
   };
 
   const handleSubmit = async (
@@ -107,15 +102,19 @@ const FinanceDashboard: React.FC = () => {
   ): Promise<void> => {
     e.preventDefault();
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/transactions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newTransaction),
-      });
+      const response = await fetch(
+        "http://127.0.0.1:5000/finance/transactions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newTransaction),
+        }
+      );
       if (response.ok) {
         fetchTransactions();
+        fetchSummary();
         setNewTransaction({
           description: "",
           amount: "",
@@ -129,16 +128,17 @@ const FinanceDashboard: React.FC = () => {
     }
   };
 
-  const deleteTransaction = async (id: number): Promise<void> => {
+  const deleteTransaction = async (id: string): Promise<void> => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:5000/api/transactions/${id}`,
+        `http://127.0.0.1:5000/finance/transactions/${id}`,
         {
           method: "DELETE",
         }
       );
       if (response.ok) {
         fetchTransactions();
+        fetchSummary();
       }
     } catch (error) {
       console.error("Error deleting transaction:", error);
@@ -167,7 +167,7 @@ const FinanceDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='text-2xl font-bold dark:text-white'>
-              ${summary.totalIncome.toFixed(2)}
+              ${summary.totalIncome?.toFixed(2) || "0.00"}
             </div>
           </CardContent>
         </Card>
@@ -181,7 +181,7 @@ const FinanceDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='text-2xl font-bold dark:text-white'>
-              ${summary.totalExpenses.toFixed(2)}
+              ${summary.totalExpenses?.toFixed(2) || "0.00"}
             </div>
           </CardContent>
         </Card>
@@ -195,7 +195,7 @@ const FinanceDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='text-2xl font-bold dark:text-white'>
-              ${summary.balance.toFixed(2)}
+              ${summary.balance?.toFixed(2) || "0.00"}
             </div>
           </CardContent>
         </Card>

@@ -458,10 +458,7 @@ def format_with_ai():
         stream_with_context(generate()),
         mimetype='text/event-stream'
     )
-    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
-    response.headers.add('Cache-Control', 'no-cache')
-    response.headers.add('Content-Type', 'text/event-stream')
-    
+
     return response
 
 @notes_blueprint.route('/format_latex/', methods=['POST'])

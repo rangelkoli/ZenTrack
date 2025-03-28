@@ -40,12 +40,11 @@ import { useTheme } from "@/components/theme-provider";
 import { useParams } from "react-router";
 import useNotesContent from "@/stores/notesContent";
 import axios from "axios";
-import { TableOfContents } from "./table-of-contents";
 import { useToast } from "@/hooks/use-toast";
 import "./editorstyles.css";
 import { FormatWithAIButton } from "./FormatButton";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Paperclip, Clock, FileText, Trash2 } from "lucide-react";
+import { Clock } from "lucide-react";
 import { useAutosave } from "@/hooks/use-autosave";
 import { LatexBlock } from "./LatexBlock";
 // import {
@@ -55,15 +54,6 @@ import { LatexBlock } from "./LatexBlock";
 // import { PDFViewer } from "@react-pdf/renderer";
 // import { Text } from "@react-pdf/renderer";
 
-interface Attachment {
-  id: string;
-  filename: string;
-  url: string;
-  file_type?: string;
-  size: number;
-  created_at: string;
-}
-
 export default function NotesEditor() {
   const [initialContent, setInitialContent] = useState<
     PartialBlock[] | undefined | "loading"
@@ -72,102 +62,86 @@ export default function NotesEditor() {
 
   // Gets the note ID from the URL.
   const { uuid } = useParams<{ uuid: string }>();
-  const [coverUrl, setCoverUrl] = useState("");
 
   // const notes = useNotesContent((state: any) => state.notes);
   const setNewTitle = useNotesContent((state: any) => state.setTitle);
 
   // Gets the current theme from the theme provider.
   const { theme } = useTheme();
-
-  const lightRedTheme = {
+  const lightTheme = {
     colors: {
       editor: {
-        text: "#222222",
+        text: "#1a1a1a",
         background: "#ffffff",
       },
       menu: {
-        text: "#ffffff",
-        background: "#9b0000",
+        text: "#1a1a1a",
+        background: "#f5f5f5",
       },
       tooltip: {
         text: "#ffffff",
-        background: "#b00000",
+        background: "#1a1a1a",
       },
       hovered: {
         text: "#ffffff",
-        background: "#b00000",
+        background: "#3a86ff",
       },
       selected: {
         text: "#ffffff",
-        background: "#c50000",
+        background: "#2563eb",
       },
       disabled: {
-        text: "#9b0000",
-        background: "#7d0000",
+        text: "#888888",
+        background: "#f0f0f0",
       },
-      shadow: "#640000",
-      border: "#870000",
-      sideMenu: "#bababa",
+      shadow: "rgba(0, 0, 0, 0.1)",
+      border: "#e2e8f0",
+      sideMenu: "#f1f5f9",
     },
     borderRadius: 4,
     fontFamily: "Helvetica Neue, sans-serif",
   } satisfies Theme;
 
-  const darkRedTheme = {
+  const darkTheme = {
     colors: {
       editor: {
-        text: "#ffffff",
-        background: "var(--color-slate-900)",
+        text: "#f3f4f6",
+        background: "var(--background)",
       },
       menu: {
-        text: "#ffffff",
-        background: "#9b0000",
+        text: "#f3f4f6",
+        background: "#27272a",
       },
       tooltip: {
         text: "#ffffff",
-        background: "#b00000",
+        background: "#3f3f46",
       },
       hovered: {
         text: "#ffffff",
-        background: "#b00000",
+        background: "#3b82f6",
       },
       selected: {
         text: "#ffffff",
-        background: "#c50000",
+        background: "#2563eb",
       },
       disabled: {
-        text: "#9b0000",
-        background: "#7d0000",
+        text: "#9ca3af",
+        background: "#3f3f46",
       },
-      shadow: "#640000",
-      border: "#870000",
-      sideMenu: "#bababa",
+      shadow: "rgba(0, 0, 0, 0.3)",
+      border: "#4b5563",
+      sideMenu: "#27272a",
     },
     borderRadius: 4,
     fontFamily: "Helvetica Neue, sans-serif",
   } satisfies Theme;
   const [title, setTitle] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [showAttachmentInput, setShowAttachmentInput] = useState(false);
 
   // Add ref to track if content has changed
   const hasChanges = useRef(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-
-  // Add attachments state
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  // Add scroll listener
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   async function uploadFile(file: File) {
     const body = new FormData();
@@ -311,7 +285,6 @@ export default function NotesEditor() {
         console.log("res", res.data[0].note);
         setTitle(res.data[0].title);
         setInitialContent(JSON.parse(res.data[0].note));
-        setCoverUrl(res.data[0].cover_image);
         console.log("coverUrl", res.data[0].cover_image);
         setNewTitle(res.data[0].title);
         setLastSaved(new Date(res.data[0].updated_at));
@@ -320,69 +293,11 @@ export default function NotesEditor() {
   }
 
   // Add function to load attachments
-  const loadAttachments = async () => {
-    if (!uuid) return;
-
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/notes/${uuid}/attachments`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-        }
-      );
-      if (Array.isArray(response.data)) {
-        setAttachments(response.data);
-      }
-    } catch (error) {
-      console.error("Error loading attachments:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load attachments",
-        style: { backgroundColor: "#ff4444", color: "#F3F4F6" },
-      });
-    }
-  };
-
-  // Add formatFileSize utility function
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };
-
-  // Add function to handle attachment deletion
-  const handleDelete = async (attachmentId: string) => {
-    try {
-      await axios.delete(
-        `${
-          import.meta.env.VITE_BACKEND_URL
-        }/notes/${uuid}/attachments/${attachmentId}`
-      );
-      setAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
-      toast({
-        title: "Success",
-        description: "Attachment deleted",
-        style: { backgroundColor: "#4BB543", color: "#F3F4F6" },
-      });
-    } catch (error) {
-      console.error("Error deleting attachment:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete attachment",
-        style: { backgroundColor: "#ff4444", color: "#F3F4F6" },
-      });
-    }
-  };
 
   useEffect(() => {
     loadFromStorage().then((content) => {
       setInitialContent(content);
     });
-    loadAttachments();
   }, [uuid]);
 
   // Gets the default slash menu items merged with the multi-column ones.
@@ -459,76 +374,6 @@ export default function NotesEditor() {
     }
   };
 
-  const renderAttachmentInput = () => (
-    <div className='fixed bottom-4 right-4 flex flex-col gap-2'>
-      {showAttachmentInput && (
-        <div className='bg-background p-4 rounded-lg shadow-lg border mb-2 animate-in slide-in-from-bottom'>
-          <input
-            type='file'
-            multiple
-            className='hidden'
-            id='file-upload'
-            onChange={(e) => e.target.files && handleFiles(e.target.files)}
-          />
-          <label
-            htmlFor='file-upload'
-            className='cursor-pointer flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground'
-          >
-            <PlusCircle size={16} />
-            Choose files to upload
-          </label>
-        </div>
-      )}
-      <Button
-        variant='outline'
-        size='icon'
-        className='rounded-full h-12 w-12 shadow-lg'
-        onClick={() => setShowAttachmentInput(!showAttachmentInput)}
-      >
-        <Paperclip size={20} />
-      </Button>
-    </div>
-  );
-
-  const handleFiles = async (files: FileList) => {
-    const formData = new FormData();
-    for (const file of Array.from(files)) {
-      formData.append("file", file);
-    }
-
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/notes/${uuid}/attachments`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      console.log("Files uploaded successfully:", response.data);
-
-      toast({
-        title: "Success",
-        description: "Files uploaded successfully",
-        style: { backgroundColor: "#4BB543", color: "#F3F4F6" },
-        duration: 3000,
-      });
-
-      await loadAttachments(); // Refresh attachments after successful upload
-    } catch (error) {
-      console.error("Error uploading files:", error);
-      toast({
-        title: "Error",
-        description: "Failed to upload files",
-        style: { backgroundColor: "#ff4444", color: "#F3F4F6" },
-        duration: 3000,
-      });
-    } finally {
-      setShowAttachmentInput(false);
-    }
-  };
-
   const formatLastSaved = (date: Date | null) => {
     if (!date) return "Never saved";
 
@@ -552,13 +397,13 @@ export default function NotesEditor() {
   }
 
   return (
-    <div className='relative'>
+    <div className=''>
       {/* Title and Attachments sticky header */}
-      <div className='sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b'>
+      <div className='sticky top-17 z-50 bg-background/80 backdrop-blur-sm border-b border-border/50'>
         {/* Title section */}
-        <div className='max-w-4xl mx-auto px-4 py-2 flex items-center'>
-          <div className='flex flex-col w-full md:flex-row md:items-center md:justify-between'>
-            <div className='flex-1 sm:mr-4'>
+        <div className='max-w-4xl mx-auto py-2 flex items-center '>
+          <div className='flex flex-col w-full md:flex-row  md:items-center md:justify-between'>
+            <div className='flex-1 sm:mr-4 mx-auto'>
               {isEditingTitle ? (
                 <input
                   type='text'
@@ -579,7 +424,7 @@ export default function NotesEditor() {
               )}
             </div>
             <div className='flex items-center gap-2 text-sm text-muted-foreground sm:gap-4'>
-              <div className='flex items-center gap-2 text-sm text-muted-foreground sm:gap-4'>
+              <div className='flex items-center gap-2 text-sm text-muted-foreground sm:gap-4 mx-auto'>
                 <Clock size={14} />
                 {isSaving ? (
                   <span className='text-primary animate-pulse'>Saving...</span>
@@ -666,132 +511,6 @@ export default function NotesEditor() {
         </div>
 
         {/* Updated Attachments section with improved grid */}
-        <div className='border-t border-border/50 bg-background/50'>
-          <div className='max-w-4xl mx-auto px-4'>
-            <div
-              className={`
-                transition-all duration-500 ease-in-out transform-gpu
-                ${isScrolled ? "h-12 py-2" : "py-4"}
-              `}
-            >
-              {/* Header section */}
-              <div className='flex items-center justify-between mb-2'>
-                <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-                  <Paperclip
-                    size={14}
-                    className='transition-all duration-300'
-                  />
-                  <span className='font-medium'>
-                    {attachments.length}{" "}
-                    {attachments.length === 1 ? "Attachment" : "Attachments"}
-                  </span>
-                </div>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  className='h-8 hover:bg-accent'
-                  onClick={() => setShowAttachmentInput(!showAttachmentInput)}
-                >
-                  <PlusCircle size={16} className='mr-2' />
-                  Add Files
-                </Button>
-              </div>
-
-              {/* Improved grid container */}
-              <div
-                className={`
-                  transition-all duration-500 ease-in-out
-                  ${
-                    isScrolled
-                      ? "flex items-center space-x-4 overflow-x-auto hide-scrollbar"
-                      : "grid grid-flow-col auto-cols-[280px] gap-4 pb-4 overflow-x-auto scrollbar-thin"
-                  }
-                `}
-              >
-                {attachments.length > 0 ? (
-                  attachments.map((attachment) => (
-                    <div
-                      key={attachment.id}
-                      className={`
-                        group relative flex-shrink-0
-                        transition-all duration-300 ease-in-out
-                        ${
-                          isScrolled
-                            ? "inline-flex items-center bg-accent/5 rounded-md px-3 py-1.5 hover:bg-accent/10"
-                            : "flex flex-col p-4 border rounded-lg hover:shadow-md hover:border-accent"
-                        }
-                      `}
-                      style={{
-                        width: isScrolled ? "auto" : "280px",
-                        minWidth: isScrolled ? "200px" : "280px",
-                      }}
-                    >
-                      <div className='flex items-center gap-3 w-full'>
-                        <FileText
-                          size={isScrolled ? 16 : 20}
-                          className={`
-                            flex-shrink-0 transition-all duration-300
-                            ${getFileIconColor(attachment.file_type)}
-                          `}
-                        />
-                        <div className='flex-1 min-w-0'>
-                          <a
-                            href={attachment.url}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            className='block truncate text-sm font-medium hover:underline'
-                            title={attachment.filename}
-                          >
-                            {attachment.filename}
-                          </a>
-                          {!isScrolled && (
-                            <div className='mt-2 space-y-1'>
-                              <p className='text-xs text-muted-foreground'>
-                                {formatFileSize(attachment.size)}
-                              </p>
-                              <p className='text-xs text-muted-foreground'>
-                                {new Date(
-                                  attachment.created_at
-                                ).toLocaleDateString()}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                        <button
-                          onClick={() => handleDelete(attachment.id)}
-                          className={`
-                            text-muted-foreground hover:text-destructive
-                            transition-opacity duration-200
-                            ${
-                              isScrolled
-                                ? "opacity-0 group-hover:opacity-100 ml-2"
-                                : "opacity-0 group-hover:opacity-100"
-                            }
-                          `}
-                        >
-                          <Trash2 size={isScrolled ? 14 : 16} />
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div
-                    className={`
-                    flex items-center justify-center text-muted-foreground
-                    ${
-                      isScrolled
-                        ? "w-full h-8"
-                        : "w-[280px] h-[120px] border-2 border-dashed rounded-lg"
-                    }
-                  `}
-                  >
-                    <span className='text-sm'>No attachments yet</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Main content */}
@@ -831,25 +550,16 @@ export default function NotesEditor() {
       </div>
       <div className='mt-4'>
         {/* Move cover image outside sticky header */}
-        {coverUrl && (
-          <div className='mx-auto max-w-4xl px-4 mb-8'>
-            <img
-              src={coverUrl}
-              alt='Cover'
-              className='w-full h-80 object-cover rounded-lg'
-            />
-          </div>
-        )}
 
         {/* Rest of the editor */}
-        <div className='w-full mx-auto px-2 lg:px-20'>
+        <div className='w-full mx-auto px-0 md:px-20 lg:px-40'>
           <BlockNoteView
             editor={editor}
             // theme={theme}
             className='min-h-screen'
             slashMenu={false}
             data-theming-css-variables-editor
-            theme={theme === "light" ? lightRedTheme : darkRedTheme}
+            theme={theme === "light" ? lightTheme : darkTheme}
             data-changing-font
             formattingToolbar={false}
             onChange={handleEditorChange}
@@ -914,32 +624,10 @@ export default function NotesEditor() {
               getItems={getSlashMenuItems}
             />
           </BlockNoteView>
-
-          {Array.isArray(initialContent) && (
-            <TableOfContents content={initialContent} />
-          )}
         </div>
       </div>
-      {renderAttachmentInput()}
     </div>
   );
 }
 
 // Add this helper function at the top of the file
-function getFileIconColor(fileType?: string): string {
-  if (!fileType) return "text-muted-foreground";
-
-  const type = fileType.split("/")[0];
-  switch (type) {
-    case "image":
-      return "text-green-500";
-    case "video":
-      return "text-blue-500";
-    case "audio":
-      return "text-purple-500";
-    case "application":
-      return "text-orange-500";
-    default:
-      return "text-muted-foreground";
-  }
-}

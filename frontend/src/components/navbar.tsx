@@ -22,7 +22,7 @@ export function Navbar() {
   };
 
   return (
-    <nav className='border-b sticky top-0 z-50 bg-background'>
+    <nav className='border-b sticky top-0 z-50 bg-white dark:bg-gray-900'>
       <div className='flex h-16 items-center px-4 container mx-auto'>
         <div className='flex items-center space-x-4'>
           <Button
