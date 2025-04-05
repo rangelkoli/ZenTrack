@@ -476,22 +476,22 @@ export default function NotesDashboard() {
         <div className='container mx-auto px-4 py-5'>
           <div className='flex items-center justify-between gap-6 flex-wrap'>
             <motion.div
-              className='relative flex-1 max-w-md'
+              className='relative flex-1 max-w-md text-foreground dark:text-primary-foreground'
               initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
+              <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground dark:text-muted-foreground' />
               <Input
                 placeholder='Search notes...'
-                className='w-full pl-9 bg-muted/50 dark:bg-muted/20 border-muted/50 focus:border-primary'
+                className='w-full pl-9 bg-muted/50 dark:bg-muted/20 border-muted/50 focus:border-primary text-foreground dark:text-primary-foreground'
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors'
+                  className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground dark:hover:text-primary-foreground transition-colors'
                 >
                   <X className='h-4 w-4' />
                 </button>
@@ -499,7 +499,7 @@ export default function NotesDashboard() {
             </motion.div>
 
             <motion.div
-              className='flex gap-3'
+              className='flex gap-3 text-foreground dark:text-primary-foreground'
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.3 }}
@@ -508,7 +508,7 @@ export default function NotesDashboard() {
                 <Button
                   size='sm'
                   variant={view === "grid" ? "secondary" : "ghost"}
-                  className='h-8 px-2'
+                  className='h-8 px-2 text-foreground dark:text-primary-foreground'
                   onClick={() => setView("grid")}
                   aria-label='Grid view'
                 >
@@ -517,7 +517,7 @@ export default function NotesDashboard() {
                 <Button
                   size='sm'
                   variant={view === "list" ? "secondary" : "ghost"}
-                  className='h-8 px-2'
+                  className='h-8 px-2 text-foreground dark:text-primary-foreground'
                   onClick={() => setView("list")}
                   aria-label='List view'
                 >
@@ -528,7 +528,7 @@ export default function NotesDashboard() {
               <Button
                 onClick={() => setNewFolderDialogOpen(true)}
                 variant='outline'
-                className='flex items-center gap-2 border-muted-foreground dark:border-muted-foreground'
+                className='flex items-center gap-2 border-muted-foreground dark:border-muted-foreground text-foreground dark:text-primary-foreground'
               >
                 <FolderPlus className='h-4 w-4' />
                 <span className='hidden sm:inline'>New Folder</span>
@@ -568,9 +568,11 @@ export default function NotesDashboard() {
                       : "hover:bg-muted dark:hover:bg-muted"
                   }`}
                 >
-                  <div className='flex items-center gap-2'>
+                  <div className='flex items-center gap-2 text-black dark:text-white'>
                     <Folder className='h-4 w-4' />
-                    <span>All Notes</span>
+                    <span className='text-black dark:text-white'>
+                      All Notes
+                    </span>
                   </div>
                   <span className='text-xs bg-primary/20 dark:bg-primary/30 px-2 py-0.5 rounded-full text-primary-foreground dark:text-primary-foreground font-medium'>
                     {notes.length}
@@ -644,9 +646,9 @@ export default function NotesDashboard() {
                   transition={{ duration: 0.3 }}
                   className='mb-12'
                 >
-                  <h2 className='text-2xl font-semibold mb-6 text-primary/90 dark:text-primary-foreground/90 flex items-center gap-2'>
+                  <h2 className='text-2xl font-semibold mb-6 text-primary dark:text-white flex items-center gap-2'>
                     Continue Editing
-                    <span className='text-xs bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground px-2 py-0.5 rounded-full font-normal'>
+                    <span className='text-xs bg-primary/10 text-primary dark:bg-primary dark:text-primary-foreground px-2 py-0.5 rounded-full font-normal'>
                       Recent
                     </span>
                   </h2>

@@ -53,7 +53,7 @@ export function FormatWithAIButton() {
     setProgressText("Starting formatting...");
 
     try {
-      const response = await fetch(`${BASE_URL}/notes/format_with_ai/`, {
+      const response = await fetch(`${BASE_URL}/notes/format_latex_with_ai/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
