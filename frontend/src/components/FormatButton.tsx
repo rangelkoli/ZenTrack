@@ -1,7 +1,7 @@
 import { useBlockNoteEditor, useComponentsContext } from "@blocknote/react";
 import "@blocknote/mantine/style.css";
 import { useState } from "react";
-import axios from "axios";
+
 export function FormatWithAIButton() {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext()!;
@@ -52,37 +52,25 @@ export function FormatWithAIButton() {
     setProgressText("Starting formatting...");
 
     try {
-      // const response = await fetch(`${BASE_URL}/notes/format_with_ai/`, {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     blocks: selection.blocks,
-      //   }),
-      // });
-      const response = await axios.post(
+      const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/notes/format_with_ai/`,
         {
-          blocks: selection.blocks,
-        },
-        {
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          responseType: "stream", // Set response type to stream
+          body: JSON.stringify({
+            blocks: selection.blocks,
+          }),
         }
       );
-      console.log("Response:", response); // Debug print
-      // Check if the response is valid
-      if (!response || !response.data) {
-        console.error("Invalid response:", response);
-        setProgressText("Error: Invalid response");
-        return;
-      }
+
+      if (!response.ok) throw new Error("Failed to start formatting");
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No reader available");
 
       let receivedValidResponse = false;
-      const reader = response.data.getReader();
 
       while (true) {
         const { done, value } = await reader.read();
