@@ -281,7 +281,6 @@ def delete_attachment(note_id, attachment_id):
 
 @notes_blueprint.route('/format_with_ai/', methods=['POST'])
 @cross_origin()
-@jwt_required()
 def format_with_ai():
     data = request.json
     blocks = data.get('blocks', [])
