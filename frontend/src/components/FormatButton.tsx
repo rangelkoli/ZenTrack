@@ -1,7 +1,6 @@
 import { useBlockNoteEditor, useComponentsContext } from "@blocknote/react";
 import "@blocknote/mantine/style.css";
 import { useState } from "react";
-import BASE_URL from "@/constants/baseurl";
 import axios from "axios";
 export function FormatWithAIButton() {
   const editor = useBlockNoteEditor();
@@ -63,7 +62,7 @@ export function FormatWithAIButton() {
       //   }),
       // });
       const response = await axios.post(
-        `${BASE_URL}/notes/format_with_ai/`,
+        `${import.meta.env.VITE_BACKEND_URL}/notes/format_with_ai/`,
         {
           blocks: selection.blocks,
         },
