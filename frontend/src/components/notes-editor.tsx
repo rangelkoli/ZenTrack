@@ -149,6 +149,9 @@ export default function NotesEditor() {
       {
         method: "POST",
         body: body,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
       }
     );
     console.log(ret);
@@ -183,7 +186,7 @@ export default function NotesEditor() {
         multi_column: multiColumnLocales.en,
       },
       animations: true,
-      uploadFile,
+      uploadFile: uploadFile,
     });
 
     return editorInstance;

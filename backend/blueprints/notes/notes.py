@@ -145,50 +145,61 @@ def get_image(filename):
     return response.text, 200, {'Content-Type': response.headers['content-type']}
 
 @notes_blueprint.route('/upload_file/', methods=['POST'])
+@cross_origin()
+@jwt_required()
 def upload_file():
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
-
+    
+    user_id = get_jwt_identity()
     file = request.files['file']
     print(file)
-    # Open the image file
-    image_contents = file.read()
-
-    # Open the image
-    image = PIL.Image.open(BytesIO(image_contents))
-
-    # Display the image in a new window
-    image.show()
-
-    file_blob = BytesIO(file.read())
+    print(user_id)
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
 
-    if file and allowed_file(file.filename):
-        # Save the file in the same folder
-        file.save(secure_filename(file.filename))
-
+    if file:
+        # Create a secure filename
+        secure_name = secure_filename(file.filename)
+        temp_path = os.path.join(tempfile.gettempdir(), secure_name)
+        print(temp_path)
+        print(secure_name)
         try:
+            # Save to temp directory first
+            file.save(temp_path)
+            
+            # Create a unique path that includes the user_id for proper access control
+            storage_path = f"{user_id}/{secure_name}"
+            
             # Upload the file to the storage bucket
             response = db.storage.from_("attachments").upload(
-                file=secure_filename(file.filename),
-                path=secure_filename(file.filename),
-                file_options={"cache-control": "3600", 
-                              "upsert": "true", 
-                              "content-type": file.content_type
-                              }
+                file=temp_path,
+                path=storage_path,
+                file_options={
+                    "cache-control": "3600", 
+                    "upsert": "true", 
+                    "content-type": file.content_type,
+
+                }
+                
             )
 
             # Remove the temporary file
-            os.remove(secure_filename(file.filename))
+            os.remove(temp_path)
 
-            print(response)
-
-            return jsonify(response.text), 200
-        except db.storage.utils.StorageException as e:
-            return jsonify({"error": "Error"}), 400
-    else:
-        return jsonify({"error": "Unsupported file type"}), 400
+            # Get the public URL for the file
+            file_url = db.storage.from_('attachments').get_public_url(storage_path)
+            
+            return jsonify({
+                "success": True,
+                "filename": secure_name,
+                "path": storage_path,
+                "url": file_url
+            }), 200
+            
+        except Exception as e:
+            print(f"Error uploading file: {str(e)}")
+            return jsonify({"error": str(e)}), 400
 
 @notes_blueprint.route('/<int:note_id>/attachments', methods=['GET'])
 @cross_origin()
